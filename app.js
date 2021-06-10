@@ -6,6 +6,9 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+app.getCandy('/', (req, res) => {
+  res.send('Candy is here!')
+})
 app.get("/hi/backend", async (req, res) => {
   res.send("Hello From Backend :)");
 });
