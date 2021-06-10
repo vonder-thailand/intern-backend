@@ -20,11 +20,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(connectMongo);
 
 // findbook
-app.get("/book/:name", async (req, res) => {
+app.get("/book/:testname", async (req, res) => {
   // console.log({ param: req.params });
   // console.log({ query: req.query });
   try {
-    const bookData = await findBookByName(req.params.name);
+    const bookData = await findBookByName(req.params.testname);
     res.send(bookData);
   } catch (err) {
     console.log("err: ", err);
