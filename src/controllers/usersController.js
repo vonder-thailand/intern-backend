@@ -12,6 +12,7 @@ const {
   getAllContents,
   getSortByTag,
   contentIsLiked,
+  getCommentByContentId,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 
@@ -65,7 +66,6 @@ exports.deleteUserById = async (req, res, next) => {
       const deleteUser = await deleteUserById(userId);
       res.send(deleteUser);
     }
-    
   } catch (err) {
     console.log("err:", err);
     if (!err.status) {
@@ -165,7 +165,7 @@ exports.getAllContents = async (req, res) => {
   }
 };
 
-exports.getSortByTag = async (req, res,next) => {
+exports.getSortByTag = async (req, res, next) => {
   try {
     const contents = await getSortByTag(req.body.tag);
     res.send(contents);
@@ -177,13 +177,13 @@ exports.getSortByTag = async (req, res,next) => {
   }
 };
 
-exports.postImage = async (req, res,next) => {
+exports.postImage = async (req, res, next) => {
   //J calling
-  try{
-  const { userId, files } = req;
-  const result = await uploadManyFile(files, userId, "userResult");
-  console.log(result);
-  res.send(result);
+  try {
+    const { userId, files } = req;
+    const result = await uploadManyFile(files, userId, "userResult");
+    console.log(result);
+    res.send(result);
   } catch (err) {
     if (!err.status) {
       err.status = 500;
@@ -196,6 +196,15 @@ exports.contentIsLiked = async (req, res, next) => {
   try {
     const content = await contentIsLiked(req.userId, req.body.content_id);
     res.send(content);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getCommentByContentId = async (req, res, next) => {
+  try {
+    const comments = await getCommentByContentId(req.body.content_id);
+    res.send(comments);
   } catch (err) {
     next(err);
   }

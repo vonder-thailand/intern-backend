@@ -310,3 +310,22 @@ module.exports.contentIsLiked = async (input_uid, input_content_id) => {
 
   return content;
 };
+
+module.exports.getCommentByContentId = async (input_content_id) => {
+  if (!valid_id(input_content_id)) {
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+  }
+
+  const comments = await CommentModel.find({ content_id: input_content_id });
+  if (!comments.length) {
+    throw {
+      message: "no comment found",
+      status: 404,
+    };
+  }
+
+  return comments;
+};

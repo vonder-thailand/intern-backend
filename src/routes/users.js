@@ -39,5 +39,10 @@ router.put(
   auth.authMiddleware,
   usersController.contentIsLiked
 );
+router.get(
+  "/user/comment/get",
+  auth.authMiddleware,
+  usersController.getCommentByContentId
+);
 
 module.exports = router;
