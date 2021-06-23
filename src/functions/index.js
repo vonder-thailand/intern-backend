@@ -65,6 +65,13 @@ module.exports.deleteUserById = async (userId) => {
 };
 
 module.exports.createResultById = async (results, userid) => {
+  if (!valid_id(userid)) {
+    throw {
+      message: "user not found",
+      status: 404,
+    };
+  }
+  const user = await UserResult.find({ userid: userid });
   let questions = results.length;
   let category = {
     "Word Smart": 0,
@@ -81,7 +88,6 @@ module.exports.createResultById = async (results, userid) => {
     category_id = results[i]["categoryId"];
     question_index = results[i]["questionIndex"];
     score = results[i]["score"];
-    console;
     if (category_id == 1) {
       category["Word Smart"] += score;
     } else if (category_id == 2) {
@@ -102,10 +108,22 @@ module.exports.createResultById = async (results, userid) => {
       throw { message: "invalid category" };
     }
   }
-  return await UserResult.create({
-    userid: userid,
-    category: category,
-  });
+
+  //no results in database
+  if (!user.length) {
+    return await UserResult.create({
+      userid: userid,
+      results: category,
+    });
+  } else {
+    const array = user[0].results;
+    array.push(category);
+    return await UserResult.findOneAndUpdate(
+      { userid: userid },
+      { results: array },
+      { new: true }
+    );
+  }
 };
 
 module.exports.getResultById = async (userid) => {

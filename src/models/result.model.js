@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const results = new Schema(
   {
     userid: { type: String, default: "-" },
-    category: [{ type: Object, default: "-" }],
+    results: [{ type: Object, default: "-" }],
   },
   {
     strict: false,
