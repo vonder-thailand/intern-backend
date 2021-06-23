@@ -7,6 +7,7 @@ const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
 const QuestionModel = require("../models/questions.model");
 const AuthModel = require("../models/auth.model");
+const bcrypt = require("bcrypt");
 
 const { checkNumberInString } = require("../functions/verifyState");
 
@@ -25,13 +26,16 @@ module.exports.findUserById = async (input) => {
 };
 
 module.exports.updateUserById = async (payload, userId) => {
-  const { firstName, lastName, password } = payload;
-  if (!valid_id(userId)) {
+
+  let { firstName, lastName, password } = payload;
+  password = await bcrypt.hash(password, 10);
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw {
       message: "userid is not defined",
       status: 404,
     };
   }
+
   console.log(isNaN(lastName), isNaN(firstName));
   if (isNaN(lastName) && isNaN(firstName)) {
     return AuthModel.findOneAndUpdate(
@@ -189,6 +193,27 @@ module.exports.getAllContents = async () => {
 };
 
 module.exports.getSortByTag = async (tag) => {
+  tags = [
+    "word smart",
+    "logic smart",
+    "picture smart",
+    "body smart",
+    "nature smart",
+    "self smart",
+    "people smart",
+    "music smart",
+  ];
+  tag = tag.map((x) => {
+    return x.toLowerCase();
+  });
+
+  tag.map((x) =>
+    tags.indexOf(x) == -1
+      ? (function () {
+          throw { message: "Out of Tag", status: 404 };
+        })()
+      : console.log("pass")
+  );
   return await ContentModel.find({
     tag: { $in: tag },
   });

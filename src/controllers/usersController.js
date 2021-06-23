@@ -38,9 +38,14 @@ exports.findUserById = async (req, res, next) => {
 //update user by id
 exports.updateUserById = async (req, res, next) => {
   try {
-    const { userId } = req;
-    const updateUser = await updateUserById(req.body, userId);
-    res.send(updateUser);
+    if (req.body._id) {
+      const updateUser = await updateUserById(req.body, req.body._id);
+      res.send(updateUser);
+    } else {
+      const { userId } = req;
+      const updateUser = await updateUserById(req.body, userId);
+      res.send(updateUser);
+    }
   } catch (err) {
     console.log("err here: ", err);
     if (!err.status) {
@@ -52,9 +57,15 @@ exports.updateUserById = async (req, res, next) => {
 
 exports.deleteUserById = async (req, res, next) => {
   try {
-    const { userId } = req;
-    const deleteUser = await deleteUserById(userId);
-    res.send(deleteUser);
+    if (req.body._id) {
+      const deleteUser = await deleteUserById(req.body._id);
+      res.send(deleteUser);
+    } else {
+      const { userId } = req;
+      const deleteUser = await deleteUserById(userId);
+      res.send(deleteUser);
+    }
+    
   } catch (err) {
     console.log("err:", err);
     if (!err.status) {
@@ -117,9 +128,14 @@ exports.createGuest = async (req, res) => {
 
 exports.getResultById = async (req, res, next) => {
   try {
-    const { userId } = req;
-    const user = await getResultById(userId);
-    res.send(user);
+    if (req.body._id) {
+      const user = await getResultById(req.body._id);
+      res.send(user);
+    } else {
+      const { userId } = req;
+      const user = await getResultById(userId);
+      res.send(user);
+    }
   } catch (err) {
     if (!err.status) {
       err.status = 500;
@@ -149,24 +165,31 @@ exports.getAllContents = async (req, res) => {
   }
 };
 
-exports.getSortByTag = async (req, res) => {
+exports.getSortByTag = async (req, res,next) => {
   try {
     const contents = await getSortByTag(req.body.tag);
     res.send(contents);
   } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
 
-exports.postImage = async (req, res) => {
+exports.postImage = async (req, res,next) => {
   //J calling
+  try{
   const { userId, files } = req;
-  console.log(userId);
-  console.log("flies", files);
   const result = await uploadManyFile(files, userId, "userResult");
   console.log(result);
   res.send(result);
+  } catch (err) {
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
 };
 
 exports.contentIsLiked = async (req, res, next) => {
