@@ -165,17 +165,18 @@ module.exports.getAllContents = async () => {
 
 module.exports.getSortByTag = async (tag) => {
   tags = [
-    "Word Smart",
-    "Logic Smart",
-    "Picture Smart",
-    "Body Smart",
-    "Nature Smart",
-    "Self Smart",
-    "People Smart",
-    "Music Smart",
+    "word smart",
+    "logic smart",
+    "picture smart",
+    "body smart",
+    "nature smart",
+    "self smart",
+    "people smart",
+    "music smart",
   ];
-   tags = tags.map(x => {return x.toLowerCase();})
-   tag = tag.map(x => {return x.toLowerCase();})
+  tag = tag.map((x) => {
+    return x.toLowerCase();
+  });
 
   tag.map((x) =>
     tags.indexOf(x) == -1
