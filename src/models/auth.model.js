@@ -19,6 +19,25 @@ const AuthSchema = new Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    firstName: {
+      type: String,
+      default: "-",
+    },
+    lastName: {
+      type: String,
+      default: "-",
+    },
+    email: {
+      type: String,
+      default: "-",
+    },
+    deleteAt: {
+      type: Date,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     strict: false,

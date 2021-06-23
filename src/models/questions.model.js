@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const questions = new Schema(
   {
-    QNO: { type: String, default: "-" },
-    QCAT: { type: String, default: "-" },
-    QBODY: { type: String, default: "-" }
+    question_no: { type: String, default: "-" },
+    question_category: { type: String, default: "-" },
+    question_body: { type: String, default: "-" },
   },
   {
     strict: false,

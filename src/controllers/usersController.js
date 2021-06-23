@@ -1,5 +1,5 @@
 const {
-  createUser,
+  // createUser,
   findUserById,
   updateUserById,
   deleteUserById,
@@ -11,78 +11,110 @@ const {
   createContent,
   getAllContents,
   getSortByTag,
+  contentIsLiked,
+  getCommentByContentId,
+  deleteContent,
+  deleteComment,
 } = require("../functions/index");
-
-//create user
-exports.createUsers = async (req, res) => {
-  try {
-    const user = await createUser(req.body);
-    res.send(user);
-  } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
-  }
-};
+const { uploadManyFile } = require("../utils/s3");
 
 // find user by id
-exports.findUserById = async (req, res) => {
+exports.findUserById = async (req, res, next) => {
   try {
-    const userData = await findUserById(req.params._id);
-    res.send(userData);
+    if (req.body._id) {
+      const user = await findUserById(req.body._id);
+      res.send(user);
+    } else {
+      const { userId } = req;
+      const user = await findUserById(userId);
+      res.send(user);
+    }
   } catch (err) {
     console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
 
 //update user by id
-exports.updateUserById = async (req, res) => {
+exports.updateUserById = async (req, res, next) => {
   try {
-    const updateUser = await updateUserById(req.body, req.params._id);
-    res.send(updateUser);
+    if (req.body._id) {
+      const updateUser = await updateUserById(req.body, req.body._id);
+      res.send(updateUser);
+    } else {
+      const { userId } = req;
+      const updateUser = await updateUserById(req.body, userId);
+      res.send(updateUser);
+    }
   } catch (err) {
-    console.log("err:", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    console.log("err here: ", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
 
-exports.deleteUserById = async (req, res) => {
+exports.deleteUserById = async (req, res, next) => {
   try {
-    const deleteUser = await deleteUserById(req.params._id);
-    res.send(deleteUser);
+    if (req.body._id) {
+      const deleteUser = await deleteUserById(req.body._id);
+      res.send(deleteUser);
+    } else {
+      const { userId } = req;
+      const deleteUser = await deleteUserById(userId);
+      res.send(deleteUser);
+    }
   } catch (err) {
     console.log("err:", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
-exports.createResultById = async (req, res) => {
+exports.createResultById = async (req, res, next) => {
   try {
-    const userid = req.params._id;
+    const { userId } = req;
     const answers = req.body.question_data;
-    const user = await createResultById(answers, userid);
+    const user = await createResultById(answers, userId);
     res.send(user);
   } catch (err) {
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    console.log("err:", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
 
-exports.getAllUsers = async (res) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await getAllUsers();
     res.send(users);
   } catch (err) {
     console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
 
-exports.postComment = async (req, res) => {
+exports.postComment = async (req, res, next) => {
   try {
-    const comment = await createCommnet(req.body);
+    const { userId } = req;
+    const comment = await createCommnet(req.body, userId);
     res.send(comment);
   } catch (err) {
     console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
 
@@ -96,20 +128,28 @@ exports.createGuest = async (req, res) => {
   }
 };
 
-exports.getResultById = async (req, res) => {
+exports.getResultById = async (req, res, next) => {
   try {
-    const userid = req.params._id;
-    const user = await getResultById(userid);
-    res.send(user);
+    if (req.body._id) {
+      const user = await getResultById(req.body._id);
+      res.send(user);
+    } else {
+      const { userId } = req;
+      const user = await getResultById(userId);
+      res.send(user);
+    }
   } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
 
 exports.postContent = async (req, res) => {
   try {
-    const content = await createContent(req.body);
+    const { userId } = req;
+    const content = await createContent(req.body, userId);
     res.send(content);
   } catch (err) {
     console.log("err: ", err);
@@ -117,7 +157,7 @@ exports.postContent = async (req, res) => {
   }
 };
 
-exports.getAllContents = async (res) => {
+exports.getAllContents = async (req, res) => {
   try {
     const contents = await getAllContents();
     res.send(contents);
@@ -127,12 +167,65 @@ exports.getAllContents = async (res) => {
   }
 };
 
-exports.getSortByTag = async (req, res) => {
+exports.getSortByTag = async (req, res, next) => {
   try {
     const contents = await getSortByTag(req.body.tag);
     res.send(contents);
   } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
+};
+
+exports.postImage = async (req, res, next) => {
+  //J calling
+  try {
+    const { userId, files } = req;
+    const result = await uploadManyFile(files, userId, "userResult");
+    console.log(result);
+    res.send(result);
+  } catch (err) {
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
+};
+
+exports.contentIsLiked = async (req, res, next) => {
+  try {
+    const content = await contentIsLiked(req.userId, req.body.content_id);
+    res.send(content);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getCommentByContentId = async (req, res, next) => {
+  try {
+    const comments = await getCommentByContentId(req.body.content_id);
+    res.send(comments);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteContent = async (req, res, next) => {
+  try {
+    const content = await deleteContent(req.body.content_id);
+    res.send(content);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteComment = async (req, res, next) => {
+  try {
+    const comment = await deleteComment(req.body.comment_id);
+    res.send(comment);
+  } catch (err) {
+    next(err);
   }
 };

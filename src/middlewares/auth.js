@@ -1,8 +1,8 @@
+require("dotenv").config();
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const AuthModel = require("../models/auth.model");
-const JWTstrategy = require("passport-jwt").Strategy;
-const ExtractJWT = require("passport-jwt").ExtractJwt;
+const { Strategy, ExtractJwt } = require("passport-jwt");
 
 passport.use(
   "signup",
@@ -10,10 +10,22 @@ passport.use(
     {
       usernameField: "username",
       passwordField: "password",
+      passReqToCallback: true,
     },
-    async (username, password, done) => {
+    async (req, username, password, done) => {
       try {
-        const user = await AuthModel.create({ username, password });
+        const firstName = req.body.firstName;
+        const lastName = req.body.lastName;
+        const email = req.body.email;
+        const role = req.body.role;
+        const user = await AuthModel.create({
+          username,
+          password,
+          firstName,
+          lastName,
+          email,
+          role,
+        });
 
         return done(null, user);
       } catch (error) {
@@ -53,14 +65,14 @@ passport.use(
 );
 
 passport.use(
-  new JWTstrategy(
+  new Strategy(
     {
-      secretOrKey: "TOP_SECRET",
-      jwtFromRequest: ExtractJWT.fromUrlQueryParameter("secret_token"),
+      secretOrKey: process.env.Secret_Key,
+      jwtFromRequest: ExtractJwt.fromUrlQueryParameter("secret_token"),
     },
     async (token, done) => {
       try {
-        return done(null, token.user);
+        return done(null, token.auth);
       } catch (error) {
         done(error);
       }

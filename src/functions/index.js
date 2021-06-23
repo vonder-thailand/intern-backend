@@ -1,95 +1,63 @@
 // functions function structure
-const UserModel = require("../models/user.model");
-const UserResult = require("../models/user.result");
+
+const UserResult = require("../models/result.model");
 const AdminModel = require("../models/admin.model");
 const CommentModel = require("../models/comment.model");
 const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
+const QuestionModel = require("../models/questions.model");
+const AuthModel = require("../models/auth.model");
+const bcrypt = require("bcrypt");
+
+const { checkNumberInString } = require("../functions/verifyState");
 
 var mongoose = require("mongoose");
-
-module.exports.createUser = async (input) => {
-  const { name, lastname, username, email, password, image, isDeleted } = input;
-
-  //create function handle error
-  if (!name) {
-    throw { message: "no name" };
-  } else if (!lastname) {
-    throw { message: "no lastname" };
-  } else if (!username) {
-    throw { message: "no username" };
-  } else if (!email) {
-    throw { message: "no email" };
-  } else if (!password) {
-    throw { message: "no password" };
-  }
-
-  return await UserModel.create({
-    name,
-    lastname,
-    username,
-    email,
-    password,
-    image,
-    isDeleted,
-  });
-};
+const valid_id = mongoose.Types.ObjectId.isValid;
 
 module.exports.findUserById = async (input) => {
-  //mongoose.Types.ObjectId.isValid ใช้เยอะ ประกาศตัวแปรดีกว่า
-  if (mongoose.Types.ObjectId.isValid(input)) {
-    return await UserModel.findOne({ _id: input, isDeleted: false });
+  if (valid_id(input)) {
+    return await AuthModel.findOne({ _id: input, isDeleted: false });
   } else {
     throw {
-      message: "user not found",
+      message: "userid is not defined",
       status: 404,
     };
   }
 };
 
 module.exports.updateUserById = async (payload, userId) => {
-  const { name, lastname, username, email, password, image } = payload;
+  let { firstName, lastName, password } = payload;
+  password = await bcrypt.hash(password, 10);
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw {
-      message: "Invalid ID",
+      message: "userid is not defined",
       status: 404,
     };
   }
 
-  const user = await UserModel.findOne({
-    _id: userId,
-    isDeleted: false,
-  });
-
-  if (user == null) {
-    throw { message: "user not found", status: 404 };
+  console.log(isNaN(lastName), isNaN(firstName));
+  if (isNaN(lastName) && isNaN(firstName)) {
+    return AuthModel.findOneAndUpdate(
+      { _id: userId },
+      { firstName, lastName, password },
+      { new: true, omitUndefined: true }
+    );
   }
-
-  return UserModel.findOneAndUpdate(
-    { _id: userId },
-    { name, lastname, username, email, password, image },
-    { new: true, omitUndefined: true }
-  );
+  throw {
+    message: "digit is not allowed in firstname or lastname",
+    status: 404,
+  };
 };
 
 module.exports.deleteUserById = async (userId) => {
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
+  if (!valid_id(userId)) {
     throw {
-      message: "Invalid ID",
+      message: "userid is not defined",
       status: 404,
     };
   }
 
-  const checkDelete = await UserModel.findOne({
-    _id: userId,
-    isDeleted: true,
-  });
-
-  if (checkDelete) {
-    throw { message: "This user is already deleted" };
-  }
-
-  return UserModel.findOneAndUpdate(
+  return AuthModel.findOneAndUpdate(
     { _id: userId },
     {
       delete_at: new Date(),
@@ -100,6 +68,13 @@ module.exports.deleteUserById = async (userId) => {
 };
 
 module.exports.createResultById = async (results, userid) => {
+  if (!valid_id(userid)) {
+    throw {
+      message: "user not found",
+      status: 404,
+    };
+  }
+  const user = await UserResult.find({ userid: userid });
   let questions = results.length;
   let category = {
     "Word Smart": 0,
@@ -136,10 +111,22 @@ module.exports.createResultById = async (results, userid) => {
       throw { message: "invalid category" };
     }
   }
-  return await UserResult.create({
-    userid: userid,
-    category: category,
-  });
+
+  //no results in database
+  if (!user.length) {
+    return await UserResult.create({
+      userid: userid,
+      results: category,
+    });
+  } else {
+    const array = user[0].results;
+    array.push(category);
+    return await UserResult.findOneAndUpdate(
+      { userid: userid },
+      { results: array },
+      { new: true }
+    );
+  }
 };
 
 module.exports.getResultById = async (userid) => {
@@ -149,21 +136,9 @@ module.exports.getResultById = async (userid) => {
 module.exports.getResultUsers = async () => {
   return await UserResult.find();
 };
-module.exports.createAdmin = async (input) => {
-  const { name, lastname, username, email, password, image, isDeleted } = input;
-  return await AdminModel.create({
-    name,
-    lastname,
-    username,
-    email,
-    password,
-    image,
-    isDeleted,
-  });
-};
 
 module.exports.getAdminById = async (input_id) => {
-  if (mongoose.Types.ObjectId.isValid(input_id)) {
+  if (valid_id(input_id)) {
     return await AdminModel.findOne({
       _id: input_id,
       isDeleted: false,
@@ -176,21 +151,16 @@ module.exports.getAdminById = async (input_id) => {
   }
 };
 
-module.exports.getAllAdmins = async () => {
-  return await AdminModel.find({
-    isDeleted: false,
-  });
-};
-
 module.exports.getAllUsers = async () => {
-  return await UserModel.find({
+  return await AuthModel.find({
+    role: "user",
     isDeleted: false,
   });
 };
 
-module.exports.createCommnet = async (input) => {
-  const { comment_body } = input;
-  return await CommentModel.create({ comment_body, uid: input.uid });
+module.exports.createCommnet = async (input, user_id) => {
+  const { comment_body, content_id } = input;
+  return await CommentModel.create({ comment_body, content_id, uid: user_id });
 };
 
 // มีตัวเดียวรับเป็น parameter ได้เลย
@@ -199,26 +169,14 @@ module.exports.createGuest = async (input) => {
   return await GuestModel.create({ name });
 };
 
-module.exports.createContent = async (input) => {
-  const {
-    content_body,
-    title,
-    likes,
-    uid_likes,
-    comment_id,
-    author_name,
-    author_id,
-    tag,
-    image,
-  } = input;
+module.exports.createContent = async (input, id, name) => {
+  const { content_body, title, likes, uid_likes, tag, image } = input;
   return await ContentModel.create({
     content_body,
     title,
     likes,
     uid_likes,
-    comment_id,
-    author_name,
-    author_id,
+    author_id: id,
     tag,
     image,
   });
@@ -231,7 +189,197 @@ module.exports.getAllContents = async () => {
 };
 
 module.exports.getSortByTag = async (tag) => {
+  tags = [
+    "word smart",
+    "logic smart",
+    "picture smart",
+    "body smart",
+    "nature smart",
+    "self smart",
+    "people smart",
+    "music smart",
+  ];
+  tag = tag.map((x) => {
+    return x.toLowerCase();
+  });
+
+  tag.map((x) =>
+    tags.indexOf(x) == -1
+      ? (function () {
+          throw { message: "Out of Tag", status: 404 };
+        })()
+      : console.log("pass")
+  );
   return await ContentModel.find({
     tag: { $in: tag },
+    isDeleted: false,
   });
+};
+
+module.exports.findAdminById = async (input) => {
+  if (valid_id(input)) {
+    return await AuthModel.findOne({
+      _id: input,
+      role: "admin",
+      isDeleted: false,
+    });
+  } else {
+    throw {
+      message: "user not found",
+      status: 404,
+    };
+  }
+};
+
+module.exports.findAllAdmins = async () => {
+  const admins = await AuthModel.find({
+    role: "admin",
+    isDeleted: false,
+  });
+  if (!admins.length) {
+    throw {
+      message: "admin not found",
+      status: 404,
+    };
+  }
+  return admins;
+};
+
+module.exports.postQuestion = async (input) => {
+  const question_no = input.question_no;
+  const question_category = input.question_category;
+  const check_question_no = await QuestionModel.find({
+    question_no: question_no,
+  });
+
+  //available question no.
+  if (!check_question_no.length) {
+    //invalid category
+    if (
+      question_category != "Word Smart" &&
+      question_category != "Logic Smart" &&
+      question_category != "Picture Smart" &&
+      question_category != "Body Smart" &&
+      question_category != "Nature Smart" &&
+      question_category != "Self Smart" &&
+      question_category != "People Smart" &&
+      question_category != "Music Smart"
+    ) {
+      throw {
+        message: "Invalid category",
+        status: 400,
+      };
+    }
+    //available question no. and valid category
+    else {
+      const question = await QuestionModel.create(input);
+      return question;
+    }
+    //question no. is not available
+  } else {
+    throw {
+      message: "Duplicate question number",
+      status: 409,
+    };
+  }
+};
+
+module.exports.contentIsLiked = async (input_uid, input_content_id) => {
+  if (!valid_id(input_content_id)) {
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+  }
+  const content_obj = await ContentModel.find({
+    _id: input_content_id,
+    isDeleted: false,
+  });
+  const array = content_obj[0].uid_likes;
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] == input_uid) {
+      throw {
+        message: "you already liked this post",
+        status: 409,
+      };
+    }
+  }
+  array.push(input_uid);
+
+  const content = await ContentModel.findOneAndUpdate(
+    { _id: input_content_id, isDeleted: false },
+    { uid_likes: array, $inc: { likes: 1 } },
+    { new: true }
+  );
+
+  return content;
+};
+
+module.exports.getCommentByContentId = async (input_content_id) => {
+  if (!valid_id(input_content_id)) {
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+  }
+
+  const comments = await CommentModel.find({
+    content_id: input_content_id,
+    isDeleted: false,
+  });
+
+  if (!comments.length) {
+    throw {
+      message: "no comment found",
+      status: 404,
+    };
+  }
+
+  return comments;
+};
+
+module.exports.deleteContent = async (input_content_id) => {
+  if (!valid_id(input_content_id)) {
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+  }
+
+  const content = await ContentModel.findOneAndUpdate(
+    { _id: input_content_id, isDeleted: false },
+    { isDeleted: true },
+    { new: true }
+  );
+
+  if (!content)
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+
+  return content;
+};
+
+module.exports.deleteComment = async (input_comment_id) => {
+  if (!valid_id(input_comment_id)) {
+    throw {
+      message: "comment not found",
+      status: 404,
+    };
+  }
+
+  const comment = await CommentModel.findOneAndUpdate(
+    { _id: input_comment_id, isDeleted: false },
+    { isDeleted: true },
+    { new: true }
+  );
+
+  if (!comment)
+    throw {
+      message: "comment not found",
+      status: 404,
+    };
+
+  return comment;
 };
