@@ -176,12 +176,17 @@ exports.getSortByTag = async (req, res,next) => {
   }
 };
 
-exports.postImage = async (req, res) => {
+exports.postImage = async (req, res,next) => {
   //J calling
+  try{
   const { userId, files } = req;
-  console.log(userId);
-  console.log("flies", files);
   const result = await uploadManyFile(files, userId, "userResult");
   console.log(result);
   res.send(result);
+  } catch (err) {
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
 };
