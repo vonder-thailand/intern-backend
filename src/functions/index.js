@@ -7,6 +7,7 @@ const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
 const QuestionModel = require("../models/questions.model");
 const AuthModel = require("../models/auth.model");
+const bcrypt = require("bcrypt");
 
 const { checkNumberInString } = require("../functions/verifyState");
 
@@ -25,18 +26,28 @@ module.exports.findUserById = async (input) => {
 };
 
 module.exports.updateUserById = async (payload, userId) => {
-  const { firstName, lastName, password } = payload;
+
+  let { firstName, lastName, password } = payload;
+  password = await bcrypt.hash(password, 10);
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw {
       message: "userid is not defined",
       status: 404,
     };
   }
-  return AuthModel.findOneAndUpdate(
-    { _id: userId },
-    { firstName, lastName, password },
-    { new: true, omitUndefined: true }
-  );
+
+  console.log(isNaN(lastName), isNaN(firstName));
+  if (isNaN(lastName) && isNaN(firstName)) {
+    return AuthModel.findOneAndUpdate(
+      { _id: userId },
+      { firstName, lastName, password },
+      { new: true, omitUndefined: true }
+    );
+  }
+  throw {
+    message: "digit is not allowed in firstname or lastname",
+    status: 404,
+  };
 };
 
 module.exports.deleteUserById = async (userId) => {
