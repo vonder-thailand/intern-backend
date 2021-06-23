@@ -7,11 +7,9 @@ const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
 const QuestionModel = require("../models/questions.model");
 const AuthModel = require("../models/auth.model");
+const bcrypt = require("bcrypt");
 
-const {
-  checkNumberInString
- 
-} = require("../functions/verifyState");
+const { checkNumberInString } = require("../functions/verifyState");
 
 var mongoose = require("mongoose");
 
@@ -28,27 +26,26 @@ module.exports.findUserById = async (input) => {
 };
 
 module.exports.updateUserById = async (payload, userId) => {
-  const { firstName, lastName,password } = payload;
+  let { firstName, lastName, password } = payload;
+  password = await bcrypt.hash(password, 10);
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw {
       message: "userid is not defined",
       status: 404,
     };
   }
-  console.log(isNaN(lastName) ,isNaN(firstName))
-  if(isNaN(lastName) && isNaN(firstName)) {
+  console.log(isNaN(lastName), isNaN(firstName));
+  if (isNaN(lastName) && isNaN(firstName)) {
     return AuthModel.findOneAndUpdate(
       { _id: userId },
       { firstName, lastName, password },
       { new: true, omitUndefined: true }
     );
   }
-  throw{
+  throw {
     message: "digit is not allowed in firstname or lastname",
     status: 404,
   };
-  
-  
 };
 
 module.exports.deleteUserById = async (userId) => {
@@ -86,7 +83,7 @@ module.exports.createResultById = async (results, userid) => {
     category_id = results[i]["categoryId"];
     question_index = results[i]["questionIndex"];
     score = results[i]["score"];
-    console
+    console;
     if (category_id == 1) {
       category["Word Smart"] += score;
     } else if (category_id == 2) {
@@ -106,7 +103,6 @@ module.exports.createResultById = async (results, userid) => {
     } else {
       throw { message: "invalid category" };
     }
-    
   }
   return await UserResult.create({
     userid: userid,
@@ -137,7 +133,6 @@ module.exports.getAdminById = async (input_id) => {
 };
 
 module.exports.getAllUsers = async () => {
-
   return await AuthModel.find({
     role: "user",
     isDeleted: false,
