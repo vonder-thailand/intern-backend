@@ -26,7 +26,6 @@ module.exports.findUserById = async (input) => {
 };
 
 module.exports.updateUserById = async (payload, userId) => {
-
   let { firstName, lastName, password } = payload;
   password = await bcrypt.hash(password, 10);
   if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -160,8 +159,8 @@ module.exports.getAllUsers = async () => {
 };
 
 module.exports.createCommnet = async (input, user_id) => {
-  const { comment_body } = input;
-  return await CommentModel.create({ comment_body, uid: user_id });
+  const { comment_body, content_id } = input;
+  return await CommentModel.create({ comment_body, content_id, uid: user_id });
 };
 
 // มีตัวเดียวรับเป็น parameter ได้เลย
@@ -171,14 +170,12 @@ module.exports.createGuest = async (input) => {
 };
 
 module.exports.createContent = async (input, id, name) => {
-  const { content_body, title, likes, uid_likes, comment_id, tag, image } =
-    input;
+  const { content_body, title, likes, uid_likes, tag, image } = input;
   return await ContentModel.create({
     content_body,
     title,
     likes,
     uid_likes,
-    comment_id,
     author_id: id,
     tag,
     image,
