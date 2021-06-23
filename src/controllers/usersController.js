@@ -146,8 +146,8 @@ exports.getResultById = async (req, res, next) => {
 
 exports.postContent = async (req, res) => {
   try {
-    const { userId, username } = req;
-    const content = await createContent(req.body, userId, username);
+    const { userId } = req;
+    const content = await createContent(req.body, userId);
     res.send(content);
   } catch (err) {
     console.log("err: ", err);

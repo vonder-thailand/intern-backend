@@ -8,7 +8,6 @@ const contents = new Schema(
     likes: { type: Number, default: 0 },
     uid_likes: [{ type: String, default: "-" }],
     comment_id: [{ type: String, default: "-" }],
-    author_username: { type: String, default: "-" },
     author_id: { type: String, defalut: "-" },
     tag: { type: [String], defalut: ["-"] },
     image: { type: String, default: "-" },

@@ -179,7 +179,6 @@ module.exports.createContent = async (input, id, name) => {
     likes,
     uid_likes,
     comment_id,
-    author_username: name,
     author_id: id,
     tag,
     image,
