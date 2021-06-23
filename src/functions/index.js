@@ -12,10 +12,10 @@ const bcrypt = require("bcrypt");
 const { checkNumberInString } = require("../functions/verifyState");
 
 var mongoose = require("mongoose");
+const valid_id = mongoose.Types.ObjectId.isValid;
 
 module.exports.findUserById = async (input) => {
-  //mongoose.Types.ObjectId.isValid ใช้เยอะ ประกาศตัวแปรดีกว่า
-  if (mongoose.Types.ObjectId.isValid(input)) {
+  if (valid_id(input)) {
     return await AuthModel.findOne({ _id: input, isDeleted: false });
   } else {
     throw {
@@ -26,6 +26,7 @@ module.exports.findUserById = async (input) => {
 };
 
 module.exports.updateUserById = async (payload, userId) => {
+
   let { firstName, lastName, password } = payload;
   password = await bcrypt.hash(password, 10);
   if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -34,6 +35,7 @@ module.exports.updateUserById = async (payload, userId) => {
       status: 404,
     };
   }
+
   console.log(isNaN(lastName), isNaN(firstName));
   if (isNaN(lastName) && isNaN(firstName)) {
     return AuthModel.findOneAndUpdate(
@@ -49,7 +51,7 @@ module.exports.updateUserById = async (payload, userId) => {
 };
 
 module.exports.deleteUserById = async (userId) => {
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
+  if (!valid_id(userId)) {
     throw {
       message: "userid is not defined",
       status: 404,
@@ -119,7 +121,7 @@ module.exports.getResultUsers = async () => {
 };
 
 module.exports.getAdminById = async (input_id) => {
-  if (mongoose.Types.ObjectId.isValid(input_id)) {
+  if (valid_id(input_id)) {
     return await AdminModel.findOne({
       _id: input_id,
       isDeleted: false,
@@ -173,13 +175,33 @@ module.exports.getAllContents = async () => {
 };
 
 module.exports.getSortByTag = async (tag) => {
+  tags = [
+    "Word Smart",
+    "Logic Smart",
+    "Picture Smart",
+    "Body Smart",
+    "Nature Smart",
+    "Self Smart",
+    "People Smart",
+    "Music Smart",
+  ];
+   tags = tags.map(x => {return x.toLowerCase();})
+   tag = tag.map(x => {return x.toLowerCase();})
+
+  tag.map((x) =>
+    tags.indexOf(x) == -1
+      ? (function () {
+          throw { message: "Out of Tag", status: 404 };
+        })()
+      : console.log("pass")
+  );
   return await ContentModel.find({
     tag: { $in: tag },
   });
 };
 
 module.exports.findAdminById = async (input) => {
-  if (mongoose.Types.ObjectId.isValid(input)) {
+  if (valid_id(input)) {
     return await AuthModel.findOne({
       _id: input,
       role: "admin",
@@ -244,4 +266,32 @@ module.exports.postQuestion = async (input) => {
       status: 409,
     };
   }
+};
+
+module.exports.contentIsLiked = async (input_uid, input_content_id) => {
+  if (!valid_id(input_content_id)) {
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+  }
+  const content_obj = await ContentModel.find({ _id: input_content_id });
+  const array = content_obj[0].uid_likes;
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] == input_uid) {
+      throw {
+        message: "you already liked this post",
+        status: 409,
+      };
+    }
+  }
+  array.push(input_uid);
+
+  const content = await ContentModel.findOneAndUpdate(
+    { _id: input_content_id, isDeleted: false },
+    { uid_likes: array, $inc: { likes: 1 } },
+    { new: true }
+  );
+
+  return content;
 };
