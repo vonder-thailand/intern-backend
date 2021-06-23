@@ -44,5 +44,15 @@ router.get(
   auth.authMiddleware,
   usersController.getCommentByContentId
 );
+router.delete(
+  "/user/comment",
+  auth.authMiddleware,
+  usersController.deleteComment
+);
+router.delete(
+  "/user/content",
+  auth.authMiddleware,
+  usersController.deleteContent
+);
 
 module.exports = router;

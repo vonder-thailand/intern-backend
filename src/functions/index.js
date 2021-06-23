@@ -212,6 +212,7 @@ module.exports.getSortByTag = async (tag) => {
   );
   return await ContentModel.find({
     tag: { $in: tag },
+    isDeleted: false,
   });
 };
 
@@ -290,7 +291,10 @@ module.exports.contentIsLiked = async (input_uid, input_content_id) => {
       status: 404,
     };
   }
-  const content_obj = await ContentModel.find({ _id: input_content_id });
+  const content_obj = await ContentModel.find({
+    _id: input_content_id,
+    isDeleted: false,
+  });
   const array = content_obj[0].uid_likes;
   for (let i = 0; i < array.length; i++) {
     if (array[i] == input_uid) {
@@ -319,7 +323,11 @@ module.exports.getCommentByContentId = async (input_content_id) => {
     };
   }
 
-  const comments = await CommentModel.find({ content_id: input_content_id });
+  const comments = await CommentModel.find({
+    content_id: input_content_id,
+    isDeleted: false,
+  });
+
   if (!comments.length) {
     throw {
       message: "no comment found",
@@ -328,4 +336,50 @@ module.exports.getCommentByContentId = async (input_content_id) => {
   }
 
   return comments;
+};
+
+module.exports.deleteContent = async (input_content_id) => {
+  if (!valid_id(input_content_id)) {
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+  }
+
+  const content = await ContentModel.findOneAndUpdate(
+    { _id: input_content_id, isDeleted: false },
+    { isDeleted: true },
+    { new: true }
+  );
+
+  if (!content)
+    throw {
+      message: "content not found",
+      status: 404,
+    };
+
+  return content;
+};
+
+module.exports.deleteComment = async (input_comment_id) => {
+  if (!valid_id(input_comment_id)) {
+    throw {
+      message: "comment not found",
+      status: 404,
+    };
+  }
+
+  const comment = await CommentModel.findOneAndUpdate(
+    { _id: input_comment_id, isDeleted: false },
+    { isDeleted: true },
+    { new: true }
+  );
+
+  if (!comment)
+    throw {
+      message: "comment not found",
+      status: 404,
+    };
+
+  return comment;
 };

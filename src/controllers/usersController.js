@@ -13,6 +13,8 @@ const {
   getSortByTag,
   contentIsLiked,
   getCommentByContentId,
+  deleteContent,
+  deleteComment,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 
@@ -205,6 +207,24 @@ exports.getCommentByContentId = async (req, res, next) => {
   try {
     const comments = await getCommentByContentId(req.body.content_id);
     res.send(comments);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteContent = async (req, res, next) => {
+  try {
+    const content = await deleteContent(req.body.content_id);
+    res.send(content);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteComment = async (req, res, next) => {
+  try {
+    const comment = await deleteComment(req.body.comment_id);
+    res.send(comment);
   } catch (err) {
     next(err);
   }
