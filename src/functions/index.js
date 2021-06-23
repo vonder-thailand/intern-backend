@@ -26,24 +26,17 @@ module.exports.findUserById = async (input) => {
 
 module.exports.updateUserById = async (payload, userId) => {
   const { firstName, lastName, password } = payload;
-  if (!valid_id(userId)) {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw {
       message: "userid is not defined",
       status: 404,
     };
   }
-  console.log(isNaN(lastName), isNaN(firstName));
-  if (isNaN(lastName) && isNaN(firstName)) {
-    return AuthModel.findOneAndUpdate(
-      { _id: userId },
-      { firstName, lastName, password },
-      { new: true, omitUndefined: true }
-    );
-  }
-  throw {
-    message: "digit is not allowed in firstname or lastname",
-    status: 404,
-  };
+  return AuthModel.findOneAndUpdate(
+    { _id: userId },
+    { firstName, lastName, password },
+    { new: true, omitUndefined: true }
+  );
 };
 
 module.exports.deleteUserById = async (userId) => {
@@ -171,6 +164,26 @@ module.exports.getAllContents = async () => {
 };
 
 module.exports.getSortByTag = async (tag) => {
+  tags = [
+    "Word Smart",
+    "Logic Smart",
+    "Picture Smart",
+    "Body Smart",
+    "Nature Smart",
+    "Self Smart",
+    "People Smart",
+    "Music Smart",
+  ];
+   tags = tags.map(x => {return x.toLowerCase();})
+   tag = tag.map(x => {return x.toLowerCase();})
+
+  tag.map((x) =>
+    tags.indexOf(x) == -1
+      ? (function () {
+          throw { message: "Out of Tag", status: 404 };
+        })()
+      : console.log("pass")
+  );
   return await ContentModel.find({
     tag: { $in: tag },
   });
