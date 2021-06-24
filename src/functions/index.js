@@ -89,7 +89,6 @@ module.exports.createResultById = async (results, userid) => {
 
   for (let i = 0; i < questions; i++) {
     category_id = results[i]["categoryId"];
-    question_index = results[i]["questionIndex"];
     score = results[i]["score"];
     if (category_id == 1) {
       category["Word Smart"] += score;
