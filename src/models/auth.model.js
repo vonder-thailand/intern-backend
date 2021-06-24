@@ -45,22 +45,3 @@ const AuthSchema = new Schema(
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
 );
-
-//hash password
-AuthSchema.pre("save", async function (next) {
-  const auth = this;
-  const hash = await bcrypt.hash(auth.password, 10);
-  this.password = hash;
-  next();
-});
-
-//valid password
-AuthSchema.methods.isValidPassword = async function (password) {
-  const auth = this;
-  const compare = await bcrypt.compare(password, auth.password);
-  return compare;
-};
-
-const AuthModel = mongoose.model("auth", AuthSchema);
-
-module.exports = AuthModel;
