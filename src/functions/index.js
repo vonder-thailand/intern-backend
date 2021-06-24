@@ -76,46 +76,81 @@ module.exports.createResultById = async (results, userid) => {
   }
   const user = await UserResult.find({ userid: userid });
   let questions = results.length;
-  let category = {
-    "Word Smart": 0,
-    "Logic Smart": 0,
-    "Picture Smart": 0,
-    "Body Smart": 0,
-    "Music Smart": 0,
-    "People Smart": 0,
-    "Self Smart": 0,
-    "Nature Smart": 0,
-  };
+  let results_array = [];
+  let category = [
+    {
+      category_id: 1,
+      skill: "Word Smart",
+      score: 0,
+    },
+    {
+      category_id: 2,
+      skill: "Logic Smart",
+      score: 0,
+    },
+    {
+      category_id: 3,
+      skill: "Picture Smart",
+      score: 0,
+    },
+    {
+      category_id: 4,
+      skill: "Body Smart",
+      score: 0,
+    },
+    {
+      category_id: 5,
+      skill: "Music Smart",
+      score: 0,
+    },
+    {
+      category_id: 6,
+      skill: "People Smart",
+      score: 0,
+    },
+    {
+      category_id: 7,
+      skill: "Self Smart",
+      score: 0,
+    },
+    {
+      category_id: 8,
+      skill: "Nature Smart",
+      score: 0,
+    },
+  ];
 
   for (let i = 0; i < questions; i++) {
     category_id = results[i]["categoryId"];
     score = results[i]["score"];
     if (category_id == 1) {
-      category["Word Smart"] += score;
+      category[0]["score"] += score;
     } else if (category_id == 2) {
-      category["Logic Smart"] += score;
+      category[1]["score"] += score;
     } else if (category_id == 3) {
-      category["Picture Smart"] += score;
+      category[2]["score"] += score;
     } else if (category_id == 4) {
-      category["Body Smart"] += score;
+      category[3]["score"] += score;
     } else if (category_id == 5) {
-      category["Music Smart"] += score;
+      category[4]["score"] += score;
     } else if (category_id == 6) {
-      category["People Smart"] += score;
+      category[5]["score"] += score;
     } else if (category_id == 7) {
-      category["Self Smart"] += score;
+      category[6]["score"] += score;
     } else if (category_id == 8) {
-      category["Nature Smart"] += score;
+      category[7]["score"] += score;
     } else {
       throw { message: "invalid category" };
     }
   }
 
+  results_array.push(category);
+
   //no results in database
   if (!user.length) {
     return await UserResult.create({
       userid: userid,
-      results: category,
+      results: results_array,
     });
   } else {
     const array = user[0].results;
