@@ -357,6 +357,13 @@ module.exports.deleteContent = async (input_content_id) => {
       message: "content not found",
       status: 404,
     };
+  else {
+    await CommentModel.updateMany(
+      { content_id: input_content_id, isDeleted: false },
+      { isDeleted: true },
+      { new: true }
+    );
+  }
 
   return content;
 };
