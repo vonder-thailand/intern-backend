@@ -17,11 +17,13 @@ passport.use(
         const firstName = req.body.firstName;
         const lastName = req.body.lastName;
         const role = req.body.role;
+        const email = req.body.email;
         const user = await AuthModel.create({
           username,
           password,
           firstName,
           lastName,
+          email,
           role,
         });
 
