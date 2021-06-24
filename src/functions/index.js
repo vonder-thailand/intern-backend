@@ -247,23 +247,25 @@ module.exports.findAllAdmins = async () => {
 
 module.exports.postQuestion = async (input) => {
   const question_no = input.question_no;
-  const question_category = input.question_category;
+  const question_category = input.question_category.toLowerCase();
   const check_question_no = await QuestionModel.find({
     question_no: question_no,
   });
+
+  console.log(question_category);
 
   //available question no.
   if (!check_question_no.length) {
     //invalid category
     if (
-      question_category != "Word Smart" &&
-      question_category != "Logic Smart" &&
-      question_category != "Picture Smart" &&
-      question_category != "Body Smart" &&
-      question_category != "Nature Smart" &&
-      question_category != "Self Smart" &&
-      question_category != "People Smart" &&
-      question_category != "Music Smart"
+      question_category != "word smart" &&
+      question_category != "logic smart" &&
+      question_category != "picture smart" &&
+      question_category != "body smart" &&
+      question_category != "nature smart" &&
+      question_category != "self smart" &&
+      question_category != "people smart" &&
+      question_category != "music smart"
     ) {
       throw {
         message: "Invalid category",
@@ -278,7 +280,7 @@ module.exports.postQuestion = async (input) => {
     //question no. is not available
   } else {
     throw {
-      message: "Duplicate question number",
+      message: `question number ${question_no} already exist`,
       status: 409,
     };
   }
