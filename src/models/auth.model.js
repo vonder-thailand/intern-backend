@@ -27,10 +27,6 @@ const AuthSchema = new Schema(
       type: String,
       default: "-",
     },
-    email: {
-      type: String,
-      default: "-",
-    },
     deleteAt: {
       type: Date,
     },
