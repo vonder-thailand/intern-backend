@@ -26,6 +26,7 @@ exports.findUserById = async (req, res, next) => {
       res.send(user);
     } else {
       const { userId } = req;
+      console.log(userId);
       const user = await findUserById(userId);
       res.send(user);
     }
