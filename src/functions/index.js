@@ -6,7 +6,8 @@ const CommentModel = require("../models/comment.model");
 const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
 const QuestionModel = require("../models/questions.model");
-const AuthModel = require("../models/auth.model");
+const userAuth = require("../models/auth.model");
+
 const bcrypt = require("bcrypt");
 
 const { checkNumberInString } = require("../functions/verifyState");
@@ -16,7 +17,7 @@ const valid_id = mongoose.Types.ObjectId.isValid;
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
-    return await AuthModel.findOne({ _id: input, isDeleted: false });
+    return await userAuth.findOne({ _id: input, isDeleted: false });
   } else {
     throw {
       message: "userid is not defined",
@@ -37,7 +38,7 @@ module.exports.updateUserById = async (payload, userId) => {
 
   console.log(isNaN(lastName), isNaN(firstName));
   if (isNaN(lastName) && isNaN(firstName)) {
-    return AuthModel.findOneAndUpdate(
+    return userAuth.findOneAndUpdate(
       { _id: userId },
       { firstName, lastName, password },
       { new: true, omitUndefined: true }
@@ -57,7 +58,7 @@ module.exports.deleteUserById = async (userId) => {
     };
   }
 
-  return AuthModel.findOneAndUpdate(
+  return userAuth.findOneAndUpdate(
     { _id: userId },
     {
       delete_at: new Date(),
@@ -151,7 +152,7 @@ module.exports.getAdminById = async (input_id) => {
 };
 
 module.exports.getAllUsers = async () => {
-  return await AuthModel.find({
+  return await userAuth.find({
     role: "user",
     isDeleted: false,
   });
@@ -220,7 +221,7 @@ module.exports.getSortByTag = async (tag) => {
 
 module.exports.findAdminById = async (input) => {
   if (valid_id(input)) {
-    return await AuthModel.findOne({
+    return await userAuth.findOne({
       _id: input,
       role: "admin",
       isDeleted: false,
@@ -234,7 +235,7 @@ module.exports.findAdminById = async (input) => {
 };
 
 module.exports.findAllAdmins = async () => {
-  const admins = await AuthModel.find({
+  const admins = await userAuth.find({
     role: "admin",
     isDeleted: false,
   });
