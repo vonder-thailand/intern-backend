@@ -3,16 +3,22 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userAuth = require("../models/auth.model");
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const user = await userAuth.findOne({ email });
     if (!user) {
-      res.status(404).json({ message: "User donesn't exist." });
+      throw {
+        message: "User donesn't exist.",
+        status: 404,
+      };
     }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      res.status(404).json({ message: "Invalid credentials." });
+      throw {
+        message: "Invalid credentials.",
+        status: 404,
+      };
     }
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
@@ -21,7 +27,7 @@ exports.login = async (req, res) => {
     );
     res.status(200).json({ resuit: user, token });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong." });
+    next(error);
   }
 };
 exports.signup = async (req, res) => {
@@ -39,10 +45,10 @@ exports.signup = async (req, res) => {
     const token = jwt.sign(
       { id: resuit._id, email: resuit.email, role: resuit.role },
       process.env.Secret_Key,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
     res.status(200).json({ resuit, token });
   } catch (error) {
-    res.json({ error: error });
+    next(error);
   }
 };
