@@ -27,7 +27,7 @@ module.exports.findUserById = async (input) => {
 };
 
 module.exports.updateUserById = async (payload, userId) => {
-  let { firstName, lastName, password } = payload;
+  let { firstName, lastName, password, email, username } = payload;
   password = await bcrypt.hash(password, 10);
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw {
@@ -40,7 +40,7 @@ module.exports.updateUserById = async (payload, userId) => {
   if (isNaN(lastName) && isNaN(firstName)) {
     return userAuth.findOneAndUpdate(
       { _id: userId },
-      { firstName, lastName, password },
+      { firstName, lastName, password, email, username },
       { new: true, omitUndefined: true }
     );
   }
