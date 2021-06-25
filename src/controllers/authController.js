@@ -1,12 +1,12 @@
 require("dotenv").config();
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const auth = require("./src/model/auth.model");
+const userAuth = require("../models/auth.model");
 
-exports.signin = async (req, res) => {
+exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await AuthModel.findOne({ email });
+    const user = await userAuth.findOne({ email });
     if (!user) {
       res.status(404).json({ message: "User donesn't exist." });
     }
@@ -28,7 +28,7 @@ exports.signup = async (req, res) => {
   const { email, password, username, role, firstName, lastName } = req.body;
   try {
     const hashedpassword = await bcrypt.hash(password, 10);
-    const resuit = await AuthModel.create({
+    const resuit = await userAuth.create({
       email,
       password: hashedpassword,
       username,
@@ -37,12 +37,12 @@ exports.signup = async (req, res) => {
       lastName,
     });
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
+      { id: resuit._id, email: resuit.email, role: resuit.role },
       process.env.Secret_Key,
       { expiresIn: "1h" }
     );
     res.status(200).json({ resuit, token });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong." });
+    res.json({ error: error });
   }
 };

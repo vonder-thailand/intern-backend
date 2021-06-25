@@ -3,9 +3,9 @@ const bcrypt = require("bcrypt");
 
 const Schema = mongoose.Schema;
 
-const AuthSchema = new Schema(
+const userAuth = new Schema(
   {
-    username: {
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -13,6 +13,9 @@ const AuthSchema = new Schema(
     password: {
       type: String,
       required: true,
+    },
+    username: {
+      type: String,
     },
     role: {
       type: String,
@@ -27,10 +30,7 @@ const AuthSchema = new Schema(
       type: String,
       default: "-",
     },
-    email: {
-      type: String,
-      default: "-",
-    },
+
     deleteAt: {
       type: Date,
     },
@@ -45,3 +45,4 @@ const AuthSchema = new Schema(
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
 );
+module.exports = mongoose.model("userAuth", userAuth);

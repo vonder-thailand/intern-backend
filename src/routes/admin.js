@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
-const auth = require("../middlewares/authVerify");
+const auth = require("../middlewares/auth");
 
 router.get("/results", adminController.getAllResult);
 router.get("/admin/find", auth.authMiddleware, adminController.getAdminById);

@@ -1,17 +1,18 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-module.exports.authMiddleware = async (req, res, next) => {
+exports.authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.get("Authorization");
     const token = authHeader.split(" ")[1];
 
-    jwt.verify(token, process.env.Secret_Key, async (err, authData) => {
+    jwt.verify(token, process.env.Secret_Key, async (err, userAuth) => {
       if (err) {
         res.sendStatus(403);
       } else {
-        const user_info = authData.auth;
+        const user_info = userAuth.auth;
         req.userId = user_info._id;
+        req.email = user_info.email;
         req.role = user_info.role;
       }
     });
