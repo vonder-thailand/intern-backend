@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 const questions = new Schema(
   {
-    question_no: { type: String, default: "-" },
-    question_category: { type: String, default: "-" },
+    questionIndex: { type: String, default: "-" },
+    categoryIndex: { type: String, default: "-" },
     question_body: { type: String, default: "-" },
   },
   {

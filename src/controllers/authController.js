@@ -30,7 +30,7 @@ exports.login = async (req, res, next) => {
     next(error);
   }
 };
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   const { email, password, username, role, firstName, lastName } = req.body;
   try {
     const hashedpassword = await bcrypt.hash(password, 10);
@@ -47,6 +47,7 @@ exports.signup = async (req, res) => {
       process.env.Secret_Key,
       { expiresIn: "1d" }
     );
+    console.log(res);
     res.status(200).json({ resuit, token });
   } catch (error) {
     next(error);
