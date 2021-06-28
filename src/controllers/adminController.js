@@ -9,11 +9,11 @@ const resultor = require("../models/result.model");
 exports.getAllResult = async (req, res) => {
   try {
     const results = await resultor.find();
-    const {role} = req;
-    if (role != 'admin') {
+    const { role } = req;
+    if (role != "admin") {
       return res.status(400).json({
-        status: 'error',
-        message: 'only admin can access'
+        status: "error",
+        message: "only admin can access",
       });
     } else if (!results.length) {
       throw {
@@ -28,11 +28,11 @@ exports.getAllResult = async (req, res) => {
 
 exports.getAdminById = async (req, res, next) => {
   try {
-    const {role} = req;
-    if (role != 'admin') {
+    const { role } = req;
+    if (role != "admin") {
       return res.status(400).json({
-        status: 'error',
-        message: 'only admin can access'
+        status: "error",
+        message: "only admin can access",
       });
     } else if (req.body._id) {
       const userId = req.body._id;
@@ -51,11 +51,11 @@ exports.getAdminById = async (req, res, next) => {
 exports.getAllAdmins = async (req, res, next) => {
   try {
     const admins = await findAllAdmins();
-    const {role} = req;
-    if (role != 'admin') {
+    const { role } = req;
+    if (role != "admin") {
       return res.status(400).json({
-        status: 'error',
-        message: 'only admin can access'
+        status: "error",
+        message: "only admin can access",
       });
     } else res.send(admins);
   } catch (err) {
@@ -66,11 +66,11 @@ exports.getAllAdmins = async (req, res, next) => {
 exports.postQuestion = async (req, res, next) => {
   try {
     const question = await postQuestion(req.body);
-    const {role} = req;
-    if (role != 'admin') {
+    const { role } = req;
+    if (role != "admin") {
       return res.status(400).json({
-        status: 'error',
-        message: 'only admin can access'
+        status: "error",
+        message: "only admin can access",
       });
     } else res.send(question);
   } catch (err) {
@@ -81,11 +81,11 @@ exports.postQuestion = async (req, res, next) => {
 exports.getAllQuestions = async (req, res, next) => {
   try {
     const question = await questionModel.find({});
-    const {role} = req;
-    if (role != 'admin') {
+    const { role } = req;
+    if (role != "admin") {
       return res.status(400).json({
-        status: 'error',
-        message: 'only admin can access'
+        status: "error",
+        message: "only admin can access",
       });
     } else if (!question.length) {
       throw {
@@ -100,13 +100,13 @@ exports.getAllQuestions = async (req, res, next) => {
 
 exports.getQuestionByCat = async (req, res, next) => {
   try {
-    const catName = req.body.question_category;
-    const question = await questionModel.find({ question_category: catName });
-    const {role} = req;
-    if (role != 'admin') {
+    const catName = req.body.categoryIndex;
+    const question = await questionModel.find({ categoryIndex: catName });
+    const { role } = req;
+    if (role != "admin") {
       return res.status(400).json({
-        status: 'error',
-        message: 'only admin can access'
+        status: "error",
+        message: "only admin can access",
       });
     } else if (!question.length) {
       throw {
@@ -126,11 +126,11 @@ exports.updateFields = async (req, res, next) => {
       {},
       { $rename: { QCAT: "question_category" } }
     );
-    const {role} = req;
-    if (role != 'admin') {
+    const { role } = req;
+    if (role != "admin") {
       return res.status(400).json({
-        status: 'error',
-        message: 'only admin can access'
+        status: "error",
+        message: "only admin can access",
       });
     } else res.send(up);
   } catch (err) {
