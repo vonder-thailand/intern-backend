@@ -205,7 +205,7 @@ module.exports.createGuest = async (input) => {
 };
 
 module.exports.createContent = async (input, id, name) => {
-  const { content_body, title, likes, uid_likes, tag, image } = input;
+  let { content_body, title, likes, uid_likes, tag, image } = input;
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
