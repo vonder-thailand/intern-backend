@@ -284,43 +284,32 @@ module.exports.findAllAdmins = async () => {
 };
 
 module.exports.postQuestion = async (input) => {
-  const question_no = input.question_no;
-  const question_category = input.question_category.toLowerCase();
-  const check_question_no = await QuestionModel.find({
-    question_no: question_no,
-  });
-
-  console.log(question_category);
-
-  //available question no.
-  if (!check_question_no.length) {
-    //invalid category
-    if (
-      question_category != "word smart" &&
-      question_category != "logic smart" &&
-      question_category != "picture smart" &&
-      question_category != "body smart" &&
-      question_category != "nature smart" &&
-      question_category != "self smart" &&
-      question_category != "people smart" &&
-      question_category != "music smart"
-    ) {
-      throw {
-        message: "Invalid category",
-        status: 400,
-      };
-    }
-    //available question no. and valid category
-    else {
-      const question = await QuestionModel.create(input);
-      return question;
-    }
-    //question no. is not available
-  } else {
+  const questionIndex = input.questionIndex;
+  const categoryIndex = input.categoryIndex;
+  const question_body = input.questionBody;
+  if (!(parseInt(categoryIndex) <= 8 && parseInt(categoryIndex) >= 1)) {
     throw {
-      message: `question number ${question_no} already exist`,
-      status: 409,
+      message: "out of category index",
+      status: 404,
     };
+  }
+  const ob = await QuestionModel.find({
+    questionIndex: questionIndex,
+    categoryIndex: categoryIndex,
+  });
+  console.log(ob.length);
+  if (ob.length !== 0) {
+    throw {
+      message: "question redundant please check question number",
+      status: 404,
+    };
+  } else {
+    const question = await QuestionModel.create({
+      questionIndex: questionIndex,
+      categoryIndex: categoryIndex,
+      question_body: question_body,
+    });
+    return question;
   }
 };
 
