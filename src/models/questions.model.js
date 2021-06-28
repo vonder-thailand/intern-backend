@@ -5,7 +5,7 @@ const questions = new Schema(
   {
     questionIndex: { type: String, default: "-" },
     categoryIndex: { type: String, default: "-" },
-    question_body: { type: String, default: "-" },
+    questionBody: { type: String, default: "-" },
   },
   {
     strict: false,
