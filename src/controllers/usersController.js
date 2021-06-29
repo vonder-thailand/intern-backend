@@ -77,18 +77,12 @@ exports.deleteUserById = async (req, res, next) => {
     next(err);
   }
 };
+
 exports.createResultById = async (req, res, next) => {
   try {
-    if (req.body._id) {
-      const answers = req.body.question_data;
-      const user = await createResultById(answers, req.body._id);
-      res.send(user);
-    } else {
-      const { userId } = req;
-      const answers = req.body.question_data;
-      const user = await createResultById(answers, userId);
-      res.send(user);
-    }
+    const answers = req.body.question_data;
+    const user = await createResultById(answers, req);
+    res.send(user);
   } catch (err) {
     console.log("err:", err);
     if (!err.status) {
