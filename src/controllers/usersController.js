@@ -80,9 +80,8 @@ exports.deleteUserById = async (req, res, next) => {
 
 exports.createResultById = async (req, res, next) => {
   try {
-    const { userId } = req;
     const answers = req.body.question_data;
-    const user = await createResultById(answers, userId);
+    const user = await createResultById(answers, req);
     res.send(user);
   } catch (err) {
     console.log("err:", err);

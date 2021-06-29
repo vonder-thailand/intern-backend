@@ -40,7 +40,7 @@ const userAuth = new Schema(
       type: Boolean,
       default: false,
     },
-    guestId: { type: mongoose.ObjectId, default: "-", index: true },
+    guestId: { type: mongoose.ObjectId, index: true },
   },
   {
     strict: false,
