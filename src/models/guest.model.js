@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const guests = new Schema(
   {
-    name: { type: String, default: "-" },
+    resultId: { type: mongoose.ObjectId, index: true },
     isDeleted: { type: Boolean, default: false },
   },
   {

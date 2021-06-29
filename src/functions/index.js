@@ -7,6 +7,7 @@ const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
 const QuestionModel = require("../models/questions.model");
 const userAuth = require("../models/auth.model");
+const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcrypt");
 
@@ -199,9 +200,14 @@ module.exports.createCommnet = async (input, user_id) => {
 };
 
 // มีตัวเดียวรับเป็น parameter ได้เลย
-module.exports.createGuest = async (input) => {
-  const { name } = input;
-  return await GuestModel.create({ name });
+module.exports.createGuest = async () => {
+  const resuit = await GuestModel.create({});
+  console.log(resuit);
+  const token = jwt.sign({ _id: resuit._id }, process.env.Secret_Key, {
+    expiresIn: "1d",
+  });
+
+  return token;
 };
 
 module.exports.createContent = async (input, id, name) => {

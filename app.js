@@ -4,6 +4,7 @@ const express = require("express");
 const adminRoute = require("./src/Routes/admin");
 const userRoutes = require("./src/Routes/users");
 const authRoutes = require("./src/Routes/auth");
+const guestRoute = require("./src/Routes/guest");
 const connectToDatabase = require("./src/utils/mongo");
 const app = express();
 const port = 5000;
@@ -38,18 +39,13 @@ app.use("/", authRoutes);
 
 app.use(userRoutes);
 app.use(adminRoute);
-app.use((err, req, res, next) => {
-  console.log("ERROR: ", err);
-  res
-    .status(err.status || 500)
-    .json({ message: "System fail!", error: err.message, status: err.status });
-});
+app.use(guestRoute);
 
 app.use((err, req, res, next) => {
   console.log("ERROR: ", err);
   res
     .status(err.status || 500)
-    .json({ message: "Server fail!", error: err.message });
+    .json({ message: "System fail!", error: err.message, status: err.status });
 });
 
 app.listen(port, () => {

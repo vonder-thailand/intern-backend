@@ -79,10 +79,16 @@ exports.deleteUserById = async (req, res, next) => {
 };
 exports.createResultById = async (req, res, next) => {
   try {
-    const { userId } = req;
-    const answers = req.body.question_data;
-    const user = await createResultById(answers, userId);
-    res.send(user);
+    if (req.body._id) {
+      const answers = req.body.question_data;
+      const user = await createResultById(answers, req.body._id);
+      res.send(user);
+    } else {
+      const { userId } = req;
+      const answers = req.body.question_data;
+      const user = await createResultById(answers, userId);
+      res.send(user);
+    }
   } catch (err) {
     console.log("err:", err);
     if (!err.status) {
@@ -121,8 +127,10 @@ exports.postComment = async (req, res, next) => {
 
 exports.createGuest = async (req, res) => {
   try {
-    const guest = await createGuest(req.body);
-    res.send(guest);
+    const token = await createGuest();
+    console.log("token: ", token);
+    console.log(token);
+    res.status(200).json({ token });
   } catch (err) {
     console.log("err: ", err);
     res.status(err.status || 500).send(err.message || "Internal Server Error");

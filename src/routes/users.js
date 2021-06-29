@@ -21,7 +21,6 @@ router.post(
 );
 router.get("/user", auth.authMiddleware, usersController.getAllUsers);
 router.post("/comment", auth.authMiddleware, usersController.postComment);
-router.post("/guest", auth.authMiddleware, usersController.createGuest);
 router.get("/user/result", auth.authMiddleware, usersController.getResultById);
 router.post("/user/content", auth.authMiddleware, usersController.postContent);
 router.get(
