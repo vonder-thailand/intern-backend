@@ -7,7 +7,7 @@ const token =
 
 describe("user API", () => {
   it("GET /user --> get all users", async () => {
-    return request(app)
+    return await request(app)
       .get("/user")
       .set("Authorization", token)
       .expect("Content-Type", /json/)
@@ -28,8 +28,8 @@ describe("user API", () => {
       });
   });
 
-  it("GET /user/find --> get user by id", () => {
-    return request(app)
+  it("GET /user/find --> get user by id", async () => {
+    return await request(app)
       .get("/user/find")
       .set("Authorization", token)
       .expect("Content-Type", /json/)
@@ -48,16 +48,16 @@ describe("user API", () => {
       });
   });
 
-  it("GET /user/find --> 404 if not found", () => {
-    return request(app)
+  it("GET /user/find --> 404 if not found", async () => {
+    return await request(app)
       .get("/user/find")
       .set("Authorization", token)
       .send({ _id: "99999" })
       .expect(404);
   });
 
-  it("POST /user -->  signup", () => {
-    return request(app)
+  it("POST /user -->  signup", async () => {
+    return await request(app)
       .post("/signup")
       .send({
         role: "user",
