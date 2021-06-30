@@ -1,7 +1,7 @@
 const { response } = require("express");
 const request = require("supertest");
 const app = require("./app");
-const { deleteOne } = require("./src/models/questions.model");
+
 const token =
   "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGRjMjMxZjZjN2U2ZTE4MDY2ODVmZGYiLCJlbWFpbCI6IkpvSm9BZG1pbkBob3RtYWkuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjI1MDM5NjQ3LCJleHAiOjE2MjUxMjYwNDd9.elE4gDD15-wgMIjVTNiGK5etRViSTCKuZWv_-A5-l_w";
 
