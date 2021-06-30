@@ -34,7 +34,9 @@ exports.signup = async (req, res, next) => {
   const { email, password, username, role, firstName, lastName } = req.body;
   try {
     const hashedpassword = await bcrypt.hash(password, 10);
+
     const resuit = await userAuth.create({
+      guestId: req._id ? req._id : null,
       email,
       password: hashedpassword,
       username,
@@ -42,6 +44,7 @@ exports.signup = async (req, res, next) => {
       firstName,
       lastName,
     });
+
     const token = jwt.sign(
       { _id: resuit._id, email: resuit.email, role: resuit.role },
       process.env.Secret_Key,

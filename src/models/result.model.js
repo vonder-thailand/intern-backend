@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const results = new Schema(
   {
-    userid: { type: mongoose.ObjectId, default: "-", index: true },
+    userid: { type: mongoose.ObjectId, index: true },
     results: [{ type: Object, default: "-" }],
   },
   {

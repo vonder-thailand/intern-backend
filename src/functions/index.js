@@ -69,7 +69,15 @@ module.exports.deleteUserById = async (userId) => {
   );
 };
 
-module.exports.createResultById = async (results, userid) => {
+module.exports.createResultById = async (results, req) => {
+  let guest = false;
+
+  if (req.userId) var userid = req.userId;
+  else if (req._id) {
+    var userid = req._id;
+    guest = true;
+  }
+
   if (!valid_id(userid)) {
     throw {
       message: "user not found",
@@ -150,10 +158,17 @@ module.exports.createResultById = async (results, userid) => {
 
   //no results in database
   if (!user.length) {
-    return await UserResult.create({
-      userid: userid,
-      results: results_array,
-    });
+    if (guest) {
+      return await UserResult.create({
+        guestId: userid,
+        results: results_array,
+      });
+    } else {
+      return await UserResult.create({
+        userid: userid,
+        results: results_array,
+      });
+    }
   } else {
     const array = user[0].results;
     array.push(category);
@@ -424,3 +439,5 @@ module.exports.deleteComment = async (input_comment_id) => {
 
   return comment;
 };
+
+
