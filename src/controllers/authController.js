@@ -2,6 +2,7 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userAuth = require("../models/auth.model");
+const mongoose = require("mongoose");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -36,7 +37,7 @@ exports.signup = async (req, res, next) => {
     const hashedpassword = await bcrypt.hash(password, 10);
 
     const resuit = await userAuth.create({
-      guestId: req._id ? req._id : null,
+      _id: req._id ? req._id : mongoose.Types.ObjectId(),
       email,
       password: hashedpassword,
       username,

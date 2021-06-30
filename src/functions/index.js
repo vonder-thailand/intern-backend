@@ -70,21 +70,24 @@ module.exports.deleteUserById = async (userId) => {
 };
 
 module.exports.createResultById = async (results, req) => {
-  let guest = false;
-
+  //if user
   if (req.userId) var userid = req.userId;
+  //if guest
   else if (req._id) {
     var userid = req._id;
-    guest = true;
   }
 
+  //Invalid id
   if (!valid_id(userid)) {
     throw {
       message: "user not found",
       status: 404,
     };
   }
+
+  //find existing result
   const user = await UserResult.find({ userid: userid });
+
   let questions = results.length;
   let results_array = [];
   let category = [
@@ -130,6 +133,7 @@ module.exports.createResultById = async (results, req) => {
     },
   ];
 
+  //calculate result
   for (let i = 0; i < questions; i++) {
     category_id = results[i]["categoryId"];
     score = results[i]["score"];
@@ -158,18 +162,12 @@ module.exports.createResultById = async (results, req) => {
 
   //no results in database
   if (!user.length) {
-    if (guest) {
-      return await UserResult.create({
-        guestId: userid,
-        results: results_array,
-      });
-    } else {
-      return await UserResult.create({
-        userid: userid,
-        results: results_array,
-      });
-    }
+    return await UserResult.create({
+      userid: userid,
+      results: results_array,
+    });
   } else {
+    //there is an existing result in database
     const array = user[0].results;
     array.push(category);
     return await UserResult.findOneAndUpdate(
@@ -439,5 +437,3 @@ module.exports.deleteComment = async (input_comment_id) => {
 
   return comment;
 };
-
-
