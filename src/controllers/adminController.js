@@ -82,12 +82,7 @@ exports.getAllQuestions = async (req, res, next) => {
   try {
     const question = await questionModel.find({});
     const { role } = req;
-    if (role != "admin") {
-      return res.status(400).json({
-        status: "error",
-        message: "only admin can access",
-      });
-    } else if (!question.length) {
+    if (!question.length) {
       throw {
         message: "question not found",
         status: 404,

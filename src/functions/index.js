@@ -206,7 +206,6 @@ module.exports.createGuest = async () => {
   const token = jwt.sign({ _id: resuit._id }, process.env.Secret_Key, {
     expiresIn: "1d",
   });
-
   return token;
 };
 
