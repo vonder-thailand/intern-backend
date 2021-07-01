@@ -364,7 +364,11 @@ module.exports.contentIsLiked = async (input_uid, input_content_id) => {
   return content;
 };
 
-module.exports.getCommentByContentId = async (input_content_id) => {
+module.exports.getCommentByContentId = async (
+  input_content_id,
+  page,
+  limit
+) => {
   if (!valid_id(input_content_id)) {
     throw {
       message: "content not found",
@@ -375,7 +379,9 @@ module.exports.getCommentByContentId = async (input_content_id) => {
   const comments = await CommentModel.find({
     content_id: input_content_id,
     isDeleted: false,
-  });
+  })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   if (!comments.length) {
     throw {
