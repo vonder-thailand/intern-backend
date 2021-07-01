@@ -37,25 +37,25 @@ exports.signup = async (req, res, next) => {
     if (!email) {
       throw {
         message: "Email is required.",
-        status: 404,
+        status: 204,
       };
     }
     if (!password) {
       throw {
         message: "Email is password.",
-        status: 404,
+        status: 204,
       };
     }
     if (!username) {
       throw {
         message: "Email is username.",
-        status: 404,
+        status: 204,
       };
     }
     if (!firstName) {
       throw {
         message: "firstName is required.",
-        status: 404,
+        status: 204,
       };
     }
     if (!lastName) {
