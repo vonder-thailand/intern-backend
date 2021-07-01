@@ -208,7 +208,15 @@ exports.contentIsLiked = async (req, res, next) => {
 
 exports.getCommentByContentId = async (req, res, next) => {
   try {
-    const comments = await getCommentByContentId(req.body.content_id);
+    const page = req.params.page || 1;
+    const r_limit = req.params.limit || 2;
+    const limit = parseInt(r_limit);
+
+    const comments = await getCommentByContentId(
+      req.body.content_id,
+      page,
+      limit
+    );
     res.send(comments);
   } catch (err) {
     next(err);
