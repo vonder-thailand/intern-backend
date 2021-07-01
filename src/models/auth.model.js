@@ -23,14 +23,17 @@ const userAuth = new Schema(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+      required: true,
     },
     firstName: {
       type: String,
       default: "-",
+      required: true,
     },
     lastName: {
       type: String,
       default: "-",
+      required: true,
     },
 
     deleteAt: {
@@ -40,7 +43,6 @@ const userAuth = new Schema(
       type: Boolean,
       default: false,
     },
-    guestId: { type: mongoose.ObjectId, index: true },
   },
   {
     strict: false,
