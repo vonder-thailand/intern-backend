@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userAuth = require("../models/auth.model");
 const mongoose = require("mongoose");
+const { body, validationResult } = require("express-validator");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -34,38 +35,16 @@ exports.login = async (req, res, next) => {
 exports.signup = async (req, res, next) => {
   const { email, password, username, role, firstName, lastName } = req.body;
   try {
-    if (!email) {
-      throw {
-        message: "Email is required.",
-        status: 404,
-      };
-    }
-    if (!password) {
-      throw {
-        message: "Email is password.",
-        status: 404,
-      };
-    }
-    if (!username) {
-      throw {
-        message: "Email is username.",
-        status: 404,
-      };
-    }
-    if (!firstName) {
-      throw {
-        message: "firstName is required.",
-        status: 404,
-      };
-    }
-    if (!lastName) {
-      throw {
-        message: "lastName is required.",
-        status: 404,
-      };
-    }
-    const hashedpassword = await bcrypt.hash(password, 10);
+    const errors = validationResult(req);
 
+    if (!errors.isEmpty()) {
+      const error = new Error("Validation failed.");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+    const hashedpassword = await bcrypt.hash(password, 10);
     const resuit = await userAuth.create({
       _id: req._id ? req._id : mongoose.Types.ObjectId(),
       email,
