@@ -39,7 +39,7 @@ router.put(
   usersController.contentIsLiked
 );
 router.get(
-  "/user/comment/get",
+  "/user/comment/get/:page-:limit",
   auth.authMiddleware,
   usersController.getCommentByContentId
 );
