@@ -9,7 +9,7 @@ const QuestionModel = require("../models/questions.model");
 const userAuth = require("../models/auth.model");
 const jwt = require("jsonwebtoken");
 
-const bcrypt = require("bcrypt");
+/*const bcrypt = require("bcrypt");*/
 
 const { checkNumberInString } = require("../functions/verifyState");
 
