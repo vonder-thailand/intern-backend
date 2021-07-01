@@ -69,27 +69,8 @@ module.exports.deleteUserById = async (userId) => {
   );
 };
 
-module.exports.createResultById = async (results, req) => {
-  //if user
-  if (req.userId) var userid = req.userId;
-  //if guest
-  else if (req._id) {
-    var userid = req._id;
-  }
-
-  //Invalid id
-  if (!valid_id(userid)) {
-    throw {
-      message: "user not found",
-      status: 404,
-    };
-  }
-
-  //find existing result
-  const user = await UserResult.find({ userid: userid });
-
+module.exports.calculateResult = async (results) => {
   let questions = results.length;
-  let results_array = [];
   let category = [
     {
       category_id: 1,
@@ -158,7 +139,28 @@ module.exports.createResultById = async (results, req) => {
     }
   }
 
-  results_array.push(category);
+  return category;
+};
+
+module.exports.createResultById = async (results, req) => {
+  const userid = req.userId;
+
+  //Invalid id
+  if (!valid_id(userid)) {
+    throw {
+      message: "user not found",
+      status: 404,
+    };
+  }
+
+  //find existing result
+  const user = await UserResult.find({ userid: userid });
+
+  //calculate result
+  let results_array = [];
+  const calculated_result = await this.calculateResult(results);
+
+  results_array.push(calculated_result);
 
   //no results in database
   if (!user.length) {
@@ -169,7 +171,7 @@ module.exports.createResultById = async (results, req) => {
   } else {
     //there is an existing result in database
     const array = user[0].results;
-    array.push(category);
+    array.push(calculated_result);
     return await UserResult.findOneAndUpdate(
       { userid: userid },
       { results: array },
