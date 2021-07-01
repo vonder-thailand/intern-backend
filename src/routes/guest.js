@@ -13,6 +13,6 @@ const auth = require("../middlewares/guestAuth");
 // router.post("/guest", usersController.createGuest);
 // router.post("/guest/signup", auth.guestAuthMiddleware, authController.signup);
 
-router.get("/guest/result", guestController.calculateResult);
+router.post("/guest/result", guestController.calculateResult);
 
 module.exports = router;
