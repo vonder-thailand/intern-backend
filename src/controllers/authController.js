@@ -34,6 +34,36 @@ exports.login = async (req, res, next) => {
 exports.signup = async (req, res, next) => {
   const { email, password, username, role, firstName, lastName } = req.body;
   try {
+    if (!email) {
+      throw {
+        message: "Email is required.",
+        status: 404,
+      };
+    }
+    if (!password) {
+      throw {
+        message: "Email is password.",
+        status: 404,
+      };
+    }
+    if (!username) {
+      throw {
+        message: "Email is username.",
+        status: 404,
+      };
+    }
+    if (!firstName) {
+      throw {
+        message: "firstName is required.",
+        status: 404,
+      };
+    }
+    if (!lastName) {
+      throw {
+        message: "lastName is required.",
+        status: 404,
+      };
+    }
     const hashedpassword = await bcrypt.hash(password, 10);
 
     const resuit = await userAuth.create({
