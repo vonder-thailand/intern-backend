@@ -15,6 +15,7 @@ const {
   getCommentByContentId,
   deleteContent,
   deleteComment,
+  search,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 
@@ -26,6 +27,7 @@ exports.findUserById = async (req, res, next) => {
       res.send(user);
     } else {
       const { userId } = req;
+      console.log(userId);
       const user = await findUserById(userId);
       res.send(user);
     }
@@ -76,11 +78,11 @@ exports.deleteUserById = async (req, res, next) => {
     next(err);
   }
 };
+
 exports.createResultById = async (req, res, next) => {
   try {
-    const { userId } = req;
-    const answers = req.body.question_data;
-    const user = await createResultById(answers, userId);
+    const answers = req.body;
+    const user = await createResultById(answers, req);
     res.send(user);
   } catch (err) {
     console.log("err:", err);
@@ -120,8 +122,10 @@ exports.postComment = async (req, res, next) => {
 
 exports.createGuest = async (req, res) => {
   try {
-    const guest = await createGuest(req.body);
-    res.send(guest);
+    const token = await createGuest();
+    console.log("token: ", token);
+    console.log(token);
+    res.status(200).json({ token });
   } catch (err) {
     console.log("err: ", err);
     res.status(err.status || 500).send(err.message || "Internal Server Error");
@@ -169,8 +173,13 @@ exports.getAllContents = async (req, res) => {
 
 exports.getSortByTag = async (req, res, next) => {
   try {
-    const contents = await getSortByTag(req.body.tag);
-    res.send(contents);
+    if (req.body.dataSet) {
+      const contents = await getSortByTag(req.body.tag, req.body.dataSet);
+      res.send(contents);
+    } else {
+      const contents = await getSortByTag(req.body.tag, null);
+      res.send(contents);
+    }
   } catch (err) {
     if (!err.status) {
       err.status = 500;
@@ -205,7 +214,15 @@ exports.contentIsLiked = async (req, res, next) => {
 
 exports.getCommentByContentId = async (req, res, next) => {
   try {
-    const comments = await getCommentByContentId(req.body.content_id);
+    const page = req.params.page || 1;
+    const r_limit = req.params.limit || 2;
+    const limit = parseInt(r_limit);
+
+    const comments = await getCommentByContentId(
+      req.body.content_id,
+      page,
+      limit
+    );
     res.send(comments);
   } catch (err) {
     next(err);
@@ -225,6 +242,15 @@ exports.deleteComment = async (req, res, next) => {
   try {
     const comment = await deleteComment(req.body.comment_id);
     res.send(comment);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.search = async (req, res, next) => {
+  try {
+    const search_result = await search(req.params.keyword, req.body.tag);
+    res.send(search_result);
   } catch (err) {
     next(err);
   }

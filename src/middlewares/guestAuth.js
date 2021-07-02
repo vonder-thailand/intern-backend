@@ -1,18 +1,19 @@
+const { CostExplorer } = require("aws-sdk");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-module.exports.authMiddleware = async (req, res, next) => {
+exports.guestAuthMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.get("Authorization");
     const token = authHeader.split(" ")[1];
+    console.log(token);
 
-    jwt.verify(token, process.env.Secret_Key, async (err, authData) => {
+    jwt.verify(token, process.env.Secret_Key, async (err, userAuth) => {
       if (err) {
         res.sendStatus(403);
       } else {
-        const user_info = authData.auth;
-        req.userId = user_info._id;
-        req.role = user_info.role;
+        const user_info = userAuth;
+        req._id = user_info._id;
       }
     });
     return next();

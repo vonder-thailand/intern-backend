@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const usersController = require("../controllers/usersController");
-const auth = require("../middlewares/authVerify");
+const auth = require("../middlewares/auth");
 const multer = require("multer");
 
 router.post(
@@ -21,7 +21,6 @@ router.post(
 );
 router.get("/user", auth.authMiddleware, usersController.getAllUsers);
 router.post("/comment", auth.authMiddleware, usersController.postComment);
-router.post("/guest", auth.authMiddleware, usersController.createGuest);
 router.get("/user/result", auth.authMiddleware, usersController.getResultById);
 router.post("/user/content", auth.authMiddleware, usersController.postContent);
 router.get(
@@ -40,7 +39,7 @@ router.put(
   usersController.contentIsLiked
 );
 router.get(
-  "/user/comment/get",
+  "/user/comment/get/:page-:limit",
   auth.authMiddleware,
   usersController.getCommentByContentId
 );
@@ -53,6 +52,11 @@ router.delete(
   "/user/content",
   auth.authMiddleware,
   usersController.deleteContent
+);
+router.get(
+  "/user/search/:keyword",
+  auth.authMiddleware,
+  usersController.search
 );
 
 module.exports = router;
