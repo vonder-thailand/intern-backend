@@ -341,7 +341,6 @@ module.exports.getSortByTag = async (tag, dataSet) => {
       : console.log("pass")
   );
   if (dataSet == null) {
-    console.log(dataSet);
     return await ContentModel.find({
       tag: { $in: tag },
       isDeleted: false,
@@ -351,7 +350,6 @@ module.exports.getSortByTag = async (tag, dataSet) => {
     const newItem = dataSet.filter((item) =>
       item.tag.some((r) => tag.indexOf(r) >= 0)
     );
-    console.log(newItem);
 
     return newItem;
   }

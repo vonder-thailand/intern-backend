@@ -173,9 +173,7 @@ exports.getAllContents = async (req, res) => {
 
 exports.getSortByTag = async (req, res, next) => {
   try {
-    console.log(req.body.dataSet);
     if (req.body.dataSet) {
-      console.log("No null");
       const contents = await getSortByTag(req.body.tag, req.body.dataSet);
       res.send(contents);
     } else {
