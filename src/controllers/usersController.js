@@ -15,6 +15,7 @@ const {
   getCommentByContentId,
   deleteContent,
   deleteComment,
+  search,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 
@@ -80,7 +81,7 @@ exports.deleteUserById = async (req, res, next) => {
 
 exports.createResultById = async (req, res, next) => {
   try {
-    const answers = req.body.question_data;
+    const answers = req.body;
     const user = await createResultById(answers, req);
     res.send(user);
   } catch (err) {
@@ -236,6 +237,15 @@ exports.deleteComment = async (req, res, next) => {
   try {
     const comment = await deleteComment(req.body.comment_id);
     res.send(comment);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.search = async (req, res, next) => {
+  try {
+    const search_result = await search(req.params.keyword, req.body.tag);
+    res.send(search_result);
   } catch (err) {
     next(err);
   }
