@@ -72,6 +72,7 @@ module.exports.deleteUserById = async (userId) => {
 
 module.exports.calculateResult = async (results) => {
   let questions = results.length;
+  const date = Date(Date.now());
   let category = [
     {
       category_id: 1,
@@ -140,7 +141,7 @@ module.exports.calculateResult = async (results) => {
     }
   }
 
-  return category;
+  return {category,date};
 };
 
 module.exports.createResultById = async (results, req) => {
