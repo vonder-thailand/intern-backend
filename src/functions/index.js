@@ -319,7 +319,7 @@ module.exports.getAllContents = async () => {
   });
 };
 
-module.exports.getSortByTag = async (tag) => {
+module.exports.getSortByTag = async (tag, dataSet) => {
   tags = [
     "word smart",
     "logic smart",
@@ -333,7 +333,6 @@ module.exports.getSortByTag = async (tag) => {
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
-
   tag.map((x) =>
     tags.indexOf(x) == -1
       ? (function () {
@@ -341,10 +340,21 @@ module.exports.getSortByTag = async (tag) => {
         })()
       : console.log("pass")
   );
-  return await ContentModel.find({
-    tag: { $in: tag },
-    isDeleted: false,
-  });
+  if (dataSet == null) {
+    console.log(dataSet);
+    return await ContentModel.find({
+      tag: { $in: tag },
+      isDeleted: false,
+    });
+  } else {
+    //const found = arr1.some(r=> arr2.indexOf(r) >= 0)
+    const newItem = dataSet.filter((item) =>
+      item.tag.some((r) => tag.indexOf(r) >= 0)
+    );
+    console.log(newItem);
+
+    return newItem;
+  }
 };
 
 module.exports.findAdminById = async (input) => {
@@ -527,7 +537,7 @@ module.exports.search = async (input, tag) => {
       return x.toLowerCase();
     });
 
-    return ContentModel.aggregate([
+    return await ContentModel.aggregate([
       {
         $lookup: {
           from: "userauths",
@@ -554,7 +564,7 @@ module.exports.search = async (input, tag) => {
       },
     ]);
   } else {
-    return ContentModel.aggregate([
+    return await ContentModel.aggregate([
       {
         $lookup: {
           from: "userauths",
@@ -578,6 +588,21 @@ module.exports.search = async (input, tag) => {
               tag: { $regex: new_input },
             },
           ],
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          content_body: 1,
+          title: 1,
+          likes: 1,
+          uid_likes: 1,
+          tag: 1,
+          image: 1,
+          isDeleted: 1,
+          author_id: 1,
+          created_at: 1,
+          "author_data.username": 1,
         },
       },
     ]);
