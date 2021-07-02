@@ -14,6 +14,7 @@ const jwt = require("jsonwebtoken");
 const { checkNumberInString } = require("../functions/verifyState");
 
 var mongoose = require("mongoose");
+const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
 
 module.exports.findUserById = async (input) => {
@@ -444,4 +445,69 @@ module.exports.deleteComment = async (input_comment_id) => {
     };
 
   return comment;
+};
+
+module.exports.search = async (input, tag) => {
+  let new_input = new RegExp(input, "i");
+
+  if (tag) {
+    tag = tag.map((x) => {
+      return x.toLowerCase();
+    });
+
+    return ContentModel.aggregate([
+      {
+        $lookup: {
+          from: "userauths",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author_data",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              tag: { $in: tag },
+              isDeleted: false,
+              "author_data.username": { $regex: new_input },
+            },
+            {
+              tag: { $in: tag },
+              isDeleted: false,
+              title: { $regex: new_input },
+            },
+          ],
+        },
+      },
+    ]);
+  } else {
+    return ContentModel.aggregate([
+      {
+        $lookup: {
+          from: "userauths",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author_data",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              isDeleted: false,
+              "author_data.username": { $regex: new_input },
+            },
+            {
+              isDeleted: false,
+              title: { $regex: new_input },
+            },
+            {
+              tag: { $regex: new_input },
+            },
+          ],
+        },
+      },
+    ]);
+  }
 };

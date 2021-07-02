@@ -53,5 +53,10 @@ router.delete(
   auth.authMiddleware,
   usersController.deleteContent
 );
+router.get(
+  "/user/search/:keyword",
+  auth.authMiddleware,
+  usersController.search
+);
 
 module.exports = router;
