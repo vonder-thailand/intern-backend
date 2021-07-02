@@ -1,11 +1,11 @@
 const questionModel = require("../models/questions.model");
-const summariseModel = require("../models/summarise.model");
 const resultModel = require("../models/result.model");
 const {
   findAdminById,
   findAllAdmins,
   postQuestion,
   postSummarise,
+  getSummarise,
 } = require("../functions/index");
 
 exports.getAllResult = async (req, res) => {
@@ -145,6 +145,15 @@ exports.postSummarise = async (req, res, next) => {
         message: "only admin can access",
       });
     } else res.send(summarise);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getSummarise = async (req, res, next) => {
+  try {
+    const summarise = await getSummarise();
+    res.send(summarise);
   } catch (err) {
     next(err);
   }

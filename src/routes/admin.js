@@ -14,6 +14,7 @@ router.get(
   adminController.getQuestionByCat
 );
 router.post("/summarize", auth.authMiddleware, adminController.postSummarise);
+router.get("/summarize", auth.authMiddleware, adminController.getSummarise);
 router.put("/update", auth.authMiddleware, adminController.updateFields);
 
 module.exports = router;

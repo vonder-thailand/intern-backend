@@ -7,6 +7,7 @@ const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
 const QuestionModel = require("../models/questions.model");
 const summariseModel = require("../models/summarise.model");
+const resultModel = require("../models/result.model");
 const userAuth = require("../models/auth.model");
 const jwt = require("jsonwebtoken");
 
@@ -72,7 +73,7 @@ module.exports.deleteUserById = async (userId) => {
 
 module.exports.calculateResult = async (results) => {
   let questions = results.length;
-  const date = Date(Date.now());
+  const createAt = Date(Date.now());
   let category = [
     {
       category_id: 1,
@@ -141,7 +142,7 @@ module.exports.calculateResult = async (results) => {
     }
   }
 
-  return {category,date};
+  return { category, createAt };
 };
 
 module.exports.createResultById = async (results, req) => {
@@ -443,23 +444,7 @@ module.exports.deleteComment = async (input_comment_id) => {
 };
 
 module.exports.postSummarise = async (input) => {
-  const category_index = input.category_index;
-  const description = input.description;
-  const description_career = input.description_career;
-  const image_charactor = input.image_charactor;
-  const skill_summarize = input.skill_summarize;
-  const charactor_summarize = input.charactor_summarize;
-  console.log(category_index);
-  const summarise = await summariseModel.create({
-    category_index: category_index,
-    description: description,
-    description_career: description_career,
-    image_charactor: image_charactor,
-    skill_summarize: skill_summarize,
-    charactor_summarize: charactor_summarize,
-  });
-  return summarise;
-  /*if (!(parseInt(category_index) <= 8 && parseInt(category_index) >= 1)) {
+  if (!(parseInt(category_index) <= 8 && parseInt(category_index) >= 1)) {
     throw {
       message: "out of category index",
       status: 404,
@@ -485,5 +470,13 @@ module.exports.postSummarise = async (input) => {
       charactor_summarize: charactor_summarize,
     });
     return summarise;
-  }*/
+  }
+};
+module.exports.getSummarise = async (input) => {
+  return await resultModel.aggregate({
+    from: summariseModel,
+    localField: resuits,
+    foreignField: category_index,
+    as: detail,
+  });
 };
