@@ -473,10 +473,24 @@ module.exports.postSummarise = async (input) => {
   }
 };
 module.exports.getSummarise = async (input) => {
-  return await resultModel.aggregate({
-    from: summariseModel,
-    localField: resuits,
-    foreignField: category_index,
-    as: detail,
-  });
+  return await resultModel.aggregate([
+    {
+      '$match': {
+        '_id': new mongoose.Types.ObjectId('60dd7beff0a9b41440f377fc')
+      }
+    }, {
+      '$unwind': {
+        'path': '$results', 
+        'preserveNullAndEmptyArrays': true
+      }
+    }, {
+      '$lookup': {
+        'from': 'summarises', 
+        'localField': 'results.category_id', 
+        'foreignField': 'category_index', 
+        'as': 'string'
+      }
+    }
+  ]);
+
 };
