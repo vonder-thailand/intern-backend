@@ -11,11 +11,12 @@ const resultModel = require("../models/result.model");
 const userAuth = require("../models/auth.model");
 const jwt = require("jsonwebtoken");
 
-const bcrypt = require("bcrypt");
+/*const bcrypt = require("bcrypt");*/
 
 const { checkNumberInString } = require("../functions/verifyState");
 
 var mongoose = require("mongoose");
+const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
 
 module.exports.findUserById = async (input) => {
@@ -30,8 +31,8 @@ module.exports.findUserById = async (input) => {
 };
 
 module.exports.updateUserById = async (payload, userId) => {
-  let { firstName, lastName, password, email, username } = payload;
-  password = await bcrypt.hash(password, 10);
+  let { firstName, lastName, email, username } = payload;
+  /*password = await bcrypt.hash(password, 10);*/
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     throw {
       message: "userid is not defined",
@@ -43,7 +44,7 @@ module.exports.updateUserById = async (payload, userId) => {
   if (isNaN(lastName) && isNaN(firstName)) {
     return userAuth.findOneAndUpdate(
       { _id: userId },
-      { firstName, lastName, password, email, username },
+      { firstName, lastName, email, username },
       { new: true, omitUndefined: true }
     );
   }
@@ -227,11 +228,13 @@ module.exports.createGuest = async () => {
   return token;
 };
 
-module.exports.createContent = async (input, id, name) => {
-  let { content_body, title, likes, uid_likes, tag, image } = input;
+module.exports.createContent = async (input, id) => {
+  let { content_body, title, likes, uid_likes, tag, content_type, image } =
+    input;
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
+  var ct = content_type.toLowerCase();
   return await ContentModel.create({
     content_body,
     title,
@@ -239,6 +242,7 @@ module.exports.createContent = async (input, id, name) => {
     uid_likes,
     author_id: id,
     tag,
+    ct,
     image,
   });
 };
@@ -249,7 +253,7 @@ module.exports.getAllContents = async () => {
   });
 };
 
-module.exports.getSortByTag = async (tag) => {
+module.exports.getSortByTag = async (tag, dataSet, content_type) => {
   tags = [
     "word smart",
     "logic smart",
@@ -271,10 +275,20 @@ module.exports.getSortByTag = async (tag) => {
         })()
       : console.log("pass")
   );
-  return await ContentModel.find({
-    tag: { $in: tag },
-    isDeleted: false,
-  });
+  if (dataSet == null) {
+    return await ContentModel.find({
+      tag: { $in: tag },
+      content_type: { $in: content_type },
+      isDeleted: false,
+    });
+  } else {
+    let newItem = dataSet.filter((item) =>
+      item.tag.some((r) => tag.indexOf(r) >= 0)
+    );
+    newItem = dataSet.filter((item) => item.content_type == content_type);
+
+    return newItem;
+  }
 };
 
 module.exports.findAdminById = async (input) => {
@@ -367,7 +381,11 @@ module.exports.contentIsLiked = async (input_uid, input_content_id) => {
   return content;
 };
 
-module.exports.getCommentByContentId = async (input_content_id) => {
+module.exports.getCommentByContentId = async (
+  input_content_id,
+  page,
+  limit
+) => {
   if (!valid_id(input_content_id)) {
     throw {
       message: "content not found",
@@ -378,7 +396,9 @@ module.exports.getCommentByContentId = async (input_content_id) => {
   const comments = await CommentModel.find({
     content_id: input_content_id,
     isDeleted: false,
-  });
+  })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   if (!comments.length) {
     throw {
@@ -472,6 +492,112 @@ module.exports.postSummarise = async (input) => {
     return summarise;
   }
 };
+
 module.exports.getSummarise = async () => {
   return await summariseModel.find();
+
+/* module.exports.getSummarise = async (input) => {
+  return await resultModel.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId("60dd7beff0a9b41440f377fc"),
+      },
+    },
+    {
+      $unwind: {
+        path: "$results",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "summarises",
+        localField: "results.category_id",
+        foreignField: "category_index",
+        as: "string",
+      },
+    },
+  ]);
+};*/
+  
+module.exports.search = async (input, tag, con_ty) => {
+  let new_input = new RegExp(input, "i");
+  if (tag) {
+    tag = tag.map((x) => {
+      return x.toLowerCase();
+    });
+
+    return await ContentModel.aggregate([
+      {
+        $lookup: {
+          from: "userauths",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author_data",
+        },
+      },
+
+      {
+        $match: {
+          $or: [
+            {
+              content_type: con_ty,
+              tag: { $in: tag },
+              isDeleted: false,
+              "author_data.username": { $regex: new_input },
+            },
+            {
+              content_type: con_ty,
+              tag: { $in: tag },
+              isDeleted: false,
+              title: { $regex: new_input },
+            },
+          ],
+        },
+      },
+    ]);
+  } else {
+    return await ContentModel.aggregate([
+      {
+        $lookup: {
+          from: "userauths",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author_data",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              isDeleted: false,
+              "author_data.username": { $regex: new_input },
+            },
+            {
+              isDeleted: false,
+              title: { $regex: new_input },
+            },
+            {
+              tag: { $regex: new_input },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          content_body: 1,
+          title: 1,
+          likes: 1,
+          uid_likes: 1,
+          tag: 1,
+          image: 1,
+          isDeleted: 1,
+          author_id: 1,
+          created_at: 1,
+          "author_data.username": 1,
+        },
+      },
+    ]);
+  }
 };

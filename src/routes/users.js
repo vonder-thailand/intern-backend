@@ -39,7 +39,7 @@ router.put(
   usersController.contentIsLiked
 );
 router.get(
-  "/user/comment/get",
+  "/user/comment/get/:page-:limit",
   auth.authMiddleware,
   usersController.getCommentByContentId
 );
@@ -52,6 +52,11 @@ router.delete(
   "/user/content",
   auth.authMiddleware,
   usersController.deleteContent
+);
+router.get(
+  "/user/search/:keyword",
+  auth.authMiddleware,
+  usersController.search
 );
 
 module.exports = router;
