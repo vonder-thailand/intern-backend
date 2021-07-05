@@ -471,7 +471,7 @@ module.exports.postSummarise = async (input) => {
     };
   }
   const ob = await summariseModel.find({
-    category_index: category_index,
+    category_id: category_id,
   });
   console.log(ob.length);
   if (ob.length !== 0) {
@@ -482,7 +482,7 @@ module.exports.postSummarise = async (input) => {
   } else {
     console.log(category_index);
     const summarise = await summariseModel.create({
-      category_index: category_index,
+      category_id: category_id,
       description: description,
       description_career: description_career,
       image_charactor: image_charactor,
@@ -492,7 +492,11 @@ module.exports.postSummarise = async (input) => {
     return summarise;
   }
 };
-module.exports.getSummarise = async (input) => {
+
+module.exports.getSummarise = async () => {
+  return await summariseModel.find();
+
+/* module.exports.getSummarise = async (input) => {
   return await resultModel.aggregate([
     {
       $match: {
@@ -514,7 +518,8 @@ module.exports.getSummarise = async (input) => {
       },
     },
   ]);
-};
+};*/
+  
 module.exports.search = async (input, tag, con_ty) => {
   let new_input = new RegExp(input, "i");
   if (tag) {
