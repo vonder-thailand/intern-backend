@@ -15,6 +15,7 @@ const {
   getCommentByContentId,
   deleteContent,
   deleteComment,
+  search,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 
@@ -80,7 +81,7 @@ exports.deleteUserById = async (req, res, next) => {
 
 exports.createResultById = async (req, res, next) => {
   try {
-    const answers = req.body.question_data;
+    const answers = req.body;
     const user = await createResultById(answers, req);
     res.send(user);
   } catch (err) {
@@ -172,8 +173,19 @@ exports.getAllContents = async (req, res) => {
 
 exports.getSortByTag = async (req, res, next) => {
   try {
-    const contents = await getSortByTag(req.body.tag);
-    res.send(contents);
+    console.log(req.body.content_type);
+    const ct_type = req.body.content_type.toLowerCase();
+    if (req.body.dataSet) {
+      const contents = await getSortByTag(
+        req.body.tag,
+        req.body.dataSet,
+        ct_type
+      );
+      res.send(contents);
+    } else {
+      const contents = await getSortByTag(req.body.tag, null, ct_type);
+      res.send(contents);
+    }
   } catch (err) {
     if (!err.status) {
       err.status = 500;
@@ -208,7 +220,15 @@ exports.contentIsLiked = async (req, res, next) => {
 
 exports.getCommentByContentId = async (req, res, next) => {
   try {
-    const comments = await getCommentByContentId(req.body.content_id);
+    const page = req.params.page || 1;
+    const r_limit = req.params.limit || 2;
+    const limit = parseInt(r_limit);
+
+    const comments = await getCommentByContentId(
+      req.body.content_id,
+      page,
+      limit
+    );
     res.send(comments);
   } catch (err) {
     next(err);
@@ -228,6 +248,21 @@ exports.deleteComment = async (req, res, next) => {
   try {
     const comment = await deleteComment(req.body.comment_id);
     res.send(comment);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.search = async (req, res, next) => {
+  try {
+    const ct_type = req.body.content_type.toLowerCase();
+    console.log(ct_type);
+    const search_result = await search(
+      req.params.keyword,
+      req.body.tag,
+      ct_type
+    );
+    res.send(search_result);
   } catch (err) {
     next(err);
   }

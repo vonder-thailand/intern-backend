@@ -4,8 +4,8 @@ const Schema = mongoose.Schema;
 const comments = new Schema(
   {
     comment_body: { type: String, default: "-" },
-    uid: { type: mongoose.ObjectId, default: "-" },
-    content_id: { type: mongoose.ObjectId, default: "-", index: true },
+    uid: { type: mongoose.ObjectId },
+    content_id: { type: mongoose.ObjectId, index: true },
     isDeleted: { type: Boolean, default: false },
   },
   {
