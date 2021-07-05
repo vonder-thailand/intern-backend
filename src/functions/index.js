@@ -451,7 +451,7 @@ module.exports.postSummarise = async (input) => {
     };
   }
   const ob = await summariseModel.find({
-    category_index: category_index,
+    category_id: category_id,
   });
   console.log(ob.length);
   if (ob.length !== 0) {
@@ -462,7 +462,7 @@ module.exports.postSummarise = async (input) => {
   } else {
     console.log(category_index);
     const summarise = await summariseModel.create({
-      category_index: category_index,
+      category_id: category_id,
       description: description,
       description_career: description_career,
       image_charactor: image_charactor,
@@ -472,55 +472,6 @@ module.exports.postSummarise = async (input) => {
     return summarise;
   }
 };
-module.exports.getSummarise = async (input) => {
-  return await resultModel.aggregate([
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId("60e2864a3db29d5f10370b26"),
-      },
-    },
-    {
-      $unwind: {
-        path: "$results",
-        preserveNullAndEmptyArrays: false,
-      },
-    },
-    {
-      $lookup: {
-        from: "summarises",
-        let: {
-          category_id: "$results.category.category_id",
-          score: "$results.category.score",
-          skill: "$results.category.skill",
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $in: ["$category_index", "$$category_id"] },
-            },
-          },
-          {
-            $addFields: {
-              score: {
-                $arrayElemAt: ["$$score", "$category_index"],
-              },
-              skill: {
-                $arrayElemAt: ["$$skill", "$category_index"],
-              },
-            },
-          },
-        ],
-        as: "results.category",
-      },
-    },
-
-    /*{
-      $lookup: {
-        from: "summarises",
-        localField: "results.category.category_id",
-        foreignField: "category_index",
-        as: "results.category",
-      },
-    },*/
-  ]);
+module.exports.getSummarise = async () => {
+  return await summariseModel.find();
 };

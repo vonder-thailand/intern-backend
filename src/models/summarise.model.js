@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const summarise = new Schema(
   {
-    category_index: { type: Number, default: "-" },
+    category_id: { type: Number, default: "-" },
     description: { type: String, default: "-" },
     description_career: { type: String, default: "-" },
     image_charactor: { type: String, default: "-" },
