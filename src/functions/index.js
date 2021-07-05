@@ -18,6 +18,7 @@ const { checkNumberInString } = require("../functions/verifyState");
 var mongoose = require("mongoose");
 const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
+const ObjectID = mongoose.Types.ObjectId;
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
@@ -185,7 +186,56 @@ module.exports.createResultById = async (results, req) => {
 };
 
 module.exports.getResultById = async (userid) => {
-  return await UserResult.find({ userid: userid });
+  const result = await UserResult.aggregate([
+    { $match: { userid: ObjectID(userid) } },
+    {
+      $unwind: {
+        path: "$results",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        category: "$results.category",
+      },
+    },
+    {
+      $unwind: {
+        path: "$category",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "summarises",
+        localField: "category.category_id",
+        foreignField: "category_id",
+        as: "category.category_id",
+      },
+    },
+    {
+      $unwind: {
+        path: "$category.category_id",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: false,
+        categoryID: "$category.category_id.category_id",
+        skill: "$category.skill",
+        score: "$category.score",
+        description: "$category.category_id.description",
+        description_career: "$category.category_id.description_career",
+        image_charactor: "$category.category_id.image_charactor",
+        charactor_summarize: "$category.category_id.charactor_summarize",
+        skill_summarize: "$category.category_id.skill_summarize",
+      },
+    },
+  ]);
+
+  return result;
 };
 
 module.exports.getResultUsers = async () => {

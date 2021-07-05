@@ -138,6 +138,7 @@ exports.getResultById = async (req, res, next) => {
       const user = await getResultById(req.body._id);
       res.send(user);
     } else {
+      console.log("ELSE");
       const { userId } = req;
       const user = await getResultById(userId);
       res.send(user);
