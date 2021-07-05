@@ -1,14 +1,16 @@
 const questionModel = require("../models/questions.model");
+const resultModel = require("../models/result.model");
 const {
   findAdminById,
   findAllAdmins,
   postQuestion,
+  postSummarise,
+  getSummarise,
 } = require("../functions/index");
-const resultor = require("../models/result.model");
 
 exports.getAllResult = async (req, res) => {
   try {
-    const results = await resultor.find();
+    const results = await resultModel.find();
     const { role } = req;
     if (role != "admin") {
       return res.status(400).json({
@@ -128,6 +130,30 @@ exports.updateFields = async (req, res, next) => {
         message: "only admin can access",
       });
     } else res.send(up);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.postSummarise = async (req, res, next) => {
+  try {
+    const summarise = await postSummarise(req.body);
+    const { role } = req;
+    if (role != "admin") {
+      return res.status(400).json({
+        status: "error",
+        message: "only admin can access",
+      });
+    } else res.send(summarise);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getSummarise = async (req, res, next) => {
+  try {
+    const summarise = await getSummarise();
+    res.send(summarise);
   } catch (err) {
     next(err);
   }

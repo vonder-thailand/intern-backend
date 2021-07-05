@@ -6,6 +6,8 @@ const CommentModel = require("../models/comment.model");
 const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
 const QuestionModel = require("../models/questions.model");
+const summariseModel = require("../models/summarise.model");
+const resultModel = require("../models/result.model");
 const userAuth = require("../models/auth.model");
 const jwt = require("jsonwebtoken");
 
@@ -72,118 +74,47 @@ module.exports.deleteUserById = async (userId) => {
 
 module.exports.calculateResult = async (results) => {
   let questions = results.length;
+  const createAt = Date(Date.now());
   let category = [
     {
       category_id: 1,
       skill: "ปัญญาด้านภาษา",
       score: 0,
-      description:
-        "ผู้ที่มีปัญญาหรือความถนัดด้านนี้จะสามารถรับรู้ เข้าใจ และใช้ภาษาในรูปแบบต่าง ๆ ได้ดี เช่น ภาษาพูด ภาษามือ สามารถเรียนรู้ผ่านภาษาได้ดี เช่น ฟังจับใจความได้ดี มีทักษะในการอ่านเขียน ใช้คําและจดจําข้อมูล และสื่อสารด้วยภาษาได้ดี จึงมักถ่ายทอดความคิดออกมาเป็นคําพูด มากกว่าเป็นภาพ เก่งในการเล่าเรื่อง อธิบาย สอน พูดโน้มน้าวใจ",
-      description_career:
-        "คุณครู, อาจารย์มหาวิทยาลัย, บรรณารักษ์, ผู้ดูแลรักษาโบราณวัตถุ, ผู้ดูแลพิพิธภัณฑ์, ผู้เชี่ยวชาญทางด้านภาษา, นักเขียน, ผู้ประกาศข่าวรายการโทรทัศน์, นักจัดรายการวิทยุ, นักข่าว, นักแปล, ล่าม, ทนายความ, ไกด์",
-      image_charactor:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857608286038523924/Word.png",
-      skill_summarize: "ความถนัดด้านการรับรู้ เข้าใจ และใช้ภาษาต่าง ๆ",
-      charactor_summarize:
-        "ผู้ที่มีปัญญาหรือความถนัดด้านนี้จะสามารถรับรู้ เข้าใจ และใช้ภาษาในรูปแบบต่าง ๆ ได้ดี เช่น ภาษาพูด ภาษามือ มีทักษะในการอ่านเขียน ใช้คําและจดจําข้อมูล",
     },
     {
       category_id: 2,
       skill: "ปัญญาด้านตรรกะ",
       score: 0,
-      description:
-        "หลายคนมักมองด้านความถนัดทางการคิดคำนวณเพียงอย่างเดียว แต่จริงๆ แล้วปัญญาหรือความถนัดด้านนี้หมายรวมถึงความถนัดในการเรียนรู้ด้วยเหตุผล ตรรกะ และตัวเลข โดยสามารถเชื่อมโยง ความคิดเชิงนามธรรมให้ออกมาในเชิงรูปธรรม เห็นความสัมพันธ์ระหว่างเหตุและผล ประเด็นที่เกี่ยวข้องกัน ผู้มีปัญญาด้านนี้จะ คิดเป็นระบบโดยเรียงลําดับตามเหตุการณ์ หรือตามตัวเลข มีทักษะในการแก้ปัญหาจัดลําดับหรือจัดกลุ่มข้อมูล มีทักษะด้านคณิตศาสตร์ เก่งที่จะเชื่อมโยงข้อมูลชิ้นต่าง ๆ เข้าเป็นภาพใหญ่ กระตือรือร้นสนใจสิ่งรอบตัว ชอบตั้งคําถามและทดลองเพื่อให้ได้คําตอบ",
-      description_career:
-        "ผู้ตรวจสอบบัญชี, นักบัญชี, นักคณิตศาสตร์, นักวิทยาศาสตร์, นักสถิติ, นักวิเคราะห์ระบบ, เจ้าหน้าที่เทคนิค",
-      image_charactor:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857609973973647430/logic.png",
-      skill_summarize: "ความถนัดด้านการคิดโดยใช้ตรรกะ เหตุผล และตัวเลข",
-      charactor_summarize:
-        "ปัญญาหรือความถนัดด้านนี้หมายรวมถึงความถนัดในการเรียนรู้ด้วยเหตุผล ตรรกะ และตัวเลข มีทักษะในการแก้ปัญหาจัดลําดับหรือจัดกลุ่มข้อมูล มีทักษะด้านคณิตศาสตร์",
     },
     {
       category_id: 3,
       skill: "ปัญญาด้านมิติสัมพันธ์",
       score: 0,
-      description:
-        "ผู้มีปัญญาหรือความถนัดด้านนี้โดดเด่น จะสามารถรับรู้ทางสายตาได้ดี มองเห็นพื้นที่ รูปทรง ระยะทาง และตําแหน่งอย่างเชื่อมโยงสัมพันธ์กัน ไวต่อการรับรู้ในเรื่องทิศทางระยะทางแผนผังแผนภาพหรือแผนที่ต่าง ๆ ชอบเรียนรู้ด้วยแผนที่ตารางแผนภูมิรูปภาพวิดีโอและภาพยนตร์ มีทักษะการสเก็ตช์ภาพ วาดเขียน รวมไปถึง การออกแบบภาพมิติต่าง ๆ และจัดวางองค์ประกอบภาพได้ดี",
-      description_career:
-        "วิศวกร, นักสำรวจ, ผู้สำรวจรังวัด, สถาปนิก, นักวางผังเมือง, นักออกแบบกราฟิก, นักออกแบบภายใน, ช่างภาพ, นักบิน",
-      image_charactor:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857648796409135154/Picture.png",
-      skill_summarize: "ความถนัดด้านการรับรู้ทางสายตา พื้นที่ รูปทรงต่าง ๆ",
-      charactor_summarize:
-        "ผู้มีปัญญาหรือความถนัดด้านนี้โดดเด่น จะสามารถรับรู้ทางสายตาได้ดี มองเห็นพื้นที่ รูปทรง ระยะทางสัมพันธ์กัน มีทักษะการสเก็ตช์ภาพ วาดเขียน",
     },
     {
       category_id: 4,
       skill: "ปัญญาด้านการเคลื่อนไหว",
       score: 0,
-      description:
-        "แสดงออกผ่านความสามารถที่จะควบคุมและเคลื่อนไหวร่างกาย ได้อย่างคุ้นเคย เป็นธรรมชาติ ผู้ที่มีปัญญาด้านนี้อย่างโดดเด่นจะสามารถจดจํา ประมวลข้อมูลของสิ่งที่อยู่รอบตัวในสามมิติ ทําให้สามารถควบคุมร่างกายและการเคลื่อนไหวให้เข้ากับสภาพแวดล้อมได้ดี ทําให้เต้นรําาและเล่นกีฬาได้คล่องแคล่ว มีความไวทางประสาทสัมผัสคล่องแคล่วแข็งแรงรวดเร็วและยืดหยุ่น มีทักษะในการใช้สายตาสัมพันธ์กับการใช้ส่วนอื่นๆ ของร่างกายทั้งมือและเท้า เช่น เล่นบอลได้ดี ยิงเป้าได้แม่น มีความสามารถในการใช้มือหรือส่วนต่างๆ ของร่างกายประดิษฐ์สร้างสรรค์สิ่งต่าง ๆ มักแสดงออกหรือสื่ออารมณ์ด้วยการเคลื่อนไหวร่างกายศิลปะการ",
-      description_career:
-        "นักกายภาพบำบัด, นักกีฬา, นักเต้น, นักแสดง, ช่างกล, ช่างไม้, เจ้าหน้าที่ดูแลป่าหรืออุทยาน, ช่างทำเครื่องประดับ",
-      image_charactor:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857648808531066931/Body.png",
-      skill_summarize: "ความถนัดด้านการควบคุม และเคลื่อนไหวร่างกาย",
-      charactor_summarize:
-        "ผู้ที่มีปัญญาด้านนี้อย่างโดดเด่นจะสามารถจดจํา ประมวลข้อมูลของสิ่งที่อยู่รอบตัวในสามมิติ มีทักษะในการใช้สายตาสัมพันธ์กับการใช้ส่วนอื่นๆ ของร่างกายทั้งมือและเท้า",
     },
     {
       category_id: 5,
       skill: "ปัญญาด้านดนตรี",
       score: 0,
-      description:
-        "ผู้ที่มีปัญญาหรือความถนัดด้านดนตรีจะสามารถสร้าง ซึมซับ และเข้าถึงสุนทรียะทางดนตรี จะรู้สึกเป็นธรรมชาติที่สุดเมื่อได้ถ่ายทอดตัวตน ความรู้สึกนึกคิดผ่านบทเพลง เสียงดนตรี หรือท่วงทํานอง ผู้มีปัญญาหรือความถนัดด้านนี้จะไวต่อเสียงที่อยู่รอบตัว เช่น เสียงกระดิ่ง หยดน้ำ สามารถแยกแยะเสียงจดจําจังหวะทํานองและโครงสร้างทางดนตรีได้ดี ทําให้มีทักษะในการร้องเพลง ผิวปาก ฮัมเพลง เคาะจังหวะ และเล่นเครื่องดนตรี",
-      description_career:
-        "นักดนตรี, ช่างจูนเปียโน, นักดนตรีบำบัด, นักร้องประสานเสียง, ผู้นำวงคอรัส, วาทยกร",
-      image_charactor:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857648802730475530/Music.png",
-      skill_summarize: "ความถนัดด้านการคิดโดยใช้ตรรกะ เหตุผล และตัวเลข",
-      charactor_summarize:
-        "ผู้ที่มีปัญญาหรือความถนัดด้านดนตรีจะสามารถสร้าง ซึมซับ และเข้าถึงสุนทรียะทางดนตรี มีทักษะในการร้องเพลง ผิวปาก ฮัมเพลง และเล่นเครื่องดนตรี",
     },
     {
       category_id: 6,
       skill: "ปัญญาด้านมนุษย์สัมพันธ์",
       score: 0,
-      description:
-        "ผู้มีปัญญาหรือความถนัดด้านนี้จะสามารถสร้างความสัมพันธ์และเข้าใจผู้อื่น มีทักษะในการเข้าใจถึงอารมณ์ ความรู้สึก แรงบันดาลใจ และแรงกระตุ้นของผู้คน สามารถมองสิ่งต่าง ๆ ด้วยมุมมองคนอื่น ๆ รอบตัวเพื่อให้เข้าใจว่าคนผู้นั้นนึกคิดหรือรู้สึกอย่างไร รับฟังและเข้าใจผู้อื่น มีความเห็นอกเห็นใจ มีความรู้สึกร่วม และให้คำปรึกษาได้ สื่อสารและทํางานร่วมกับผู้อื่นได้ดีมีความสามารถในการโน้มน้าวไปจนถึงเป็นแรงบันดาลใจให้กับผู้คน เป็นนักจัดการความขัดแย้งและประสานความร่วมมือ โดยใช้ทั้งภาษาพูดและภาษากาย",
-      description_career:
-        "นักบริหาร, นักปกครอง, ผู้จัดการ, นักจิตวิทยา, พยาบาล, นักประชาสัมพันธ์",
-      image_charactor:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857648799459180544/People.png",
-      skill_summarize: "ความถนัดด้านการได้ยิน แยกแยะเสียงต่าง ๆ ได้ดี",
-      charactor_summarize:
-        "ผู้มีปัญญาหรือความถนัดด้านนี้จะสามารถสร้างความสัมพันธ์และเข้าใจผู้อื่น มีทักษะในการเข้าใจถึงอารมณ์ ความรู้สึก แรงบันดาลใจ และแรงกระตุ้นของผู้คน",
     },
     {
       category_id: 7,
       skill: "ปัญญาด้านการเข้าใจตนเอง",
       score: 0,
-      description:
-        "ผู้ที่มีปัญญาหรือความถนัดด้านนี้โดดเด่น จะมีความสามารถในการรู้จัก ตระหนักรู้ และเท่าทันตนเอง มองภาพตนเองตามความเป็นจริง เข้าใจจุดแข็งและจุดอ่อนของตนชัดเจนว่าตนชอบหรือไม่ชอบอะไร วิเคราะห์แบบแผนการคิดของตนเองเข้าใจบทบาทหน้าที่ของตนและสัมพันธภาพกับผู้อื่น มีความเข้าใจอารมณ์ความรู้สึกและแรงจูงใจของตนเองอย่างลึกซึ้ง เชื่อมั่นในความสามารถของตัวเองและมีแรงจูงใจที่จะไปให้ถึงเป้าหมายและความใฝ่ฝัน ควบคุมการแสดงออกอย่างเหมาะสมตามกาลเทศะ",
-      description_career:
-        "นักจิตบำบัด, นักบำบัด, ผู้ให้คำปรึกษา, นักธุรกิจ, นักศาสนศาสตร์, นักเทววิทยา, ผู้วางนโยบาย, นักวางแผน",
-      image_charactor:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857653351013679104/Self.png",
-      skill_summarize: "ความถนัดด้านการเข้าใจจุดเด่น จุดด้อย ของตนเอง",
-      charactor_summarize:
-        "ผู้ที่มีปัญญาหรือความถนัดด้านนี้โดดเด่น จะมีความสามารถในการรู้จัก ตระหนักรู้ และเท่าทันตนเอง มีความเข้าใจอารมณ์ความรู้สึกและแรงจูงใจของตนเองอย่างลึกซึ้ง",
     },
     {
       category_id: 8,
       skill: "ปัญญาด้านธรรมชาติ",
       score: 0,
-      description:
-        "ผู้มีปัญญาหรือความถนัดด้านนี้ จะสนใจสิ่งมีชีวิตและสภาพแวดล้อมทางธรรมชาติ เข้าใจกฎเกณฑ์ ปรากฏการณ์ การเปลี่ยนแปลงในธรรมชาติ และปรับตัวเข้ากับสิ่งแวดล้อมได้ดี สามารถสังเกตและคาดการณ์ความเป็นไปของธรรมชาติและสิ่งแวดล้อม สามารถจัดจําาแนกแยกแยะประเภทของสิ่งมีชีวิตทั้งพืชและสัตว์ มีทักษะในการจัดระบบคิดภายในตัวเองแสดงความรู้สึกเห็นอกเห็นใจและเข้าใจธรรมชาติรอบตัว แยกแยะความเป็นจริงทั้งลักษณะร่วมและแตกต่างของสิ่งรอบตัวจดจําารายละเอียดสนุกกับการแจกแจง และจัดระบบสิ่งต่างๆ รอบตัว",
-      description_career:
-        "https://cdn.discordapp.com/attachments/821804175767764995/857648803897540678/Nature.png",
-      image_charactor:
-        "นักบินอวกาศ, นักพฤกษศาสตร์, นักวาดภาพประกอบสัตว์ป่า, นักอุตุนิยมวิทยา, เชฟ, นักธรณีวิทยา",
-      skill_summarize: "ความถนัดด้านการปรับตัวตามสภาพแวดล้อมได้ดี",
-      charactor_summarize:
-        "ผู้มีปัญญาหรือความถนัดด้านนี้ จะสนใจสิ่งมีชีวิตและสภาพแวดล้อมทางธรรมชาติ มีทักษะในการจัดระบบคิดภายในตัวเองแสดงความรู้สึกเห็นอกเห็นใจและเข้าใจธรรมชาติรอบตัว",
     },
   ];
 
@@ -212,7 +143,7 @@ module.exports.calculateResult = async (results) => {
     }
   }
 
-  return category;
+  return { category, createAt };
 };
 
 module.exports.createResultById = async (results, req) => {
@@ -297,11 +228,13 @@ module.exports.createGuest = async () => {
   return token;
 };
 
-module.exports.createContent = async (input, id, name) => {
-  let { content_body, title, likes, uid_likes, tag, image } = input;
+module.exports.createContent = async (input, id) => {
+  let { content_body, title, likes, uid_likes, tag, content_type, image } =
+    input;
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
+  var ct = content_type.toLowerCase();
   return await ContentModel.create({
     content_body,
     title,
@@ -309,6 +242,7 @@ module.exports.createContent = async (input, id, name) => {
     uid_likes,
     author_id: id,
     tag,
+    ct,
     image,
   });
 };
@@ -319,7 +253,7 @@ module.exports.getAllContents = async () => {
   });
 };
 
-module.exports.getSortByTag = async (tag, dataSet) => {
+module.exports.getSortByTag = async (tag, dataSet, content_type) => {
   tags = [
     "word smart",
     "logic smart",
@@ -333,6 +267,7 @@ module.exports.getSortByTag = async (tag, dataSet) => {
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
+
   tag.map((x) =>
     tags.indexOf(x) == -1
       ? (function () {
@@ -343,13 +278,14 @@ module.exports.getSortByTag = async (tag, dataSet) => {
   if (dataSet == null) {
     return await ContentModel.find({
       tag: { $in: tag },
+      content_type: { $in: content_type },
       isDeleted: false,
     });
   } else {
-    //const found = arr1.some(r=> arr2.indexOf(r) >= 0)
-    const newItem = dataSet.filter((item) =>
+    let newItem = dataSet.filter((item) =>
       item.tag.some((r) => tag.indexOf(r) >= 0)
     );
+    newItem = dataSet.filter((item) => item.content_type == content_type);
 
     return newItem;
   }
@@ -527,9 +463,60 @@ module.exports.deleteComment = async (input_comment_id) => {
   return comment;
 };
 
-module.exports.search = async (input, tag) => {
+module.exports.postSummarise = async (input) => {
+  if (!(parseInt(category_index) <= 8 && parseInt(category_index) >= 1)) {
+    throw {
+      message: "out of category index",
+      status: 404,
+    };
+  }
+  const ob = await summariseModel.find({
+    category_index: category_index,
+  });
+  console.log(ob.length);
+  if (ob.length !== 0) {
+    throw {
+      message: "question redundant please check question number",
+      status: 404,
+    };
+  } else {
+    console.log(category_index);
+    const summarise = await summariseModel.create({
+      category_index: category_index,
+      description: description,
+      description_career: description_career,
+      image_charactor: image_charactor,
+      skill_summarize: skill_summarize,
+      charactor_summarize: charactor_summarize,
+    });
+    return summarise;
+  }
+};
+module.exports.getSummarise = async (input) => {
+  return await resultModel.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId("60dd7beff0a9b41440f377fc"),
+      },
+    },
+    {
+      $unwind: {
+        path: "$results",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "summarises",
+        localField: "results.category_id",
+        foreignField: "category_index",
+        as: "string",
+      },
+    },
+  ]);
+};
+module.exports.search = async (input, tag, con_ty) => {
   let new_input = new RegExp(input, "i");
-
   if (tag) {
     tag = tag.map((x) => {
       return x.toLowerCase();
@@ -544,15 +531,18 @@ module.exports.search = async (input, tag) => {
           as: "author_data",
         },
       },
+
       {
         $match: {
           $or: [
             {
+              content_type: con_ty,
               tag: { $in: tag },
               isDeleted: false,
               "author_data.username": { $regex: new_input },
             },
             {
+              content_type: con_ty,
               tag: { $in: tag },
               isDeleted: false,
               title: { $regex: new_input },

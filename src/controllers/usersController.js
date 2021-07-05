@@ -173,11 +173,17 @@ exports.getAllContents = async (req, res) => {
 
 exports.getSortByTag = async (req, res, next) => {
   try {
+    console.log(req.body.content_type);
+    const ct_type = req.body.content_type.toLowerCase();
     if (req.body.dataSet) {
-      const contents = await getSortByTag(req.body.tag, req.body.dataSet);
+      const contents = await getSortByTag(
+        req.body.tag,
+        req.body.dataSet,
+        ct_type
+      );
       res.send(contents);
     } else {
-      const contents = await getSortByTag(req.body.tag, null);
+      const contents = await getSortByTag(req.body.tag, null, ct_type);
       res.send(contents);
     }
   } catch (err) {
@@ -249,7 +255,13 @@ exports.deleteComment = async (req, res, next) => {
 
 exports.search = async (req, res, next) => {
   try {
-    const search_result = await search(req.params.keyword, req.body.tag);
+    const ct_type = req.body.content_type.toLowerCase();
+    console.log(ct_type);
+    const search_result = await search(
+      req.params.keyword,
+      req.body.tag,
+      ct_type
+    );
     res.send(search_result);
   } catch (err) {
     next(err);
