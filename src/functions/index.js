@@ -488,10 +488,39 @@ module.exports.getSummarise = async (input) => {
     {
       $lookup: {
         from: "summarises",
-        localField: "results.category.category_id",
-        foreignField: "category_index",
-        as: "results.lookedUp",
+        let: {
+          category_id: "$results.category.category_id",
+          score: "$results.category.score",
+          skill: "$results.category.skill",
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $in: ["$category_index", "$$category_id"] },
+            },
+          },
+          {
+            $addFields: {
+              score: {
+                $arrayElemAt: ["$$score", "$category_index"],
+              },
+              skill: {
+                $arrayElemAt: ["$$skill", "$category_index"],
+              },
+            },
+          },
+        ],
+        as: "results.category",
       },
     },
+
+    /*{
+      $lookup: {
+        from: "summarises",
+        localField: "results.category.category_id",
+        foreignField: "category_index",
+        as: "results.category",
+      },
+    },*/
   ]);
 };
