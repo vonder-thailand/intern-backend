@@ -176,11 +176,13 @@ module.exports.createResultById = async (results, req) => {
     //there is an existing result in database
     const array = user[0].results;
     array.push(calculated_result);
-    return await UserResult.findOneAndUpdate(
+    const results = await UserResult.findOneAndUpdate(
       { userid: userid },
       { results: array },
       { new: true }
     );
+    const len = results.results.length;
+    return results.results[len - 1];
   }
 };
 
