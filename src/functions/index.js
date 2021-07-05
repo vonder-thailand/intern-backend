@@ -495,6 +495,7 @@ module.exports.postSummarise = async (input) => {
 
 module.exports.getSummarise = async () => {
   return await summariseModel.find();
+};
 
 /* module.exports.getSummarise = async (input) => {
   return await resultModel.aggregate([
@@ -519,7 +520,7 @@ module.exports.getSummarise = async () => {
     },
   ]);
 };*/
-  
+
 module.exports.search = async (input, tag, con_ty) => {
   let new_input = new RegExp(input, "i");
   if (tag) {
