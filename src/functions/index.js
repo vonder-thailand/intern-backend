@@ -227,8 +227,9 @@ module.exports.createGuest = async () => {
   return token;
 };
 
-module.exports.createContent = async (input, id, name) => {
-  let { content_body, title, likes, uid_likes, tag, image } = input;
+module.exports.createContent = async (input, id) => {
+  let { content_body, title, likes, uid_likes, tag, content_type, image } =
+    input;
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
@@ -239,6 +240,7 @@ module.exports.createContent = async (input, id, name) => {
     uid_likes,
     author_id: id,
     tag,
+    content_type,
     image,
   });
 };
@@ -475,22 +477,23 @@ module.exports.postSummarise = async (input) => {
 module.exports.getSummarise = async (input) => {
   return await resultModel.aggregate([
     {
-      '$match': {
-        '_id': new mongoose.Types.ObjectId('60dd7beff0a9b41440f377fc')
-      }
-    }, {
-      '$unwind': {
-        'path': '$results', 
-        'preserveNullAndEmptyArrays': true
-      }
-    }, {
-      '$lookup': {
-        'from': 'summarises', 
-        'localField': 'results.category_id', 
-        'foreignField': 'category_index', 
-        'as': 'string'
-      }
-    }
+      $match: {
+        _id: new mongoose.Types.ObjectId("60dd7beff0a9b41440f377fc"),
+      },
+    },
+    {
+      $unwind: {
+        path: "$results",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "summarises",
+        localField: "results.category_id",
+        foreignField: "category_index",
+        as: "string",
+      },
+    },
   ]);
-
 };
