@@ -497,29 +497,79 @@ module.exports.getSummarise = async () => {
   return await summariseModel.find();
 };
 
-/* module.exports.getSummarise = async (input) => {
-  return await resultModel.aggregate([
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId("60dd7beff0a9b41440f377fc"),
-      },
-    },
-    {
-      $unwind: {
-        path: "$results",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $lookup: {
-        from: "summarises",
-        localField: "results.category_id",
-        foreignField: "category_index",
-        as: "string",
-      },
-    },
-  ]);
-};*/
+// module.exports.getSummarise = async (input) => {
+//   return await resultModel.aggregate([
+//     [
+//       {
+//         $match: {
+//           _id: new mongoose.Types.ObjectId("60e2864a3db29d5f10370b26"),
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           results: {
+//             $slice: ["$results", -1],
+//           },
+//           userid: 1,
+//           created_at: 1,
+//           updated_at: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$results",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$results",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "summarises",
+//           localField: "results.category.category_id",
+//           foreignField: "category_id",
+//           as: "string",
+//         },
+//       },
+//       {
+//         $project: {
+//           userid: 1,
+//           createAt: "$results.createAt",
+//           results: {
+//             $map: {
+//               input: "$results.category",
+//               as: "one",
+//               in: {
+//                 $mergeObjects: [
+//                   "$$one",
+//                   {
+//                     $arrayElemAt: [
+//                       {
+//                         $filter: {
+//                           input: "$string",
+//                           as: "two",
+//                           cond: {
+//                             $eq: ["$$one.category_id", "$$two.category_id"],
+//                           },
+//                         },
+//                       },
+//                       0,
+//                     ],
+//                   },
+//                 ],
+//               },
+//             },
+//           },
+//         },
+//       },
+//     ],
+//   ]);
+// };
 
 module.exports.search = async (input, tag, con_ty) => {
   let new_input = new RegExp(input, "i");
