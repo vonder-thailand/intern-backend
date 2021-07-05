@@ -185,7 +185,22 @@ module.exports.createResultById = async (results, req) => {
 };
 
 module.exports.getResultById = async (userid) => {
-  return await UserResult.find({ userid: userid });
+  return await UserResult.aggregate([
+    [
+      {
+        $match: {
+          userid: userid,
+        },
+      },
+      {
+        $addFields: {
+          newResult: {
+            $slice: ["$results", -1],
+          },
+        },
+      },
+    ],
+  ]);
 };
 
 module.exports.getResultUsers = async () => {
