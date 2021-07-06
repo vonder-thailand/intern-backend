@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const aws = require("aws-sdk");
+const mongoose = require("mongoose");
 const {
   AWS_BUCKET_NAME,
   AWS_BUCKET_REGION,

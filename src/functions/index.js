@@ -18,6 +18,7 @@ const { checkNumberInString } = require("../functions/verifyState");
 var mongoose = require("mongoose");
 const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
+const ObjectID = mongoose.Types.ObjectId;
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
@@ -176,31 +177,76 @@ module.exports.createResultById = async (results, req) => {
     //there is an existing result in database
     const array = user[0].results;
     array.push(calculated_result);
-    return await UserResult.findOneAndUpdate(
+    const results = await UserResult.findOneAndUpdate(
       { userid: userid },
       { results: array },
       { new: true }
     );
+    const len = results.results.length;
+    return results.results[len - 1];
   }
 };
 
 module.exports.getResultById = async (userid) => {
-  return await UserResult.aggregate([
-    [
-      {
-        $match: {
-          userid: userid,
+  const result = await UserResult.aggregate([
+    { $match: { userid: ObjectID(userid) } },
+    {
+      $addFields: {
+        results: {
+          $slice: ["$results", -1],
         },
       },
-      {
-        $addFields: {
-          newResult: {
-            $slice: ["$results", -1],
-          },
-        },
+    },
+    {
+      $unwind: {
+        path: "$results",
+        preserveNullAndEmptyArrays: true,
       },
-    ],
+    },
+    {
+      $project: {
+        _id: 1,
+        category: "$results.category",
+        created_at: "$results.createAt",
+      },
+    },
+    {
+      $unwind: {
+        path: "$category",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "summarises",
+        localField: "category.category_id",
+        foreignField: "category_id",
+        as: "category.category_id",
+      },
+    },
+    {
+      $unwind: {
+        path: "$category.category_id",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: false,
+        categoryID: "$category.category_id.category_id",
+        skill: "$category.skill",
+        score: "$category.score",
+        description: "$category.category_id.description",
+        description_career: "$category.category_id.description_career",
+        image_charactor: "$category.category_id.image_charactor",
+        charactor_summarize: "$category.category_id.charactor_summarize",
+        skill_summarize: "$category.category_id.skill_summarize",
+        created_at: "$created_at",
+      },
+    },
   ]);
+
+  return result;
 };
 
 module.exports.getResultUsers = async () => {
@@ -257,7 +303,7 @@ module.exports.createContent = async (input, id) => {
     uid_likes,
     author_id: id,
     tag,
-    ct,
+    content_type: ct,
     image,
   });
 };
@@ -337,9 +383,9 @@ module.exports.findAllAdmins = async () => {
 
 module.exports.postQuestion = async (input) => {
   const questionIndex = input.questionIndex;
-  const categoryIndex = input.categoryIndex;
+  const category_id = input.category_id;
   const questionBody = input.questionBody;
-  if (!(parseInt(categoryIndex) <= 8 && parseInt(categoryIndex) >= 1)) {
+  if (!(parseInt(category_id) <= 8 && parseInt(category_id) >= 1)) {
     throw {
       message: "out of category index",
       status: 404,
@@ -347,7 +393,7 @@ module.exports.postQuestion = async (input) => {
   }
   const ob = await QuestionModel.find({
     questionIndex: questionIndex,
-    categoryIndex: categoryIndex,
+    category_id: category_id,
   });
   console.log(ob.length);
   if (ob.length !== 0) {
@@ -358,7 +404,7 @@ module.exports.postQuestion = async (input) => {
   } else {
     const question = await QuestionModel.create({
       questionIndex: questionIndex,
-      categoryIndex: categoryIndex,
+      category_id: category_id,
       questionBody: questionBody,
     });
     return question;
@@ -662,6 +708,7 @@ module.exports.search = async (input, tag, con_ty) => {
           author_id: 1,
           created_at: 1,
           "author_data.username": 1,
+          content_type: 1,
         },
       },
     ]);
