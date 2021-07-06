@@ -255,14 +255,17 @@ exports.deleteComment = async (req, res, next) => {
 
 exports.search = async (req, res, next) => {
   try {
-    const ct_type = req.body.content_type.toLowerCase();
-    console.log(ct_type);
-    const search_result = await search(
-      req.params.keyword,
-      req.body.tag,
-      ct_type
-    );
-    res.send(search_result);
+    if (req.body.content_type && req.body.tag) {
+      const ct_type = req.body.content_type.toLowerCase();
+      const search_result = await search(
+        req.params.keyword,
+        req.body.tag,
+        ct_type
+      );
+      res.send(search_result);
+    } else {
+      res.send(await search(req.params.keyword, null, null));
+    }
   } catch (err) {
     next(err);
   }
