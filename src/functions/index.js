@@ -189,6 +189,13 @@ module.exports.getResultById = async (userid) => {
   const result = await UserResult.aggregate([
     { $match: { userid: ObjectID(userid) } },
     {
+      $addFields: {
+        results: {
+          $slice: ["$results", -1],
+        },
+      },
+    },
+    {
       $unwind: {
         path: "$results",
         preserveNullAndEmptyArrays: true,
@@ -198,6 +205,7 @@ module.exports.getResultById = async (userid) => {
       $project: {
         _id: 1,
         category: "$results.category",
+        created_at: "$results.createAt",
       },
     },
     {
@@ -231,6 +239,7 @@ module.exports.getResultById = async (userid) => {
         image_charactor: "$category.category_id.image_charactor",
         charactor_summarize: "$category.category_id.charactor_summarize",
         skill_summarize: "$category.category_id.skill_summarize",
+        created_at: "$created_at",
       },
     },
   ]);
