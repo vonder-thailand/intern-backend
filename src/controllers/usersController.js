@@ -18,7 +18,7 @@ const {
   search,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
-
+const resultNew = require("../models/resultNew.model");
 // find user by id
 exports.findUserById = async (req, res, next) => {
   try {
@@ -273,7 +273,12 @@ exports.search = async (req, res, next) => {
 };
 
 exports.postNewResult = async (req, res, next) => {
-  const userId = req.userId;
-  const test = req.body.results;
-  console.log(userId, test);
+  try {
+    const userId = req.userId;
+    const test = req.body.results;
+    newResult = await resultNew.create({ userId: userId, results: test });
+    res.send(newResult);
+  } catch (error) {
+    next(error);
+  }
 };

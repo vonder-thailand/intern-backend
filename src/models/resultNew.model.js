@@ -13,4 +13,4 @@ const resultNew = new Schema(
   }
 );
 
-module.exports = mongoose.model("resultNew", results);
+module.exports = mongoose.model("resultNew", resultNew);
