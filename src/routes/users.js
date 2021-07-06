@@ -59,4 +59,6 @@ router.get(
   usersController.search
 );
 
+router.post("/newResult", auth.authMiddleware, usersController.postNewResult);
+
 module.exports = router;

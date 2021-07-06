@@ -1,5 +1,4 @@
 // functions function structure
-
 const UserResult = require("../models/result.model");
 const AdminModel = require("../models/admin.model");
 const CommentModel = require("../models/comment.model");
@@ -10,11 +9,6 @@ const summariseModel = require("../models/summarise.model");
 const resultModel = require("../models/result.model");
 const userAuth = require("../models/auth.model");
 const jwt = require("jsonwebtoken");
-
-/*const bcrypt = require("bcrypt");*/
-
-const { checkNumberInString } = require("../functions/verifyState");
-
 var mongoose = require("mongoose");
 const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
