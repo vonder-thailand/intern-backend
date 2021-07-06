@@ -244,7 +244,7 @@ module.exports.createContent = async (input, id) => {
     uid_likes,
     author_id: id,
     tag,
-    ct,
+    content_type: ct,
     image,
   });
 };
@@ -649,6 +649,7 @@ module.exports.search = async (input, tag, con_ty) => {
           author_id: 1,
           created_at: 1,
           "author_data.username": 1,
+          content_type: 1,
         },
       },
     ]);
