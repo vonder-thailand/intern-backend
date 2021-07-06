@@ -271,3 +271,9 @@ exports.search = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.postNewResult = async (req, res, next) => {
+  const userId = req.userId;
+  const test = req.body.results;
+  console.log(userId, test);
+};
