@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const questions = new Schema(
   {
     questionIndex: { type: String, default: "-" },
-    categoryIndex: { type: String, default: "-" },
+    category_id: { type: String, default: "-" },
     questionBody: { type: String, default: "-" },
   },
   {

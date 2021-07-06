@@ -383,9 +383,9 @@ module.exports.findAllAdmins = async () => {
 
 module.exports.postQuestion = async (input) => {
   const questionIndex = input.questionIndex;
-  const categoryIndex = input.categoryIndex;
+  const category_id = input.category_id;
   const questionBody = input.questionBody;
-  if (!(parseInt(categoryIndex) <= 8 && parseInt(categoryIndex) >= 1)) {
+  if (!(parseInt(category_id) <= 8 && parseInt(category_id) >= 1)) {
     throw {
       message: "out of category index",
       status: 404,
@@ -393,7 +393,7 @@ module.exports.postQuestion = async (input) => {
   }
   const ob = await QuestionModel.find({
     questionIndex: questionIndex,
-    categoryIndex: categoryIndex,
+    category_id: category_id,
   });
   console.log(ob.length);
   if (ob.length !== 0) {
@@ -404,7 +404,7 @@ module.exports.postQuestion = async (input) => {
   } else {
     const question = await QuestionModel.create({
       questionIndex: questionIndex,
-      categoryIndex: categoryIndex,
+      category_id: category_id,
       questionBody: questionBody,
     });
     return question;

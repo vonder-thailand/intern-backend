@@ -121,7 +121,7 @@ exports.updateFields = async (req, res, next) => {
   try {
     const up = await questionModel.updateMany(
       {},
-      { $rename: { QCAT: "question_category" } }
+      { $rename: { categoryIndex: "category_id" } }
     );
     const { role } = req;
     if (role != "admin") {
