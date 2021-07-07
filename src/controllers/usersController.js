@@ -278,6 +278,7 @@ exports.search = async (req, res, next) => {
 exports.postNewResult = async (req, res, next) => {
   try {
     const array = [0, 0, 0, 0, 0, 0, 0, 0];
+
     const tests = req.body;
     tests.map((each_test) => {
       const index = each_test.categoryId;
@@ -285,6 +286,7 @@ exports.postNewResult = async (req, res, next) => {
         array[index - 1] += each_test.score;
       }
     });
+    array[8] = Date.now();
     const userId = req.userId;
     const user = await resultNew.find({ userid: userId });
     if (!user.length) {
@@ -341,6 +343,7 @@ exports.getNewResult = async (req, res, next) => {
         charactor_summarize: item.charactor_summarize,
         skill: item.skill,
         score: score[index],
+        created_at: Date(score[8]),
       };
       obj_arr.push(obj_inside);
     });
