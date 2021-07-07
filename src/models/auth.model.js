@@ -48,4 +48,5 @@ const userAuth = new Schema(
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
 );
+
 module.exports = mongoose.model("userAuth", userAuth);

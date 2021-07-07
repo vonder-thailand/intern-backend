@@ -18,7 +18,10 @@ const {
   search,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
-
+const resultNew = require("../models/resultNew.model");
+const summariseModel = require("../models/summarise.model");
+const mongoose = require("mongoose");
+const { constant } = require("lodash");
 // find user by id
 exports.findUserById = async (req, res, next) => {
   try {
@@ -138,6 +141,7 @@ exports.getResultById = async (req, res, next) => {
       const user = await getResultById(req.body._id);
       res.send(user);
     } else {
+      console.log("ELSE");
       const { userId } = req;
       const user = await getResultById(userId);
       res.send(user);
@@ -173,11 +177,17 @@ exports.getAllContents = async (req, res) => {
 
 exports.getSortByTag = async (req, res, next) => {
   try {
+    console.log(req.body.content_type);
+    const ct_type = req.body.content_type.toLowerCase();
     if (req.body.dataSet) {
-      const contents = await getSortByTag(req.body.tag, req.body.dataSet);
+      const contents = await getSortByTag(
+        req.body.tag,
+        req.body.dataSet,
+        ct_type
+      );
       res.send(contents);
     } else {
-      const contents = await getSortByTag(req.body.tag, null);
+      const contents = await getSortByTag(req.body.tag, null, ct_type);
       res.send(contents);
     }
   } catch (err) {
@@ -249,9 +259,97 @@ exports.deleteComment = async (req, res, next) => {
 
 exports.search = async (req, res, next) => {
   try {
-    const search_result = await search(req.params.keyword, req.body.tag);
-    res.send(search_result);
+    if (req.body.content_type && req.body.tag) {
+      const ct_type = req.body.content_type.toLowerCase();
+      const search_result = await search(
+        req.params.keyword,
+        req.body.tag,
+        ct_type
+      );
+      res.send(search_result);
+    } else {
+      res.send(await search(req.params.keyword, null, null));
+    }
   } catch (err) {
     next(err);
+  }
+};
+
+exports.postNewResult = async (req, res, next) => {
+  try {
+    const array = [0, 0, 0, 0, 0, 0, 0, 0];
+
+    const tests = req.body;
+    tests.map((each_test) => {
+      const index = each_test.categoryId;
+      if (each_test.categoryId == index) {
+        array[index - 1] += each_test.score;
+      }
+    });
+    array[8] = Date.now();
+    const userId = req.userId;
+    const user = await resultNew.find({ userid: userId });
+    if (!user.length) {
+      newResult = await resultNew.create({
+        userid: userId,
+        results: array,
+      });
+      res.send(newResult);
+    } else {
+      newResult = await resultNew.findOneAndUpdate(
+        { userid: userId },
+        { $push: { results: array } },
+        { new: true }
+      );
+      res.send(newResult);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getNewResult = async (req, res, next) => {
+  try {
+    const userid = req.userId;
+
+    const newResult = await resultNew.aggregate([
+      {
+        $match: { userid: mongoose.Types.ObjectId(userid) },
+      },
+      {
+        $addFields: {
+          results: {
+            $slice: ["$results", -1],
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$results",
+        },
+      },
+    ]);
+
+    let summarise = await summariseModel.find();
+    const score = newResult[0].results;
+    const obj_arr = [];
+    summarise.map((item, index) => {
+      const obj_inside = {
+        category_id: item.category_id,
+        description: item.description,
+        description_career: item.description_career,
+        image_charactor: item.image_charactor,
+        skill_summarize: item.skill_summarize,
+        charactor_summarize: item.charactor_summarize,
+        skill: item.skill,
+        score: score[index],
+        created_at: Date(score[8]),
+      };
+      obj_arr.push(obj_inside);
+    });
+
+    res.send(obj_arr);
+  } catch (error) {
+    next(error);
   }
 };
