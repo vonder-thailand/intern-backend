@@ -35,6 +35,26 @@ exports.login = async (req, res, next) => {
 exports.signup = async (req, res, next) => {
   const { email, password, username, role, firstName, lastName } = req.body;
   try {
+    const hasEmail = await userAuth.findOne({ email });
+    const hasUser = await userAuth.findOne({ username });
+    if (hasEmail && hasUser) {
+      throw {
+        message: "Email and Username has been used.",
+        status: 500,
+      };
+    }
+    if (hasEmail) {
+      throw {
+        message: "Email has been used.",
+        status: 500,
+      };
+    }
+    if (hasUser) {
+      throw {
+        message: "Username has been used.",
+        status: 500,
+      };
+    }
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {

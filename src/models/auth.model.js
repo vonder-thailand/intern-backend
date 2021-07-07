@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 const Schema = mongoose.Schema;
-const uniqueValidator = require("mongoose-unique-validator");
 
 const userAuth = new Schema(
   {
@@ -49,6 +48,5 @@ const userAuth = new Schema(
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
 );
-userAuth.plugin(uniqueValidator);
 
 module.exports = mongoose.model("userAuth", userAuth);
