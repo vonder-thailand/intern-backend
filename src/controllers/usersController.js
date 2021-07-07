@@ -276,9 +276,33 @@ exports.postNewResult = async (req, res, next) => {
   try {
     const userId = req.userId;
     const test = req.body.results;
-    newResult = await resultNew.create({ userId: userId, results: test });
-    res.send(newResult);
+    
+ const user = await resultNew.find({ userid: userId });
+
+ if (!user.length) {
+  newResult = await resultNew.create({
+    userid: userId,
+    results: test,
+    
+  })
+  res.send(newResult);
+}
+else {
+  //there is an existing result in database
+  console.log("user")
+  console.log("old results:",user[0].results)
+  
+   newResult =  await resultNew.findOneAndUpdate(
+    { userid: userId },
+    { $push: { results: [1,2,3] } },
+    { new: true }
+  );
+  res.send(newResult);
+} 
+  
+ 
   } catch (error) {
     next(error);
   }
+ 
 };
