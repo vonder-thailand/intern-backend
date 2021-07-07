@@ -277,10 +277,30 @@ exports.search = async (req, res, next) => {
 
 exports.postNewResult = async (req, res, next) => {
   try {
+    const array = [0, 0, 0, 0, 0, 0, 0, 0];
+    const tests = req.body;
+    tests.map((each_test) => {
+      const index = each_test.categoryId;
+      if (each_test.categoryId == index) {
+        array[index - 1] += each_test.score;
+      }
+    });
     const userId = req.userId;
-    const test = req.body.results;
-    newResult = await resultNew.create({ userId: userId, results: test });
-    res.send(newResult);
+    const user = await resultNew.find({ userid: userId });
+    if (!user.length) {
+      newResult = await resultNew.create({
+        userid: userId,
+        results: array,
+      });
+      res.send(newResult);
+    } else {
+      newResult = await resultNew.findOneAndUpdate(
+        { userid: userId },
+        { $push: { results: array } },
+        { new: true }
+      );
+      res.send(newResult);
+    }
   } catch (error) {
     next(error);
   }
