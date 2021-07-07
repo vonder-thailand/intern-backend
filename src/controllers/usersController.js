@@ -331,7 +331,6 @@ exports.getNewResult = async (req, res, next) => {
     let summarise = await summariseModel.find();
     const score = newResult[0].results;
     const obj_arr = [];
-    console.log(summarise);
     summarise.map((item, index) => {
       const obj_inside = {
         category_id: item.category_id,
@@ -341,7 +340,6 @@ exports.getNewResult = async (req, res, next) => {
         skill_summarize: item.skill_summarize,
         charactor_summarize: item.charactor_summarize,
         skill: item.skill,
-
         score: score[index],
       };
       obj_arr.push(obj_inside);
