@@ -60,5 +60,6 @@ router.get(
 );
 
 router.post("/newResult", auth.authMiddleware, usersController.postNewResult);
+router.get("/newResult", auth.authMiddleware, usersController.getNewResult);
 
 module.exports = router;

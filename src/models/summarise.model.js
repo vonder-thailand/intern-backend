@@ -9,6 +9,7 @@ const summarise = new Schema(
     image_charactor: { type: String, default: "-" },
     skill_summarize: { type: String, default: "-" },
     charactor_summarize: { type: String, default: "-" },
+    skill: { type: String, default: "-" },
   },
   {
     strict: false,

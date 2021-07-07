@@ -19,6 +19,9 @@ const {
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 const resultNew = require("../models/resultNew.model");
+const summariseModel = require("../models/summarise.model");
+const mongoose = require("mongoose");
+const { constant } = require("lodash");
 // find user by id
 exports.findUserById = async (req, res, next) => {
   try {
@@ -278,6 +281,53 @@ exports.postNewResult = async (req, res, next) => {
     const test = req.body.results;
     newResult = await resultNew.create({ userId: userId, results: test });
     res.send(newResult);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getNewResult = async (req, res, next) => {
+  try {
+    const userid = req.userId;
+
+    const newResult = await resultNew.aggregate([
+      {
+        $match: { userid: mongoose.Types.ObjectId(userid) },
+      },
+      {
+        $addFields: {
+          results: {
+            $slice: ["$results", -1],
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$results",
+        },
+      },
+    ]);
+
+    let summarise = await summariseModel.find();
+    const score = newResult[0].results;
+    const obj_arr = [];
+    console.log(summarise);
+    summarise.map((item, index) => {
+      const obj_inside = {
+        category_id: item.category_id,
+        description: item.description,
+        description_career: item.description_career,
+        image_charactor: item.image_charactor,
+        skill_summarize: item.skill_summarize,
+        charactor_summarize: item.charactor_summarize,
+        skill: item.skill,
+
+        score: score[index],
+      };
+      obj_arr.push(obj_inside);
+    });
+
+    res.send(obj_arr);
   } catch (error) {
     next(error);
   }
