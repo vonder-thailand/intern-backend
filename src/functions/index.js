@@ -170,8 +170,8 @@ module.exports.createResultById = async (results, req) => {
   } else {
     //there is an existing result in database
     const array = user[0].results;
-    
-    (calculated_result);
+
+    array.push(calculated_result);
     const results = await UserResult.findOneAndUpdate(
       { userid: userid },
       { results: array },
