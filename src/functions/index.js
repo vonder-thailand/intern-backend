@@ -69,7 +69,11 @@ module.exports.deleteUserById = async (userId) => {
 
 module.exports.calculateResult = async (results) => {
   let questions = results.length;
-  const createAt = Date(Date.now());
+  const createAt = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Jakarta",
+  });
+  console.log(createAt);
+
   let category = [
     {
       category_id: 1,
