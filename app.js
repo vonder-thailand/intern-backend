@@ -29,8 +29,13 @@ const { uploadManyFile } = require("./src/utils/s3");
 // };
 
 const connectMongo = async (req, res, next) => {
-  await connectToDatabase();
-  next();
+  try {
+    await connectToDatabase();
+    next();
+  } catch (err) {
+    console.log("Eieieieieiei");
+    console.log(err);
+  }
 };
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
