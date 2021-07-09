@@ -10,7 +10,7 @@ const app = express();
 const port = 5000;
 const cors = require("cors");
 // app.use(cors());
-app.use(cors({ origin: "http://18.139.108.242:5000/" }));
+
 const { uploadManyFile } = require("./src/utils/s3");
 
 // const fileFilter = (req, file, cb) => {
@@ -57,6 +57,7 @@ app.use((err, req, res, next) => {
     data: err.data,
   });
 });
+app.use(cors({ origin: "http://18.139.108.242:5000/" }));
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
