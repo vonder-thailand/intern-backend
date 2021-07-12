@@ -28,7 +28,7 @@ router.get(
   auth.authMiddleware,
   usersController.getAllContents
 );
-router.get(
+router.post(
   "/user/content/tag",
   auth.authMiddleware,
   usersController.getSortByTag
