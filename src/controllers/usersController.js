@@ -264,11 +264,10 @@ exports.deleteComment = async (req, res, next) => {
 exports.search = async (req, res, next) => {
   try {
     if (req.body.content_type && req.body.tag) {
-      const ct_type = req.body.content_type.toLowerCase();
       const search_result = await search(
         req.params.keyword,
         req.body.tag,
-        ct_type
+        req.body.content_type
       );
       res.send(search_result);
     } else {
