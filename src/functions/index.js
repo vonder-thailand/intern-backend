@@ -737,14 +737,14 @@ module.exports.getContentById = async (input) => {
       author_id: input,
       isDeleted: false,
     });
-    if (content == ''){
+    if (content == "") {
       throw {
         message:
           "Error from trying to get non-existing content, please create content first",
         status: 404,
       };
     }
-return content
+    return content;
   } else {
     throw {
       message:

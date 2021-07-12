@@ -144,7 +144,6 @@ exports.getResultById = async (req, res, next) => {
       const user = await getResultById(req.body._id);
       res.send(user);
     } else {
-      console.log("ELSE");
       const { userId } = req;
       const user = await getResultById(userId);
       res.send(user);
@@ -381,9 +380,25 @@ exports.getNewResult = async (req, res, next) => {
 };
 
 exports.getNewestContent = async (req, res, next) => {
-  userId = "60dc1ed217e38016422e5a1b";
-  let output = await Content.find({ author_id: userId });
-  res.send(output);
+  try {
+    const { userId } = req;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw {
+        message: "userid is not defined",
+        status: 404,
+      };
+    }
+    const output = await Content.findOne({}, [], {
+      $orderby: { created_at: -1 },
+    });
+    res.send(output);
+  } catch (error) {
+    console.log("err: ", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
 };
 
 exports.getContentById = async (req, res, next) => {
