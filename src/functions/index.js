@@ -334,6 +334,8 @@ module.exports.getAllContents = async () => {
   const new_contents = [];
   content.map((item) => {
     const new_content = {
+      _id: item._id,
+      author_id: item.auth_id,
       content_body: item.content_body,
       title: item.title,
       likes: item.likes,
@@ -826,6 +828,8 @@ module.exports.getContentById = async (input) => {
     const new_contents = [];
     content.map((item) => {
       const new_content = {
+        _id: item._id,
+        author_id: item.auth_id,
         content_body: item.content_body,
         title: item.title,
         likes: item.likes,
