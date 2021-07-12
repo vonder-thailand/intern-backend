@@ -307,9 +307,7 @@ module.exports.createContent = async (input, id) => {
       status: 203,
     };
   }
-  content_type = content_type.map((x) => {
-    return x.toLowerCase();
-  });
+  content_type = content_type.toLowerCase();
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
