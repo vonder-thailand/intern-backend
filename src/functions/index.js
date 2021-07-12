@@ -723,10 +723,19 @@ module.exports.getContentById = async (input) => {
     };
   }
   if (valid_id(input)) {
-    return await ContentModel.find({
+    const content = await ContentModel.find({
       author_id: input,
       isDeleted: false,
     });
+    console.log("Content",content)
+    if (content == ''){
+      throw {
+        message:
+          "Error from trying to get non-existing content, please create content first",
+        status: 404,
+      };
+    }
+return content
   } else {
     throw {
       message:
