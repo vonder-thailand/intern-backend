@@ -311,6 +311,22 @@ exports.postNewResult = async (req, res, next) => {
 exports.getNewResult = async (req, res, next) => {
   try {
     const userid = req.userId;
+    if (!mongoose.Types.ObjectId.isValid(userid)) {
+      throw {
+        message: "Invalid user id",
+        status: 404,
+      };
+    }
+
+    const user = await resultNew.findOne({ userid: userid });
+
+    if (!user) {
+      throw {
+        message:
+          "Error from trying to get non-existing result, please do the test first",
+        status: 404,
+      };
+    }
 
     const newResult = await resultNew.aggregate([
       {
