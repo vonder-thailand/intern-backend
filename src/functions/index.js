@@ -344,7 +344,7 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
     "music smart",
   ];
 
-  if (content_type && tag) {
+  if (content_type.length && tag.length) {
     content_type = content_type.map((x) => {
       return x.toLowerCase();
     });
