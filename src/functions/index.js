@@ -358,9 +358,9 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
 
       return newItem;
     }
-  } else if (!content_type && !tag) {
+  } else if (!content_type.length && !tag.length) {
     return await ContentModel.find({});
-  } else if (!tag) {
+  } else if (!tag.length) {
     content_type = content_type.map((x) => {
       return x.toLowerCase();
     });
@@ -377,7 +377,7 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
 
       return newItem;
     }
-  } else if (!content_type) {
+  } else if (!content_type.length) {
     tag = tag.map((x) => {
       return x.toLowerCase();
     });
