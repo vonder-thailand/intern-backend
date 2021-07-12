@@ -727,7 +727,6 @@ module.exports.getContentById = async (input) => {
       author_id: input,
       isDeleted: false,
     });
-    console.log("Content",content)
     if (content == ''){
       throw {
         message:
