@@ -390,8 +390,23 @@ exports.getNewestContent = async (req, res, next) => {
     const output = await Content.findOne({}, [], {
       $orderby: { created_at: -1 },
     });
-    res.send(output);
-  } catch (error) {
+    const username = await userAuth.find({ _id: output.author_id });
+    const auth_username = username[0].username;
+
+    const new_content = {
+      content_body: output.content_body,
+      title: output.title,
+      likes: output.likes,
+      uid_likes: output.uid_likes,
+      tag: output.tag,
+      content_type: output.content_type,
+      image: output.image,
+      auth_username: auth_username,
+      created_at: output.created_at,
+      updated_at: output.updated_at,
+    };
+    res.send(new_content);
+  } catch (err) {
     console.log("err: ", err);
     if (!err.status) {
       err.status = 500;
