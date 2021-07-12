@@ -289,6 +289,24 @@ module.exports.createGuest = async () => {
 module.exports.createContent = async (input, id) => {
   let { content_body, title, likes, uid_likes, tag, content_type, image } =
     input;
+  if (!title) {
+    throw {
+      message: "Please specify title",
+      status: 203,
+    };
+  }
+  if (!content_body) {
+    throw {
+      message: "Please specify content_body",
+      status: 203,
+    };
+  }
+  if (!content_type) {
+    throw {
+      message: "Please specify content_type",
+      status: 203,
+    };
+  }
   content_type = content_type.map((x) => {
     return x.toLowerCase();
   });
