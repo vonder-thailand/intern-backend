@@ -728,7 +728,7 @@ module.exports.search = async (input, tag, con_ty) => {
         },
       },
     ]);
-  } else {
+  } else if (!tag && !content_type) {
     return await ContentModel.aggregate([
       {
         $lookup: {
