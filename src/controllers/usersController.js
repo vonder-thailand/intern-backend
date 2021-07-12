@@ -22,6 +22,7 @@ const resultNew = require("../models/resultNew.model");
 const summariseModel = require("../models/summarise.model");
 const mongoose = require("mongoose");
 const { constant } = require("lodash");
+const Content = require("../models/content.model");
 // find user by id
 exports.findUserById = async (req, res, next) => {
   try {
@@ -352,4 +353,10 @@ exports.getNewResult = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+exports.getNewestContent = async (req, res, next) => {
+  userId = "60dc1ed217e38016422e5a1b";
+  let output = await Content.find({ author_id: userId });
+  res.send(output);
 };

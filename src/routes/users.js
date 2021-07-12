@@ -70,4 +70,10 @@ router.get(
   usersController.getNewResult
 );
 
+router.get(
+  "/user/newestContent",
+  auth.authMiddleware,
+  usersController.getNewestContent
+);
+
 module.exports = router;
