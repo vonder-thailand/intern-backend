@@ -387,11 +387,10 @@ exports.getNewestContent = async (req, res, next) => {
         status: 404,
       };
     }
-    const output = await Content.findOne({}, [], {
-      $orderby: { created_at: -1 },
-    });
-    res.send(output);
-  } catch (error) {
+    const output = await Content.find({ author_id: userId });
+    const newest = output[output.length - 1];
+    res.send(newest);
+  } catch (err) {
     console.log("err: ", err);
     if (!err.status) {
       err.status = 500;
