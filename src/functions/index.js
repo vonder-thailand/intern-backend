@@ -173,6 +173,7 @@ module.exports.createResultById = async (results, req) => {
     const array = user[0].results;
 
     array.push(calculated_result);
+
     const results = await UserResult.findOneAndUpdate(
       { userid: userid },
       { results: array },
