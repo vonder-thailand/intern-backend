@@ -395,7 +395,7 @@ exports.getNewestContent = async (req, res, next) => {
 
     const new_content = {
       _id: newest._id,
-      author_id: newest.auth_id,
+      author_id: newest.author_id,
       content_body: newest.content_body,
       title: newest.title,
       likes: newest.likes,
