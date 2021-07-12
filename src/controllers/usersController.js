@@ -177,17 +177,19 @@ exports.getAllContents = async (req, res) => {
 
 exports.getSortByTag = async (req, res, next) => {
   try {
-    console.log(req.body.content_type);
-    const ct_type = req.body.content_type.toLowerCase();
     if (req.body.dataSet) {
       const contents = await getSortByTag(
         req.body.tag,
         req.body.dataSet,
-        ct_type
+        req.body.content_type
       );
       res.send(contents);
     } else {
-      const contents = await getSortByTag(req.body.tag, null, ct_type);
+      const contents = await getSortByTag(
+        req.body.tag,
+        null,
+        req.body.content_type
+      );
       res.send(contents);
     }
   } catch (err) {

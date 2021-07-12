@@ -289,10 +289,13 @@ module.exports.createGuest = async () => {
 module.exports.createContent = async (input, id) => {
   let { content_body, title, likes, uid_likes, tag, content_type, image } =
     input;
+  content_type = content_type.map((x) => {
+    return x.toLowerCase();
+  });
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
-  var ct = content_type.toLowerCase();
+
   return await ContentModel.create({
     content_body,
     title,
@@ -300,7 +303,7 @@ module.exports.createContent = async (input, id) => {
     uid_likes,
     author_id: id,
     tag,
-    content_type: ct,
+    content_type,
     image,
   });
 };
@@ -322,6 +325,11 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
     "people smart",
     "music smart",
   ];
+
+  content_type = content_type.map((x) => {
+    return x.toLowerCase();
+  });
+
   tag = tag.map((x) => {
     return x.toLowerCase();
   });
@@ -335,15 +343,17 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
   );
   if (dataSet == null) {
     return await ContentModel.find({
-      tag: { $in: tag },
-      content_type: { $in: content_type },
+      $and: [{ content_type: { $in: content_type } }, { tag: { $in: tag } }],
       isDeleted: false,
     });
   } else {
     let newItem = dataSet.filter((item) =>
       item.tag.some((r) => tag.indexOf(r) >= 0)
     );
-    newItem = dataSet.filter((item) => item.content_type == content_type);
+
+    newItem = dataSet.filter((item) =>
+      item.content_type.some((r) => content_type.indexOf(r) >= 0)
+    );
 
     return newItem;
   }
