@@ -69,6 +69,11 @@ router.get(
   auth.authMiddleware,
   usersController.getNewResult
 );
+router.get(
+  "/user/content",
+  auth.authMiddleware,
+  usersController.getContentById
+);
 
 router.get(
   "/user/newestContent",

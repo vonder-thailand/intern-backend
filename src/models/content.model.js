@@ -9,7 +9,7 @@ const contents = new Schema(
     uid_likes: [{ type: [mongoose.ObjectId], default: ["-"] }],
     author_id: { type: mongoose.ObjectId, defalut: "-" },
     tag: { type: [String], defalut: ["-"] },
-    content_type: { type: String, default: "board", require: true },
+    content_type: { type: [String], default: "board", require: true },
     image: { type: String, default: "-" },
     isDeleted: { type: Boolean, default: false },
   },
