@@ -69,5 +69,10 @@ router.get(
   auth.authMiddleware,
   usersController.getNewResult
 );
+router.get(
+  "/user/content",
+  auth.authMiddleware,
+  usersController.getContentById
+);
 
 module.exports = router;

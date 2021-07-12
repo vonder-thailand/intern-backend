@@ -711,3 +711,27 @@ module.exports.search = async (input, tag, con_ty) => {
     ]);
   }
 };
+
+module.exports.getContentById = async (input) => {
+  const user = await userAuth.findOne({
+    _id: input,
+  });
+  if (!user) {
+    throw {
+      message: "invalid user id",
+      status: 404,
+    };
+  }
+  if (valid_id(input)) {
+    return await ContentModel.find({
+      author_id: input,
+      isDeleted: false,
+    });
+  } else {
+    throw {
+      message:
+        "Error from trying to get non-existing content, please create content first",
+      status: 404,
+    };
+  }
+};

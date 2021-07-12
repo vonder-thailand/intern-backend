@@ -16,9 +16,11 @@ const {
   deleteContent,
   deleteComment,
   search,
+  getContentById,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 const resultNew = require("../models/resultNew.model");
+const userAuth = require("../models/auth.model");
 const summariseModel = require("../models/summarise.model");
 const mongoose = require("mongoose");
 const { constant } = require("lodash");
@@ -351,5 +353,25 @@ exports.getNewResult = async (req, res, next) => {
     res.send(obj_arr);
   } catch (error) {
     next(error);
+  }
+};
+
+exports.getContentById = async (req, res, next) => {
+  try {
+    if (req.body.author_id) {
+      const user = await getContentById(req.body.author_id);
+      res.send(user);
+    } else {
+      const { userId } = req;
+      console.log(userId);
+      const user = await getContentById(userId);
+      res.send(user);
+    }
+  } catch (err) {
+    console.log("err: ", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
