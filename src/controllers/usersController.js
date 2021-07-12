@@ -283,7 +283,12 @@ exports.postNewResult = async (req, res, next) => {
     tests.map((each_test) => {
       const index = each_test.categoryId;
       if (each_test.categoryId == index) {
-        array[index - 1] += each_test.score;
+        if (index - 1 < 0 || index - 1 > 8) {
+          throw {
+            message: "invalid category",
+            status: 422,
+          };
+        } else array[index - 1] += each_test.score;
       }
     });
     array[8] = Date.now();

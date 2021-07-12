@@ -135,7 +135,7 @@ module.exports.calculateResult = async (results) => {
     } else if (category_id == 8) {
       category[7]["score"] += score;
     } else {
-      throw { message: "invalid category" };
+      throw { message: "invalid category", status: 422 };
     }
   }
 
