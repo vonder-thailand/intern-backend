@@ -285,7 +285,12 @@ exports.postNewResult = async (req, res, next) => {
     tests.map((each_test) => {
       const index = each_test.categoryId;
       if (each_test.categoryId == index) {
-        array[index - 1] += each_test.score;
+        if (index - 1 < 0 || index - 1 > 8) {
+          throw {
+            message: "invalid category",
+            status: 422,
+          };
+        } else array[index - 1] += each_test.score;
       }
     });
     array[8] = Date.now();
@@ -313,6 +318,22 @@ exports.postNewResult = async (req, res, next) => {
 exports.getNewResult = async (req, res, next) => {
   try {
     const userid = req.userId;
+    if (!mongoose.Types.ObjectId.isValid(userid)) {
+      throw {
+        message: "Invalid user id",
+        status: 404,
+      };
+    }
+
+    const user = await resultNew.findOne({ userid: userid });
+
+    if (!user) {
+      throw {
+        message:
+          "Error from trying to get non-existing result, please do the test first",
+        status: 404,
+      };
+    }
 
     const newResult = await resultNew.aggregate([
       {
