@@ -394,8 +394,8 @@ exports.getNewestContent = async (req, res, next) => {
     const auth_username = username[0].username;
 
     const new_content = {
-      _id: item._id,
-      author_id: item.auth_id,
+      _id: newest._id,
+      author_id: newest.auth_id,
       content_body: newest.content_body,
       title: newest.title,
       likes: newest.likes,
