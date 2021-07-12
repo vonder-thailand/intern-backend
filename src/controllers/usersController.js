@@ -403,7 +403,7 @@ exports.getNewestContent = async (req, res, next) => {
       tag: newest.tag,
       content_type: newest.content_type,
       image: newest.image,
-      auth_username: auth_username,
+      author_username: auth_username,
       created_at: newest.created_at,
       updated_at: newest.updated_at,
     };

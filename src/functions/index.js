@@ -343,7 +343,7 @@ module.exports.getAllContents = async () => {
       tag: item.tag,
       content_type: item.content_type,
       image: item.image,
-      auth_username: auth_username,
+      author_username: auth_username,
       created_at: item.created_at,
       updated_at: item.updated_at,
     };
@@ -837,7 +837,7 @@ module.exports.getContentById = async (input) => {
         tag: item.tag,
         content_type: item.content_type,
         image: item.image,
-        auth_username: auth_username,
+        author_username: auth_username,
         created_at: item.created_at,
         updated_at: item.updated_at,
       };
