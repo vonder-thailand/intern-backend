@@ -325,9 +325,30 @@ module.exports.createContent = async (input, id) => {
 };
 
 module.exports.getAllContents = async () => {
-  return await ContentModel.find({
+  const content = await ContentModel.find({
     isDeleted: false,
   });
+
+  const username = await authModel.find({ _id: content[0].author_id });
+  const auth_username = username[0].username;
+  const new_contents = [];
+  content.map((item) => {
+    const new_content = {
+      content_body: item.content_body,
+      title: item.title,
+      likes: item.likes,
+      uid_likes: item.uid_likes,
+      tag: item.tag,
+      content_type: item.content_type,
+      image: item.image,
+      auth_username: auth_username,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+    };
+    new_contents.push(new_content);
+  });
+
+  return new_contents;
 };
 
 module.exports.getSortByTag = async (tag, dataSet, content_type) => {
@@ -800,7 +821,26 @@ module.exports.getContentById = async (input) => {
         status: 404,
       };
     }
-    return content;
+    const username = await authModel.find({ _id: content[0].author_id });
+    const auth_username = username[0].username;
+    const new_contents = [];
+    content.map((item) => {
+      const new_content = {
+        content_body: item.content_body,
+        title: item.title,
+        likes: item.likes,
+        uid_likes: item.uid_likes,
+        tag: item.tag,
+        content_type: item.content_type,
+        image: item.image,
+        auth_username: auth_username,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+      };
+      new_contents.push(new_content);
+    });
+
+    return new_contents;
   } else {
     throw {
       message:
