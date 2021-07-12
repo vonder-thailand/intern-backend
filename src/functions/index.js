@@ -692,10 +692,13 @@ module.exports.getSummarise = async () => {
 //   ]);
 // };
 
-module.exports.search = async (input, tag, con_ty) => {
+module.exports.search = async (input, tag, content_type) => {
   let new_input = new RegExp(input, "i");
-  if (tag) {
+  if (tag && content_type) {
     tag = tag.map((x) => {
+      return x.toLowerCase();
+    });
+    content_type = content_type.map((x) => {
       return x.toLowerCase();
     });
 
@@ -713,13 +716,13 @@ module.exports.search = async (input, tag, con_ty) => {
         $match: {
           $or: [
             {
-              content_type: con_ty,
+              content_type: { $in: content_type },
               tag: { $in: tag },
               isDeleted: false,
               "author_data.username": { $regex: new_input },
             },
             {
-              content_type: con_ty,
+              content_type: { $in: content_type },
               tag: { $in: tag },
               isDeleted: false,
               title: { $regex: new_input },
