@@ -16,12 +16,15 @@ const {
   deleteContent,
   deleteComment,
   search,
+  getContentById,
 } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 const resultNew = require("../models/resultNew.model");
+const userAuth = require("../models/auth.model");
 const summariseModel = require("../models/summarise.model");
 const mongoose = require("mongoose");
 const { constant } = require("lodash");
+const Content = require("../models/content.model");
 // find user by id
 exports.findUserById = async (req, res, next) => {
   try {
@@ -141,7 +144,6 @@ exports.getResultById = async (req, res, next) => {
       const user = await getResultById(req.body._id);
       res.send(user);
     } else {
-      console.log("ELSE");
       const { userId } = req;
       const user = await getResultById(userId);
       res.send(user);
@@ -177,17 +179,19 @@ exports.getAllContents = async (req, res) => {
 
 exports.getSortByTag = async (req, res, next) => {
   try {
-    console.log(req.body.content_type);
-    const ct_type = req.body.content_type.toLowerCase();
     if (req.body.dataSet) {
       const contents = await getSortByTag(
         req.body.tag,
         req.body.dataSet,
-        ct_type
+        req.body.content_type
       );
       res.send(contents);
     } else {
-      const contents = await getSortByTag(req.body.tag, null, ct_type);
+      const contents = await getSortByTag(
+        req.body.tag,
+        null,
+        req.body.content_type
+      );
       res.send(contents);
     }
   } catch (err) {
@@ -283,7 +287,12 @@ exports.postNewResult = async (req, res, next) => {
     tests.map((each_test) => {
       const index = each_test.categoryId;
       if (each_test.categoryId == index) {
-        array[index - 1] += each_test.score;
+        if (index - 1 < 0 || index - 1 > 8) {
+          throw {
+            message: "invalid category",
+            status: 422,
+          };
+        } else array[index - 1] += each_test.score;
       }
     });
     array[8] = Date.now();
@@ -311,6 +320,22 @@ exports.postNewResult = async (req, res, next) => {
 exports.getNewResult = async (req, res, next) => {
   try {
     const userid = req.userId;
+    if (!mongoose.Types.ObjectId.isValid(userid)) {
+      throw {
+        message: "Invalid user id",
+        status: 404,
+      };
+    }
+
+    const user = await resultNew.findOne({ userid: userid });
+
+    if (!user) {
+      throw {
+        message:
+          "Error from trying to get non-existing result, please do the test first",
+        status: 404,
+      };
+    }
 
     const newResult = await resultNew.aggregate([
       {
@@ -351,5 +376,47 @@ exports.getNewResult = async (req, res, next) => {
     res.send(obj_arr);
   } catch (error) {
     next(error);
+  }
+};
+
+exports.getNewestContent = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw {
+        message: "userid is not defined",
+        status: 404,
+      };
+    }
+    const output = await Content.findOne({}, [], {
+      $orderby: { created_at: -1 },
+    });
+    res.send(output);
+  } catch (error) {
+    console.log("err: ", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
+};
+
+exports.getContentById = async (req, res, next) => {
+  try {
+    if (req.body.author_id) {
+      const user = await getContentById(req.body.author_id);
+      res.send(user);
+    } else {
+      const { userId } = req;
+      console.log(userId);
+      const user = await getContentById(userId);
+      res.send(user);
+    }
+  } catch (err) {
+    console.log("err: ", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
   }
 };
