@@ -387,9 +387,25 @@ exports.getNewestContent = async (req, res, next) => {
         status: 404,
       };
     }
-    const output = await Content.find({ author_id: userId });
-    const newest = output[output.length - 1];
-    res.send(newest);
+    let newest = await Content.find({ author_id: userId });
+    newest = newest[newest.length - 1];
+
+    const username = await userAuth.find({ _id: newest.author_id });
+    const auth_username = username[0].username;
+
+    const new_content = {
+      content_body: newest.content_body,
+      title: newest.title,
+      likes: newest.likes,
+      uid_likes: newest.uid_likes,
+      tag: newest.tag,
+      content_type: newest.content_type,
+      image: newest.image,
+      auth_username: auth_username,
+      created_at: newest.created_at,
+      updated_at: newest.updated_at,
+    };
+    res.send(new_content);
   } catch (err) {
     console.log("err: ", err);
     if (!err.status) {
