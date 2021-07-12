@@ -344,36 +344,73 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
     "music smart",
   ];
 
-  content_type = content_type.map((x) => {
-    return x.toLowerCase();
-  });
-
-  tag = tag.map((x) => {
-    return x.toLowerCase();
-  });
-
-  tag.map((x) =>
-    tags.indexOf(x) == -1
-      ? (function () {
-          throw { message: "Out of Tag", status: 404 };
-        })()
-      : console.log("pass")
-  );
-  if (dataSet == null) {
-    return await ContentModel.find({
-      $and: [{ content_type: { $in: content_type } }, { tag: { $in: tag } }],
-      isDeleted: false,
+  if (content_type && tag) {
+    content_type = content_type.map((x) => {
+      return x.toLowerCase();
     });
-  } else {
-    let newItem = dataSet.filter((item) =>
-      item.tag.some((r) => tag.indexOf(r) >= 0)
-    );
 
-    newItem = dataSet.filter((item) =>
-      item.content_type.some((r) => content_type.indexOf(r) >= 0)
-    );
+    tag = tag.map((x) => {
+      return x.toLowerCase();
+    });
 
-    return newItem;
+    tag.map((x) =>
+      tags.indexOf(x) == -1
+        ? (function () {
+            throw { message: "Out of Tag", status: 404 };
+          })()
+        : console.log("pass")
+    );
+    if (dataSet == null) {
+      return await ContentModel.find({
+        $and: [{ content_type: { $in: content_type } }, { tag: { $in: tag } }],
+        isDeleted: false,
+      });
+    } else {
+      let newItem = dataSet.filter((item) =>
+        item.tag.some((r) => tag.indexOf(r) >= 0)
+      );
+
+      newItem = dataSet.filter((item) =>
+        item.content_type.some((r) => content_type.indexOf(r) >= 0)
+      );
+
+      return newItem;
+    }
+  } else if (!content_type && !tag) {
+    return await ContentModel.find({});
+  } else if (!tag) {
+    content_type = content_type.map((x) => {
+      return x.toLowerCase();
+    });
+
+    if (dataSet == null) {
+      return await ContentModel.find({
+        content_type: { $in: content_type },
+        isDeleted: false,
+      });
+    } else {
+      let newItem = dataSet.filter((item) =>
+        item.content_type.some((r) => content_type.indexOf(r) >= 0)
+      );
+
+      return newItem;
+    }
+  } else if (!content_type) {
+    tag = tag.map((x) => {
+      return x.toLowerCase();
+    });
+    if (dataSet == null) {
+      return await ContentModel.find({
+        tag: { $in: tag },
+        isDeleted: false,
+      });
+    } else {
+      let newItem = dataSet.filter((item) =>
+        item.tag.some((r) => tag.indexOf(r) >= 0)
+      );
+
+      return newItem;
+    }
   }
 };
 
