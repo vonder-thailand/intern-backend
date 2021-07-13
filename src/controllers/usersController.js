@@ -429,7 +429,9 @@ exports.getProfile = async (req, res, next) => {
       const content = await formatContent(element, authData[0].username);
       return content;
     });
+
     const new_contents = await Promise.all(content_promise);
+
     res.send({ auth: authData, results: results, contents: new_contents });
   } catch (err) {
     next(err);
