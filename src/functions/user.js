@@ -6,7 +6,16 @@ const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
 const resultNew = require("../models/resultNew.model");
 const summariseModel = require("../models/summarise.model");
-const { filter } = require("lodash");
+const { filter } = require("../functions/const");
+const {
+  arrayLower,
+  checkTag,
+  dataSetFilterByTag,
+  dataSetFilterByContentType,
+  checkStage,
+  formatContent,
+  formatResult,
+} = require("../functions/index");
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
@@ -116,113 +125,70 @@ module.exports.getAllContents = async () => {
   const username = await authModel.find({ _id: content[0].author_id });
   const auth_username = username[0].username;
   const content_promise = content.map(async (element) => {
-    const content = await this.formatContent(element, auth_username);
+    const content = await formatContent(element, auth_username);
     return content;
   });
   const new_contents = await Promise.all(content_promise);
   return new_contents;
 };
 
-function arrayLower(array) {
-  array = array.map((item) => {
-    return item.toLowerCase();
-  });
-  return array;
-}
-
-function checkTag(tag) {
-  tags = [
-    "word smart",
-    "logic smart",
-    "picture smart",
-    "body smart",
-    "nature smart",
-    "self smart",
-    "people smart",
-    "music smart",
-  ];
-
-  tag.map((item) =>
-    tags.indexOf(item) == -1
-      ? (function () {
-          throw { message: "Out of Tag", status: 404 };
-        })()
-      : console.log("pass")
-  );
-}
-
-function dataSetFilterByTag(tag, dataSet) {
-  let newItem = dataSet.filter((item) =>
-    item.tag.some((r) => tag.indexOf(r) >= 0)
-  );
-  return newItem;
-}
-
-function dataSetFilterByContentType(content_type, dataSet) {
-  const filters = dataSet.filter((item) =>
-    content_type.includes(item.content_type)
-  );
-  return filters;
-}
-
 module.exports.getSortByTag = async (tag, dataSet, content_type) => {
-  let filtered = null;
-  //filter by content_type + tag
-  if (content_type.length && tag.length) {
-    content_type = arrayLower(content_type);
-    tag = arrayLower(tag);
-    checkTag(tag);
-    if (!dataSet) {
-      //filter by content_type + tag
+  let filtered;
+  let stage;
+
+  content_type.length ? (content_type = arrayLower(content_type)) : {};
+  tag.length
+    ? function () {
+        tag = arrayLower(tag);
+        checkTag(tag);
+      }
+    : {};
+
+  stage = checkStage(tag, content_type, dataSet, stage);
+
+  switch (stage) {
+    case filter.TAG_AND_CONTENT:
       filtered = await ContentModel.find({
         $and: [{ content_type: { $in: content_type } }, { tag: { $in: tag } }],
         isDeleted: false,
       });
-    } else {
-      //filter by content_type + tag from dataSet
+      break;
+    case filter.TAG_AND_CONTENT_WITH_DATASET:
       const newItem = dataSetFilterByTag(tag, dataSet);
       filtered = dataSetFilterByContentType(content_type, newItem);
-    }
-  }
-  //not filter anything
-  else if (!content_type.length && !tag.length) {
-    filtered = await ContentModel.find({});
-  }
-  //filter by content_type only
-  else if (!tag.length) {
-    content_type = arrayLower(content_type);
-    //filter by content_type only
-    if (dataSet == null) {
+      break;
+    case filter.NONE:
+      filtered = await ContentModel.find({});
+      break;
+    case filter.CONTENT:
       filtered = await ContentModel.find({
         content_type: { $in: content_type },
         isDeleted: false,
       });
-    }
-    //filter by content_type from dataSet
-    else {
+      break;
+    case filter.CONTENT_WITH_DATASET:
       filtered = dataSetFilterByContentType(content_type, dataSet);
-    }
-  }
-  //filter by tag only
-  else if (!content_type.length) {
-    tag = arrayLower(tag);
-    //filter by tag only
-    if (dataSet == null) {
+      break;
+    case filter.TAG:
       filtered = await ContentModel.find({
         tag: { $in: tag },
         isDeleted: false,
       });
-    }
-    //filter by tag from dataSet
-    else {
+      break;
+    case filter.TAG_WITH_DATASET:
       filtered = dataSetFilterByTag(tag, dataSet);
-    }
+      break;
+    default:
+      throw {
+        message: "no content found",
+        status: 404,
+      };
   }
   //add author_username into filtered data
   const content_promise = filtered.map(async (element) => {
     const userId = element.author_id;
     const user = await authModel.findOne({ _id: userId });
-    const content = await this.formatContent(element, user.username);
+    const content = await formatContent(element, user.username);
     return content;
   });
   return await Promise.all(content_promise);
@@ -453,7 +419,7 @@ module.exports.getContentById = async (input) => {
     const auth_username = username[0].username;
 
     const content_promise = content.map(async (element) => {
-      const content = await this.formatContent(element, auth_username);
+      const content = await formatContent(element, auth_username);
       return content;
     });
     const new_contents = await Promise.all(content_promise);
@@ -465,45 +431,4 @@ module.exports.getContentById = async (input) => {
       status: 404,
     };
   }
-};
-
-//takes only 1 content object
-module.exports.formatContent = async (content, username) => {
-  const new_content = {
-    _id: content._id,
-    author_id: content.author_id,
-    content_body: content.content_body,
-    title: content.title,
-    likes: content.likes,
-    uid_likes: content.uid_likes,
-    tag: content.tag,
-    content_type: content.content_type,
-    image: content.image,
-    author_username: username,
-    created_at: content.created_at,
-    updated_at: content.updated_at,
-  };
-  return new_content;
-};
-
-//takes result = [score,score,score,score,score,score,score,score,date]
-module.exports.formatResult = async (result) => {
-  let summarise = await summariseModel.find();
-  const score = result;
-  const obj_arr = [];
-  summarise.map((item, index) => {
-    const obj_inside = {
-      category_id: item.category_id,
-      description: item.description,
-      description_career: item.description_career,
-      image_charactor: item.image_charactor,
-      skill_summarize: item.skill_summarize,
-      charactor_summarize: item.charactor_summarize,
-      skill: item.skill,
-      score: score[index] * 10,
-      created_at: new Date(score[8]),
-    };
-    obj_arr.push(obj_inside);
-  });
-  return obj_arr;
 };
