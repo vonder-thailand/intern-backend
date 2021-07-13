@@ -1,4 +1,4 @@
-const { calculateResult } = require("../functions/index");
+const { calculateResult } = require("../functions/guest");
 
 module.exports.calculateResult = async (req, res, next) => {
   try {

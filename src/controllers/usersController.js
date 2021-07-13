@@ -17,7 +17,7 @@ const {
   deleteComment,
   search,
   getContentById,
-} = require("../functions/index");
+} = require("../functions/user");
 const { uploadManyFile } = require("../utils/s3");
 const resultNew = require("../models/resultNew.model");
 const userAuth = require("../models/auth.model");
