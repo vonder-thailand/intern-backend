@@ -357,25 +357,9 @@ exports.getNewResult = async (req, res, next) => {
       },
     ]);
 
-    let summarise = await summariseModel.find();
     const score = newResult[0].results;
-    const obj_arr = [];
-    summarise.map((item, index) => {
-      const obj_inside = {
-        category_id: item.category_id,
-        description: item.description,
-        description_career: item.description_career,
-        image_charactor: item.image_charactor,
-        skill_summarize: item.skill_summarize,
-        charactor_summarize: item.charactor_summarize,
-        skill: item.skill,
-        score: score[index] * 10,
-        created_at: Date(score[8]),
-      };
-      obj_arr.push(obj_inside);
-    });
-
-    res.send(obj_arr);
+    const new_result = await formatResult(score);
+    res.send(new_result);
   } catch (error) {
     next(error);
   }
