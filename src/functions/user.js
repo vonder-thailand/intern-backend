@@ -21,9 +21,9 @@ module.exports.findUserById = async (input) => {
 module.exports.updateUserById = async (payload, userId) => {
   let { firstName, lastName, email, username } = payload;
   /*password = await bcrypt.hash(password, 10);*/
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
+  if (!valid_id(userId)) {
     throw {
-      message: "userid is not defined",
+      message: "invalid userId",
       status: 404,
     };
   }
@@ -45,7 +45,7 @@ module.exports.updateUserById = async (payload, userId) => {
 module.exports.deleteUserById = async (userId) => {
   if (!valid_id(userId)) {
     throw {
-      message: "userid is not defined",
+      message: "invalid userId",
       status: 404,
     };
   }
@@ -207,7 +207,7 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
 module.exports.contentIsLiked = async (input_uid, input_content_id) => {
   if (!valid_id(input_content_id)) {
     throw {
-      message: "content not found",
+      message: "invalid comment id",
       status: 404,
     };
   }
@@ -242,7 +242,7 @@ module.exports.getCommentByContentId = async (
 ) => {
   if (!valid_id(input_content_id)) {
     throw {
-      message: "content not found",
+      message: "invalid comment id",
       status: 404,
     };
   }
@@ -267,7 +267,7 @@ module.exports.getCommentByContentId = async (
 module.exports.deleteContent = async (input_content_id) => {
   if (!valid_id(input_content_id)) {
     throw {
-      message: "content not found",
+      message: "invalid content id",
       status: 404,
     };
   }
@@ -297,7 +297,7 @@ module.exports.deleteContent = async (input_content_id) => {
 module.exports.deleteComment = async (input_comment_id) => {
   if (!valid_id(input_comment_id)) {
     throw {
-      message: "comment not found",
+      message: "invalid comment id",
       status: 404,
     };
   }

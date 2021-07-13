@@ -1,5 +1,4 @@
 const {
-  // createUser,
   findUserById,
   updateUserById,
   deleteUserById,
