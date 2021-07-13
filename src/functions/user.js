@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
 const resultNew = require("../models/resultNew.model");
+const summariseModel = require("../models/summarise.model");
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
@@ -113,25 +114,11 @@ module.exports.getAllContents = async () => {
 
   const username = await authModel.find({ _id: content[0].author_id });
   const auth_username = username[0].username;
-  const new_contents = [];
-  content.map((item) => {
-    const new_content = {
-      _id: item._id,
-      author_id: item.author_id,
-      content_body: item.content_body,
-      title: item.title,
-      likes: item.likes,
-      uid_likes: item.uid_likes,
-      tag: item.tag,
-      content_type: item.content_type,
-      image: item.image,
-      author_username: auth_username,
-      created_at: item.created_at,
-      updated_at: item.updated_at,
-    };
-    new_contents.push(new_content);
+  const content_promise = content.map(async (element) => {
+    const content = await this.formatContent(element, auth_username);
+    return content;
   });
-
+  const new_contents = await Promise.all(content_promise);
   return new_contents;
 };
 
@@ -440,25 +427,12 @@ module.exports.getContentById = async (input) => {
     }
     const username = await authModel.find({ _id: content[0].author_id });
     const auth_username = username[0].username;
-    const new_contents = [];
-    content.map((item) => {
-      const new_content = {
-        _id: item._id,
-        author_id: item.author_id,
-        content_body: item.content_body,
-        title: item.title,
-        likes: item.likes,
-        uid_likes: item.uid_likes,
-        tag: item.tag,
-        content_type: item.content_type,
-        image: item.image,
-        author_username: auth_username,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-      };
-      new_contents.push(new_content);
-    });
 
+    const content_promise = content.map(async (element) => {
+      const content = await this.formatContent(element, auth_username);
+      return content;
+    });
+    const new_contents = await Promise.all(content_promise);
     return new_contents;
   } else {
     throw {
@@ -467,4 +441,45 @@ module.exports.getContentById = async (input) => {
       status: 404,
     };
   }
+};
+
+//takes only 1 content object
+module.exports.formatContent = async (content, username) => {
+  const new_content = {
+    _id: content._id,
+    author_id: content.author_id,
+    content_body: content.content_body,
+    title: content.title,
+    likes: content.likes,
+    uid_likes: content.uid_likes,
+    tag: content.tag,
+    content_type: content.content_type,
+    image: content.image,
+    author_username: username,
+    created_at: content.created_at,
+    updated_at: content.updated_at,
+  };
+  return new_content;
+};
+
+//takes result = [score,score,score,score,score,score,score,score,date]
+module.exports.formatResult = async (result) => {
+  let summarise = await summariseModel.find();
+  const score = result;
+  const obj_arr = [];
+  summarise.map((item, index) => {
+    const obj_inside = {
+      category_id: item.category_id,
+      description: item.description,
+      description_career: item.description_career,
+      image_charactor: item.image_charactor,
+      skill_summarize: item.skill_summarize,
+      charactor_summarize: item.charactor_summarize,
+      skill: item.skill,
+      score: score[index] * 10,
+      created_at: Date(score[8]),
+    };
+    obj_arr.push(obj_inside);
+  });
+  return obj_arr;
 };
