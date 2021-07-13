@@ -6,7 +6,7 @@ const {
   postQuestion,
   postSummarise,
   getSummarise,
-} = require("../functions/index");
+} = require("../functions/admin");
 
 exports.getAllResult = async (req, res) => {
   try {
