@@ -6,6 +6,7 @@ const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
 const resultNew = require("../models/resultNew.model");
 const summariseModel = require("../models/summarise.model");
+const { filter } = require("lodash");
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
@@ -122,7 +123,14 @@ module.exports.getAllContents = async () => {
   return new_contents;
 };
 
-module.exports.getSortByTag = async (tag, dataSet, content_type) => {
+function arrayLower(array) {
+  array = array.map((item) => {
+    return item.toLowerCase();
+  });
+  return array;
+}
+
+function checkTag(tag) {
   tags = [
     "word smart",
     "logic smart",
@@ -134,74 +142,90 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
     "music smart",
   ];
 
+  tag.map((item) =>
+    tags.indexOf(item) == -1
+      ? (function () {
+          throw { message: "Out of Tag", status: 404 };
+        })()
+      : console.log("pass")
+  );
+}
+
+function dataSetFilterByTag(tag, dataSet) {
+  let newItem = dataSet.filter((item) =>
+    item.tag.some((r) => tag.indexOf(r) >= 0)
+  );
+  return newItem;
+}
+
+function dataSetFilterByContentType(content_type, dataSet) {
+  const filters = dataSet.filter((item) =>
+    content_type.includes(item.content_type)
+  );
+  return filters;
+}
+
+module.exports.getSortByTag = async (tag, dataSet, content_type) => {
+  let filtered = null;
+  //filter by content_type + tag
   if (content_type.length && tag.length) {
-    content_type = content_type.map((x) => {
-      return x.toLowerCase();
-    });
-
-    tag = tag.map((item) => {
-      return item.toLowerCase();
-    });
-
-    tag.map((item) =>
-      tags.indexOf(item) == -1
-        ? (function () {
-            throw { message: "Out of Tag", status: 404 };
-          })()
-        : console.log("pass")
-    );
-    if (dataSet == null) {
-      return await ContentModel.find({
+    content_type = arrayLower(content_type);
+    tag = arrayLower(tag);
+    checkTag(tag);
+    if (!dataSet) {
+      //filter by content_type + tag
+      filtered = await ContentModel.find({
         $and: [{ content_type: { $in: content_type } }, { tag: { $in: tag } }],
         isDeleted: false,
       });
     } else {
-      let newItem = dataSet.filter((item) =>
-        item.tag.some((r) => tag.indexOf(r) >= 0)
-      );
-
-      const filters = newItem.filter((item) =>
-        content_type.includes(item.content_type)
-      );
-
-      return filters;
+      //filter by content_type + tag from dataSet
+      const newItem = dataSetFilterByTag(tag, dataSet);
+      filtered = dataSetFilterByContentType(content_type, newItem);
     }
-  } else if (!content_type.length && !tag.length) {
-    return await ContentModel.find({});
-  } else if (!tag.length) {
-    content_type = content_type.map((item) => {
-      return item.toLowerCase();
-    });
-
+  }
+  //not filter anything
+  else if (!content_type.length && !tag.length) {
+    filtered = await ContentModel.find({});
+  }
+  //filter by content_type only
+  else if (!tag.length) {
+    content_type = arrayLower(content_type);
+    //filter by content_type only
     if (dataSet == null) {
-      return await ContentModel.find({
+      filtered = await ContentModel.find({
         content_type: { $in: content_type },
         isDeleted: false,
       });
-    } else {
-      const filters = dataSet.filter((item) =>
-        content_type.includes(item.content_type)
-      );
-
-      return filters;
     }
-  } else if (!content_type.length) {
-    tag = tag.map((item) => {
-      return item.toLowerCase();
-    });
+    //filter by content_type from dataSet
+    else {
+      filtered = dataSetFilterByContentType(content_type, dataSet);
+    }
+  }
+  //filter by tag only
+  else if (!content_type.length) {
+    tag = arrayLower(tag);
+    //filter by tag only
     if (dataSet == null) {
-      return await ContentModel.find({
+      filtered = await ContentModel.find({
         tag: { $in: tag },
         isDeleted: false,
       });
-    } else {
-      let newItem = dataSet.filter((item) =>
-        item.tag.some((r) => tag.indexOf(r) >= 0)
-      );
-
-      return newItem;
+    }
+    //filter by tag from dataSet
+    else {
+      filtered = dataSetFilterByTag(tag, dataSet);
     }
   }
+  //add author_username into filtered data
+  const content_promise = filtered.map(async (element) => {
+    const userId = element.author_id;
+    const user = await authModel.findOne({ _id: userId });
+    const content = await this.formatContent(element, user.username);
+    return content;
+  });
+  return await Promise.all(content_promise);
 };
 
 module.exports.contentIsLiked = async (input_uid, input_content_id) => {
