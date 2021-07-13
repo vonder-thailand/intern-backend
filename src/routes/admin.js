@@ -3,6 +3,7 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 const auth = require("../middlewares/auth");
 
+//GET
 router.get("/results", auth.authMiddleware, adminController.getAllResult);
 router.get("/admin/find", auth.authMiddleware, adminController.getAdminById);
 router.get("/admin", auth.authMiddleware, adminController.getAllAdmins);
@@ -12,9 +13,13 @@ router.get(
   auth.authMiddleware,
   adminController.getQuestionByCat
 );
+
 router.get("/summarize", auth.authMiddleware, adminController.getSummarise);
+//POST
 router.post("/questions", adminController.postQuestion);
 router.post("/summarize", auth.authMiddleware, adminController.postSummarise);
+
+// PUT
 router.put("/update", auth.authMiddleware, adminController.updateFields);
 
 module.exports = router;

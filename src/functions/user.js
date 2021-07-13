@@ -1,18 +1,9 @@
-// functions function structure
-const UserResult = require("../models/result.model");
-const AdminModel = require("../models/admin.model");
 const CommentModel = require("../models/comment.model");
-const GuestModel = require("../models/guest.model");
 const ContentModel = require("../models/content.model");
-const QuestionModel = require("../models/questions.model");
-const summariseModel = require("../models/summarise.model");
-const resultModel = require("../models/result.model");
 const userAuth = require("../models/auth.model");
-const jwt = require("jsonwebtoken");
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
-const ObjectID = mongoose.Types.ObjectId;
 const resultNew = require("../models/resultNew.model");
 
 module.exports.findUserById = async (input) => {

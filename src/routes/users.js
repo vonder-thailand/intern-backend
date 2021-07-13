@@ -4,6 +4,7 @@ const usersController = require("../controllers/usersController");
 const auth = require("../middlewares/auth");
 const multer = require("multer");
 
+//GET
 router.get("/user/find", auth.authMiddleware, usersController.findUserById);
 router.get("/user", auth.authMiddleware, usersController.getAllUsers);
 router.get(
@@ -40,6 +41,7 @@ router.get(
 
 router.get("/user/profile", auth.authMiddleware, usersController.getProfile);
 
+//POST
 router.post(
   "/images",
   auth.authMiddleware,
@@ -69,10 +71,12 @@ router.put(
   usersController.contentIsLiked
 );
 
+//PUT
 router.put("/user", auth.authMiddleware, usersController.updateUserById);
 
 router.delete("/user", auth.authMiddleware, usersController.deleteUserById);
 
+//DELETE
 router.delete(
   "/user/comment",
   auth.authMiddleware,

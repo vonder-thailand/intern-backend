@@ -23,7 +23,6 @@ const resultNew = require("../models/resultNew.model");
 const userAuth = require("../models/auth.model");
 const summariseModel = require("../models/summarise.model");
 const mongoose = require("mongoose");
-const { constant } = require("lodash");
 const Content = require("../models/content.model");
 const authModel = require("../models/auth.model");
 const contentModel = require("../models/content.model");

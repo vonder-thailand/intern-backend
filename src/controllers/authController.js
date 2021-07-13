@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userAuth = require("../models/auth.model");
 const mongoose = require("mongoose");
-const { body, validationResult } = require("express-validator");
+const { validationResult } = require("express-validator");
 
 exports.login = async (req, res, next) => {
   let { email, password } = req.body;

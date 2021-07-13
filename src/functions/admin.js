@@ -3,7 +3,7 @@ const AdminModel = require("../models/admin.model");
 const QuestionModel = require("../models/questions.model");
 const summariseModel = require("../models/summarise.model");
 const userAuth = require("../models/auth.model");
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const valid_id = mongoose.Types.ObjectId.isValid;
 
 module.exports.getAdminById = async (input_id) => {
