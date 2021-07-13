@@ -439,7 +439,7 @@ exports.getContentById = async (req, res, next) => {
   }
 };
 
-async function formatResult(result) {
+exports.formatResult = async (result) => {
   let summarise = await summariseModel.find();
   const score = result;
   const obj_arr = [];
@@ -458,7 +458,7 @@ async function formatResult(result) {
     obj_arr.push(obj_inside);
   });
   return obj_arr;
-}
+};
 
 async function formatContent(content, username) {
   const new_content = {
@@ -487,7 +487,7 @@ exports.getProfile = async (req, res, next) => {
     const results_array = resultData[0].results;
 
     const promises = results_array.map(async (element) => {
-      const result = await formatResult(element);
+      const result = await this.formatResult(element);
       return result;
     });
     const results = await Promise.all(promises);
