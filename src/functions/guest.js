@@ -1,4 +1,4 @@
-const { formatResult } = require("../functions/user");
+const { formatResult } = require("../functions/index");
 
 exports.calculateResult = async (results) => {
   const array = [0, 0, 0, 0, 0, 0, 0, 0];
