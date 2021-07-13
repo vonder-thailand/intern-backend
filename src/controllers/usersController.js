@@ -368,7 +368,7 @@ exports.getNewResult = async (req, res, next) => {
         skill_summarize: item.skill_summarize,
         charactor_summarize: item.charactor_summarize,
         skill: item.skill,
-        score: score[index],
+        score: score[index] * 10,
         created_at: Date(score[8]),
       };
       obj_arr.push(obj_inside);
@@ -452,7 +452,7 @@ async function formatResult(result) {
       skill_summarize: item.skill_summarize,
       charactor_summarize: item.charactor_summarize,
       skill: item.skill,
-      score: score[index],
+      score: score[index] * 10,
       created_at: Date(score[8]),
     };
     obj_arr.push(obj_inside);

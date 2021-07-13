@@ -119,21 +119,21 @@ module.exports.calculateResult = async (results) => {
     category_id = results[i]["categoryId"];
     score = results[i]["score"];
     if (category_id == 1) {
-      category[0]["score"] += score;
+      category[0]["score"] += score * 10;
     } else if (category_id == 2) {
-      category[1]["score"] += score;
+      category[1]["score"] += score * 10;
     } else if (category_id == 3) {
-      category[2]["score"] += score;
+      category[2]["score"] += score * 10;
     } else if (category_id == 4) {
-      category[3]["score"] += score;
+      category[3]["score"] += score * 10;
     } else if (category_id == 5) {
-      category[4]["score"] += score;
+      category[4]["score"] += score * 10;
     } else if (category_id == 6) {
-      category[5]["score"] += score;
+      category[5]["score"] += score * 10;
     } else if (category_id == 7) {
-      category[6]["score"] += score;
+      category[6]["score"] += score * 10;
     } else if (category_id == 8) {
-      category[7]["score"] += score;
+      category[7]["score"] += score * 10;
     } else {
       throw { message: "invalid category", status: 422 };
     }
