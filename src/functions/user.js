@@ -90,8 +90,8 @@ module.exports.createContent = async (input, id) => {
     };
   }
   content_type = content_type.toLowerCase();
-  tag = tag.map((x) => {
-    return x.toLowerCase();
+  tag = tag.map((item) => {
+    return item.toLowerCase();
   });
 
   return await ContentModel.create({
@@ -152,12 +152,12 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
       return x.toLowerCase();
     });
 
-    tag = tag.map((x) => {
-      return x.toLowerCase();
+    tag = tag.map((item) => {
+      return item.toLowerCase();
     });
 
-    tag.map((x) =>
-      tags.indexOf(x) == -1
+    tag.map((item) =>
+      tags.indexOf(item) == -1
         ? (function () {
             throw { message: "Out of Tag", status: 404 };
           })()
@@ -182,8 +182,8 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
   } else if (!content_type.length && !tag.length) {
     return await ContentModel.find({});
   } else if (!tag.length) {
-    content_type = content_type.map((x) => {
-      return x.toLowerCase();
+    content_type = content_type.map((item) => {
+      return item.toLowerCase();
     });
 
     if (dataSet == null) {
@@ -199,8 +199,8 @@ module.exports.getSortByTag = async (tag, dataSet, content_type) => {
       return filters;
     }
   } else if (!content_type.length) {
-    tag = tag.map((x) => {
-      return x.toLowerCase();
+    tag = tag.map((item) => {
+      return item.toLowerCase();
     });
     if (dataSet == null) {
       return await ContentModel.find({
@@ -333,11 +333,11 @@ module.exports.deleteComment = async (input_comment_id) => {
 module.exports.search = async (input, tag, content_type) => {
   let new_input = new RegExp(input, "i");
   if (tag && content_type) {
-    tag = tag.map((x) => {
-      return x.toLowerCase();
+    tag = tag.map((item) => {
+      return item.toLowerCase();
     });
-    content_type = content_type.map((x) => {
-      return x.toLowerCase();
+    content_type = content_type.map((item) => {
+      return item.toLowerCase();
     });
 
     return await ContentModel.aggregate([
