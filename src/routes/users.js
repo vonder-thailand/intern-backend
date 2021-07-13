@@ -81,4 +81,6 @@ router.get(
   usersController.getNewestContent
 );
 
+router.get("/user/profile", auth.authMiddleware, usersController.getProfile);
+
 module.exports = router;

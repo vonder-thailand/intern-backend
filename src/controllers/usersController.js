@@ -25,6 +25,8 @@ const summariseModel = require("../models/summarise.model");
 const mongoose = require("mongoose");
 const { constant } = require("lodash");
 const Content = require("../models/content.model");
+const authModel = require("../models/auth.model");
+const contentModel = require("../models/content.model");
 // find user by id
 exports.findUserById = async (req, res, next) => {
   try {
@@ -433,6 +435,70 @@ exports.getContentById = async (req, res, next) => {
     if (!err.status) {
       err.status = 500;
     }
+    next(err);
+  }
+};
+
+async function formatResult(result) {
+  let summarise = await summariseModel.find();
+  const score = result;
+  const obj_arr = [];
+  summarise.map((item, index) => {
+    const obj_inside = {
+      category_id: item.category_id,
+      description: item.description,
+      description_career: item.description_career,
+      image_charactor: item.image_charactor,
+      skill_summarize: item.skill_summarize,
+      charactor_summarize: item.charactor_summarize,
+      skill: item.skill,
+      score: score[index],
+      created_at: Date(score[8]),
+    };
+    obj_arr.push(obj_inside);
+  });
+  return obj_arr;
+}
+
+async function formatContent(content, username) {
+  const new_content = {
+    _id: content._id,
+    author_id: content.author_id,
+    content_body: content.content_body,
+    title: content.title,
+    likes: content.likes,
+    uid_likes: content.uid_likes,
+    tag: content.tag,
+    content_type: content.content_type,
+    image: content.image,
+    author_username: username,
+    created_at: content.created_at,
+    updated_at: content.updated_at,
+  };
+  return new_content;
+}
+
+exports.getProfile = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const authData = await authModel.find({ _id: userId });
+    const resultData = await resultNew.find({ userid: userId });
+    const contentData = await contentModel.find({ author_id: userId });
+    const results_array = resultData[0].results;
+
+    const promises = results_array.map(async (element) => {
+      const result = await formatResult(element);
+      return result;
+    });
+    const results = await Promise.all(promises);
+
+    const content_promise = contentData.map(async (element) => {
+      const content = await formatContent(element, authData[0].username);
+      return content;
+    });
+    const new_contents = await Promise.all(content_promise);
+    res.send({ auth: authData, results: results, contents: new_contents });
+  } catch (err) {
     next(err);
   }
 };
