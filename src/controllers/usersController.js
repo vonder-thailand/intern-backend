@@ -17,6 +17,8 @@ const {
   deleteComment,
   search,
   getContentById,
+  formatContent,
+  formatResult,
 } = require("../functions/user");
 const { uploadManyFile } = require("../utils/s3");
 const resultNew = require("../models/resultNew.model");
@@ -394,20 +396,7 @@ exports.getNewestContent = async (req, res, next) => {
     const username = await userAuth.find({ _id: newest.author_id });
     const auth_username = username[0].username;
 
-    const new_content = {
-      _id: newest._id,
-      author_id: newest.author_id,
-      content_body: newest.content_body,
-      title: newest.title,
-      likes: newest.likes,
-      uid_likes: newest.uid_likes,
-      tag: newest.tag,
-      content_type: newest.content_type,
-      image: newest.image,
-      author_username: auth_username,
-      created_at: newest.created_at,
-      updated_at: newest.updated_at,
-    };
+    const new_content = await formatContent(newest, auth_username);
     res.send(new_content);
   } catch (err) {
     console.log("err: ", err);
@@ -438,45 +427,6 @@ exports.getContentById = async (req, res, next) => {
   }
 };
 
-exports.formatResult = async (result) => {
-  let summarise = await summariseModel.find();
-  const score = result;
-  const obj_arr = [];
-  summarise.map((item, index) => {
-    const obj_inside = {
-      category_id: item.category_id,
-      description: item.description,
-      description_career: item.description_career,
-      image_charactor: item.image_charactor,
-      skill_summarize: item.skill_summarize,
-      charactor_summarize: item.charactor_summarize,
-      skill: item.skill,
-      score: score[index] * 10,
-      created_at: Date(score[8]),
-    };
-    obj_arr.push(obj_inside);
-  });
-  return obj_arr;
-};
-
-async function formatContent(content, username) {
-  const new_content = {
-    _id: content._id,
-    author_id: content.author_id,
-    content_body: content.content_body,
-    title: content.title,
-    likes: content.likes,
-    uid_likes: content.uid_likes,
-    tag: content.tag,
-    content_type: content.content_type,
-    image: content.image,
-    author_username: username,
-    created_at: content.created_at,
-    updated_at: content.updated_at,
-  };
-  return new_content;
-}
-
 exports.getProfile = async (req, res, next) => {
   try {
     const userId = req.userId;
@@ -486,7 +436,7 @@ exports.getProfile = async (req, res, next) => {
     const results_array = resultData[0].results;
 
     const promises = results_array.map(async (element) => {
-      const result = await this.formatResult(element);
+      const result = await formatResult(element);
       return result;
     });
     const results = await Promise.all(promises);

@@ -1,4 +1,4 @@
-const { formatResult } = require("../controllers/usersController");
+const { formatResult } = require("../functions/user");
 
 exports.calculateResult = async (results) => {
   const array = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -15,7 +15,7 @@ exports.calculateResult = async (results) => {
   });
   array[8] = Date.now();
 
-  const new_results = await formatResult(results);
+  const new_results = await formatResult(array);
 
   return new_results;
 };
