@@ -57,8 +57,34 @@ module.exports.checkStage = (tag, content_type, dataSet, stage) => {
   return stage;
 };
 
+function formatDate(date) {
+  const monthNames = [
+    "ม.ค.",
+    "ก.พ.",
+    "มีค",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
+  ];
+
+  const day = date.getDate();
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+  const format_date = day + " " + month + year;
+  return format_date;
+}
+
 //takes only 1 content object
 module.exports.formatContent = async (content, username) => {
+  const create_date = formatDate(content.created_at);
+  const updaye_date = formatDate(content.updated_at);
+
   const new_content = {
     _id: content._id,
     author_id: content.author_id,
@@ -70,8 +96,8 @@ module.exports.formatContent = async (content, username) => {
     content_type: content.content_type,
     image: content.image,
     author_username: username,
-    created_at: content.created_at,
-    updated_at: content.updated_at,
+    created_at: create_date,
+    updated_at: updaye_date,
   };
   return new_content;
 };
