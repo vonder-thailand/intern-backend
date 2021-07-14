@@ -1,5 +1,5 @@
 const { filter } = require("../functions/const");
-
+const summariseModel = require("../models/summarise.model");
 module.exports.arrayLower = (array) => {
   array = array.map((item) => {
     return item.toLowerCase();
