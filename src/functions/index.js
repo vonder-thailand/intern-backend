@@ -61,7 +61,7 @@ function formatDate(date) {
   const monthNames = [
     "ม.ค.",
     "ก.พ.",
-    "มีค",
+    "มี.ค.",
     "เม.ย.",
     "พ.ค.",
     "มิ.ย.",
