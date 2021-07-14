@@ -106,6 +106,7 @@ module.exports.formatContent = async (content, username) => {
 module.exports.formatResult = async (result) => {
   let summarise = await summariseModel.find();
   const score = result;
+  const date = formatDate(new Date(score[8]));
   const obj_arr = [];
   summarise.map((item, index) => {
     const obj_inside = {
@@ -117,7 +118,7 @@ module.exports.formatResult = async (result) => {
       charactor_summarize: item.charactor_summarize,
       skill: item.skill,
       score: score[index] * 10,
-      created_at: new Date(score[8]),
+      created_at: date,
     };
     obj_arr.push(obj_inside);
   });
