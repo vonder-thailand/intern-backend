@@ -6,6 +6,7 @@ const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
 const resultNew = require("../models/resultNew.model");
 const summariseModel = require("../models/summarise.model");
+const { formatContent, formatResult } = require("../functions/index");
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
@@ -486,6 +487,7 @@ module.exports.formatResult = async (result) => {
 
 module.exports.getContentByContentId = async (input) => {
   if (valid_id(input)) {
+    input = new mongoose.Types.ObjectId(input);
     const content = await ContentModel.find({
       _id: input,
       isDeleted: false,
@@ -498,13 +500,7 @@ module.exports.getContentByContentId = async (input) => {
     }
     const username = await authModel.find({ _id: content[0].author_id });
     const auth_username = username[0].username;
-
-    const content_promise = content.map(async (element) => {
-      const content = await formatContent(element, auth_username);
-      return content;
-    });
-    const new_contents = await Promise.all(content_promise);
-    return new_contents;
+    return await formatContent(content[0], auth_username);
   } else {
     throw {
       message:

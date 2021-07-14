@@ -409,8 +409,8 @@ exports.getContentById = async (req, res, next) => {
 };
 exports.getContentByContentId = async (req, res, next) => {
   try {
-    if (req.query._id) {
-      const ContentID = await getContentByContentId(req.query._id);
+    if (req.params._id) {
+      const ContentID = await getContentByContentId(req.params._id);
       res.send(ContentID);
     }
   } catch (err) {

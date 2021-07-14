@@ -34,7 +34,7 @@ router.get(
 );
 
 router.get(
-  "/user/contentID",
+  "/user/contentID/:_id",
   auth.authMiddleware,
   usersController.getContentByContentId
 );
