@@ -296,7 +296,7 @@ exports.postNewResult = async (req, res, next) => {
     });
     array[8] = Date.now();
     const userId = req.userId;
-    const user = await resultNew.find({ userid: userId });
+    const user = await resultNew.find({ userid: userId, isDeleted: false });
     if (!user.length) {
       newResult = await resultNew.create({
         userid: userId,
@@ -305,7 +305,7 @@ exports.postNewResult = async (req, res, next) => {
       res.send(newResult);
     } else {
       newResult = await resultNew.findOneAndUpdate(
-        { userid: userId },
+        { userid: userId, isDeleted: false },
         { $push: { results: array } },
         { new: true }
       );
@@ -326,7 +326,7 @@ exports.getNewResult = async (req, res, next) => {
       };
     }
 
-    const user = await resultNew.findOne({ userid: userid });
+    const user = await resultNew.findOne({ userid: userid, isDeleted: false });
 
     if (!user) {
       throw {
@@ -371,10 +371,13 @@ exports.getNewestContent = async (req, res, next) => {
         status: 404,
       };
     }
-    let newest = await Content.find({ author_id: userId });
+    let newest = await Content.find({ author_id: userId, isDeleted: false });
     newest = newest[newest.length - 1];
 
-    const username = await userAuth.find({ _id: newest.author_id });
+    const username = await userAuth.find({
+      _id: newest.author_id,
+      isDeleted: false,
+    });
     const auth_username = username[0].username;
 
     const new_content = await formatContent(newest, auth_username);
@@ -425,9 +428,15 @@ exports.getContentByContentId = async (req, res, next) => {
 exports.getProfile = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const authData = await authModel.find({ _id: userId });
-    const resultData = await resultNew.find({ userid: userId });
-    const contentData = await Content.find({ author_id: userId });
+    const authData = await authModel.find({ _id: userId, isDeleted: false });
+    const resultData = await resultNew.find({
+      userid: userId,
+      isDeleted: false,
+    });
+    const contentData = await Content.find({
+      author_id: userId,
+      isDeleted: false,
+    });
     const results_array = resultData[0].results;
 
     const promises = results_array.map(async (element) => {
@@ -451,11 +460,16 @@ exports.getProfile = async (req, res, next) => {
 
 exports.getSortedContentByLike = async (req, res, next) => {
   try {
-    const contents = await Content.find({}).sort({ likes: -1 });
+    const contents = await Content.find({ isDeleted: false }).sort({
+      likes: -1,
+    });
 
     const content_promise = contents.map(async (element) => {
       const authorId = element.author_id;
-      const username = await userAuth.findOne({ _id: authorId });
+      const username = await userAuth.findOne({
+        _id: authorId,
+        isDeleted: false,
+      });
       const content = await formatContent(element, username.username);
       return content;
     });

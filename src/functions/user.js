@@ -396,6 +396,7 @@ module.exports.search = async (input, tag, content_type) => {
 module.exports.getContentById = async (input) => {
   const user = await userAuth.findOne({
     _id: input,
+    isDeleted: false,
   });
   if (!user) {
     throw {
@@ -415,7 +416,10 @@ module.exports.getContentById = async (input) => {
         status: 404,
       };
     }
-    const username = await authModel.find({ _id: content[0].author_id });
+    const username = await authModel.find({
+      _id: content[0].author_id,
+      isDeleted: false,
+    });
     const auth_username = username[0].username;
 
     const content_promise = content.map(async (element) => {
