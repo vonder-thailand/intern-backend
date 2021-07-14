@@ -16,7 +16,7 @@ const {
   deleteComment,
   search,
   getContentById,
-  getContentByContentId, 
+  getContentByContentId,
 } = require("../functions/user");
 const { formatContent, formatResult } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
@@ -27,7 +27,7 @@ const mongoose = require("mongoose");
 const Content = require("../models/content.model");
 const authModel = require("../models/auth.model");
 const contentModel = require("../models/content.model");
-// find user by id
+
 exports.findUserById = async (req, res, next) => {
   try {
     if (req.body._id) {
@@ -48,7 +48,6 @@ exports.findUserById = async (req, res, next) => {
   }
 };
 
-//update user by id
 exports.updateUserById = async (req, res, next) => {
   try {
     if (req.body._id) {
@@ -395,14 +394,25 @@ exports.getContentById = async (req, res, next) => {
     if (req.body.author_id) {
       const user = await getContentById(req.body.author_id);
       res.send(user);
-    } else if(req.body._id){
-      const contentId = await getContentByContentId(req.body._id);
-      res.send(contentId);
-    }else {
+    } else {
       const { userId } = req;
       console.log(userId);
       const user = await getContentById(userId);
       res.send(user);
+    }
+  } catch (err) {
+    console.log("err: ", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
+};
+exports.getContentByContentId = async (req, res, next) => {
+  try {
+    if (req.body._id) {
+      const ContentID = await getContentByContentId(req.body._id);
+      res.send(ContentID);
     }
   } catch (err) {
     console.log("err: ", err);

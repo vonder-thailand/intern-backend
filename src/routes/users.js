@@ -34,6 +34,12 @@ router.get(
 );
 
 router.get(
+  "/user/contentID",
+  auth.authMiddleware,
+  usersController.getContentByContentId
+);
+
+router.get(
   "/user/newestContent",
   auth.authMiddleware,
   usersController.getNewestContent
