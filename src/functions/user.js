@@ -432,3 +432,36 @@ module.exports.getContentById = async (input) => {
     };
   }
 };
+
+
+module.exports.getContentByContentId = async (input) => {
+
+  if (valid_id(input)) {
+    const content = await ContentModel.find({
+      _id: input,
+      isDeleted: false,
+    });
+    if (content == "") {
+      throw {
+        message:
+          "Invalid Content id",
+        status: 404,
+      };
+    }
+    const username = await authModel.find({ _id: content[0].author_id });
+    const auth_username = username[0].username;
+
+    const content_promise = content.map(async (element) => {
+      const content = await formatContent(element, auth_username);
+      return content;
+    });
+    const new_contents = await Promise.all(content_promise);
+    return new_contents;
+  } else {
+    throw {
+      message:
+        "Error from trying to get non-existing content, please create content first",
+      status: 404,
+    };
+  }
+};

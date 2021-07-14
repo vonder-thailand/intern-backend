@@ -16,6 +16,7 @@ const {
   deleteComment,
   search,
   getContentById,
+  getContentByContentId, 
 } = require("../functions/user");
 const { formatContent, formatResult } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
@@ -394,7 +395,10 @@ exports.getContentById = async (req, res, next) => {
     if (req.body.author_id) {
       const user = await getContentById(req.body.author_id);
       res.send(user);
-    } else {
+    } else if(req.body._id){
+      const contentId = await getContentByContentId(req.body._id);
+      res.send(contentId);
+    }else {
       const { userId } = req;
       console.log(userId);
       const user = await getContentById(userId);
