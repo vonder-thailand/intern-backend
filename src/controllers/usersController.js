@@ -16,16 +16,16 @@ const {
   deleteComment,
   search,
   getContentById,
+  getContentByContentId,
 } = require("../functions/user");
 const { formatContent, formatResult } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
 const resultNew = require("../models/resultNew.model");
 const userAuth = require("../models/auth.model");
-const summariseModel = require("../models/summarise.model");
 const mongoose = require("mongoose");
 const Content = require("../models/content.model");
 const authModel = require("../models/auth.model");
-const contentModel = require("../models/content.model");
+
 // find user by id
 exports.findUserById = async (req, res, next) => {
   try {
@@ -47,7 +47,6 @@ exports.findUserById = async (req, res, next) => {
   }
 };
 
-//update user by id
 exports.updateUserById = async (req, res, next) => {
   try {
     if (req.body._id) {
@@ -408,13 +407,27 @@ exports.getContentById = async (req, res, next) => {
     next(err);
   }
 };
+exports.getContentByContentId = async (req, res, next) => {
+  try {
+    if (req.body._id) {
+      const ContentID = await getContentByContentId(req.body._id);
+      res.send(ContentID);
+    }
+  } catch (err) {
+    console.log("err: ", err);
+    if (!err.status) {
+      err.status = 500;
+    }
+    next(err);
+  }
+};
 
 exports.getProfile = async (req, res, next) => {
   try {
     const userId = req.userId;
     const authData = await authModel.find({ _id: userId });
     const resultData = await resultNew.find({ userid: userId });
-    const contentData = await contentModel.find({ author_id: userId });
+    const contentData = await Content.find({ author_id: userId });
     const results_array = resultData[0].results;
 
     const promises = results_array.map(async (element) => {
@@ -431,6 +444,25 @@ exports.getProfile = async (req, res, next) => {
     const new_contents = await Promise.all(content_promise);
 
     res.send({ auth: authData, results: results, contents: new_contents });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getSortedContentByLike = async (req, res, next) => {
+  try {
+    const contents = await Content.find({}).sort({ likes: -1 });
+
+    const content_promise = contents.map(async (element) => {
+      const authorId = element.author_id;
+      const username = await userAuth.findOne({ _id: authorId });
+      const content = await formatContent(element, username.username);
+      return content;
+    });
+
+    const new_contents = await Promise.all(content_promise);
+
+    res.send(new_contents);
   } catch (err) {
     next(err);
   }

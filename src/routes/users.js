@@ -34,6 +34,12 @@ router.get(
 );
 
 router.get(
+  "/user/contentID",
+  auth.authMiddleware,
+  usersController.getContentByContentId
+);
+
+router.get(
   "/user/newestContent",
   auth.authMiddleware,
   usersController.getNewestContent
@@ -86,6 +92,12 @@ router.delete(
   "/user/content",
   auth.authMiddleware,
   usersController.deleteContent
+);
+
+router.get(
+  "/user/content/sort/like",
+  auth.authMiddleware,
+  usersController.getSortedContentByLike
 );
 
 module.exports = router;
