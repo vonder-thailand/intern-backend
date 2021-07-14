@@ -6,7 +6,16 @@ const authModel = require("../models/auth.model");
 const valid_id = mongoose.Types.ObjectId.isValid;
 const resultNew = require("../models/resultNew.model");
 const summariseModel = require("../models/summarise.model");
-const { formatContent, formatResult } = require("../functions/index");
+const { filter } = require("../functions/const");
+const {
+  arrayLower,
+  checkTag,
+  dataSetFilterByTag,
+  dataSetFilterByContentType,
+  checkStage,
+  formatContent,
+  formatResult,
+} = require("../functions/index");
 
 module.exports.findUserById = async (input) => {
   if (valid_id(input)) {
@@ -124,85 +133,65 @@ module.exports.getAllContents = async () => {
 };
 
 module.exports.getSortByTag = async (tag, dataSet, content_type) => {
-  tags = [
-    "word smart",
-    "logic smart",
-    "picture smart",
-    "body smart",
-    "nature smart",
-    "self smart",
-    "people smart",
-    "music smart",
-  ];
+  let filtered;
+  let stage;
 
-  if (content_type.length && tag.length) {
-    content_type = content_type.map((x) => {
-      return x.toLowerCase();
-    });
+  content_type.length ? (content_type = arrayLower(content_type)) : {};
+  tag.length
+    ? function () {
+        tag = arrayLower(tag);
+        checkTag(tag);
+      }
+    : {};
 
-    tag = tag.map((item) => {
-      return item.toLowerCase();
-    });
+  stage = checkStage(tag, content_type, dataSet, stage);
 
-    tag.map((item) =>
-      tags.indexOf(item) == -1
-        ? (function () {
-            throw { message: "Out of Tag", status: 404 };
-          })()
-        : console.log("pass")
-    );
-    if (dataSet == null) {
-      return await ContentModel.find({
+  switch (stage) {
+    case filter.TAG_AND_CONTENT:
+      filtered = await ContentModel.find({
         $and: [{ content_type: { $in: content_type } }, { tag: { $in: tag } }],
         isDeleted: false,
       });
-    } else {
-      let newItem = dataSet.filter((item) =>
-        item.tag.some((r) => tag.indexOf(r) >= 0)
-      );
-
-      const filters = newItem.filter((item) =>
-        content_type.includes(item.content_type)
-      );
-
-      return filters;
-    }
-  } else if (!content_type.length && !tag.length) {
-    return await ContentModel.find({});
-  } else if (!tag.length) {
-    content_type = content_type.map((item) => {
-      return item.toLowerCase();
-    });
-
-    if (dataSet == null) {
-      return await ContentModel.find({
+      break;
+    case filter.TAG_AND_CONTENT_WITH_DATASET:
+      const newItem = dataSetFilterByTag(tag, dataSet);
+      filtered = dataSetFilterByContentType(content_type, newItem);
+      break;
+    case filter.NONE:
+      filtered = await ContentModel.find({});
+      break;
+    case filter.CONTENT:
+      filtered = await ContentModel.find({
         content_type: { $in: content_type },
         isDeleted: false,
       });
-    } else {
-      const filters = dataSet.filter((item) =>
-        content_type.includes(item.content_type)
-      );
-
-      return filters;
-    }
-  } else if (!content_type.length) {
-    tag = tag.map((item) => {
-      return item.toLowerCase();
-    });
-    if (dataSet == null) {
-      return await ContentModel.find({
+      break;
+    case filter.CONTENT_WITH_DATASET:
+      filtered = dataSetFilterByContentType(content_type, dataSet);
+      break;
+    case filter.TAG:
+      filtered = await ContentModel.find({
         tag: { $in: tag },
         isDeleted: false,
       });
-    } else {
-      let newItem = dataSet.filter((item) =>
-        item.tag.some((r) => tag.indexOf(r) >= 0)
-      );
-
-      return newItem;
-    }
+      break;
+    case filter.TAG_WITH_DATASET:
+      filtered = dataSetFilterByTag(tag, dataSet);
+      break;
+    default:
+      throw {
+        message: "no content found",
+        status: 404,
+      };
   }
+  //add author_username into filtered data
+  const content_promise = filtered.map(async (element) => {
+    const userId = element.author_id;
+    const user = await authModel.findOne({ _id: userId });
+    const content = await formatContent(element, user.username);
+    return content;
+  });
+  return await Promise.all(content_promise);
 };
 
 module.exports.contentIsLiked = async (input_uid, input_content_id) => {
