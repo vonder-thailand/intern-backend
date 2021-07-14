@@ -94,4 +94,10 @@ router.delete(
   usersController.deleteContent
 );
 
+router.get(
+  "/user/content/sort/like",
+  auth.authMiddleware,
+  usersController.getSortedContentByLike
+);
+
 module.exports = router;
