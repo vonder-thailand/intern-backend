@@ -471,8 +471,6 @@ exports.getSortedContentByLike = async (req, res, next) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    console.log("eiei", contents);
-
     const content_promise = contents.map(async (element) => {
       const authorId = element.author_id;
       const username = await userAuth.findOne({
