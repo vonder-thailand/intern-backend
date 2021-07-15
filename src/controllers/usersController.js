@@ -460,9 +460,16 @@ exports.getProfile = async (req, res, next) => {
 
 exports.getSortedContentByLike = async (req, res, next) => {
   try {
-    const contents = await Content.find({ isDeleted: false }).sort({
-      likes: -1,
-    });
+    const page = req.params.page || 1;
+    const r_limit = req.params.limit || 2;
+    const limit = parseInt(r_limit);
+
+    const contents = await Content.find({ isDeleted: false })
+      .sort({
+        uid_likes: -1,
+      })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     const content_promise = contents.map(async (element) => {
       const authorId = element.author_id;
