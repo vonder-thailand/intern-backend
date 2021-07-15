@@ -431,7 +431,6 @@ exports.getProfile = async (req, res, next) => {
     const authData = await authModel.find({ _id: userId, isDeleted: false });
     const resultData = await resultNew.find({
       userid: userId,
-      isDeleted: false,
     });
     const contentData = await Content.find({
       author_id: userId,
