@@ -82,8 +82,8 @@ function formatDate(date) {
 
 //takes only 1 content object
 module.exports.formatContent = async (content, username) => {
-  const create_date = formatDate(content.created_at);
-  const updaye_date = formatDate(content.updated_at);
+  const create_date = content.created_at;
+  const update_date = content.updated_at;
 
   const new_content = {
     _id: content._id,
@@ -97,7 +97,7 @@ module.exports.formatContent = async (content, username) => {
     image: content.image,
     author_username: username,
     created_at: create_date,
-    updated_at: updaye_date,
+    updated_at: update_date,
   };
   return new_content;
 };
@@ -106,7 +106,7 @@ module.exports.formatContent = async (content, username) => {
 module.exports.formatResult = async (result) => {
   let summarise = await summariseModel.find();
   const score = result;
-  const date = formatDate(new Date(score[8]));
+  const date = new Date(score[8]);
   const obj_arr = [];
   summarise.map((item, index) => {
     const obj_inside = {
