@@ -95,7 +95,7 @@ router.delete(
 );
 
 router.get(
-  "/user/content/sort/like",
+  "/user/content/sort/like/:page-:limit",
   auth.authMiddleware,
   usersController.getSortedContentByLike
 );
