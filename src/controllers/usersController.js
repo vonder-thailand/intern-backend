@@ -296,7 +296,7 @@ exports.postNewResult = async (req, res, next) => {
     });
     array[8] = Date.now();
     const userId = req.userId;
-    const user = await resultNew.find({ userid: userId, isDeleted: false });
+    const user = await resultNew.find({ userid: userId });
     if (!user.length) {
       newResult = await resultNew.create({
         userid: userId,
@@ -305,7 +305,7 @@ exports.postNewResult = async (req, res, next) => {
       res.send(newResult);
     } else {
       newResult = await resultNew.findOneAndUpdate(
-        { userid: userId, isDeleted: false },
+        { userid: userId },
         { $push: { results: array } },
         { new: true }
       );
@@ -326,7 +326,7 @@ exports.getNewResult = async (req, res, next) => {
       };
     }
 
-    const user = await resultNew.findOne({ userid: userid, isDeleted: false });
+    const user = await resultNew.findOne({ userid: userid });
 
     if (!user) {
       throw {
