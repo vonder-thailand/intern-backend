@@ -80,7 +80,7 @@ module.exports.createCommnet = async (input, user_id) => {
 };
 
 module.exports.createContent = async (input, id) => {
-  let { content_body, title, likes, uid_likes, tag, content_type, image } =
+  let { content_body, title, uid_likes, tag, content_type, image } =
     input;
   if (!title) {
     throw {
@@ -108,7 +108,6 @@ module.exports.createContent = async (input, id) => {
   return await ContentModel.create({
     content_body,
     title,
-    likes,
     uid_likes,
     author_id: id,
     tag,
@@ -218,7 +217,7 @@ module.exports.contentIsLiked = async (input_uid, input_content_id) => {
 
   const content = await ContentModel.findOneAndUpdate(
     { _id: input_content_id, isDeleted: false },
-    { uid_likes: array, $inc: { likes: 1 } },
+    { uid_likes: array },
     { new: true }
   );
 
