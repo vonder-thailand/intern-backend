@@ -236,29 +236,36 @@ module.exports.getCommentByContentId = async (
     };
   }
   const comments = await CommentModel.aggregate([
-    {
-      $lookup: {
-        from: "userauths",
-        localField: "uid",
-        foreignField: "_id",
-        as: "personData",
+    [
+      {
+        $lookup: {
+          from: "userauths",
+          localField: "uid",
+          foreignField: "_id",
+          as: "personData",
+        },
       },
-    },
-    {
-      $unwind: {
-        path: "$personData",
+      {
+        $unwind: {
+          path: "$personData",
+        },
       },
-    },
-    {
-      $addFields: {
-        username: "$personData.username",
+      {
+        $addFields: {
+          username: "$personData.username",
+        },
       },
-    },
-    {
-      $project: {
-        personData: 0,
+      {
+        $project: {
+          personData: 0,
+        },
       },
-    },
+      {
+        $match: {
+          content_id: new mongoose.Types.ObjectId(input_content_id),
+        },
+      },
+    ],
   ])
     .skip((page - 1) * limit)
     .limit(limit);
