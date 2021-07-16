@@ -345,7 +345,74 @@ module.exports.search = async (input, tag, content_type) => {
         },
       },
     ]);
-  } else if (!tag && !content_type) {
+  } 
+  if (tag && !content_type) {
+    tag = tag.map((item) => {
+      return item.toLowerCase();
+    });
+
+    return await ContentModel.aggregate([
+      {
+        $lookup: {
+          from: "userauths",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author_data",
+        },
+      },
+
+      {
+        $match: {
+          $or: [
+            {
+              tag: { $in: tag },
+              isDeleted: false,
+              "author_data.username": { $regex: new_input },
+            },
+            {
+              tag: { $in: tag },
+              isDeleted: false,
+              title: { $regex: new_input },
+            },
+          ],
+        },
+      },
+    ]);
+  } 
+  if (!tag && content_type) {
+    tag = tag.map((item) => {
+      return item.toLowerCase();
+    });
+
+    return await ContentModel.aggregate([
+      {
+        $lookup: {
+          from: "userauths",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author_data",
+        },
+      },
+
+      {
+        $match: {
+          $or: [
+            {
+              content_type: { $in: content_type },
+              isDeleted: false,
+              "author_data.username": { $regex: new_input },
+            },
+            {
+              content_type: { $in: content_type },
+              isDeleted: false,
+              title: { $regex: new_input },
+            },
+          ],
+        },
+      },
+    ]);
+  } 
+  else {
     return await ContentModel.aggregate([
       {
         $lookup: {
