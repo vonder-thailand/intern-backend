@@ -81,8 +81,7 @@ module.exports.createCommnet = async (input, user_id) => {
 };
 
 module.exports.createContent = async (input, id) => {
-  let { content_body, title, uid_likes, tag, content_type, image } =
-    input;
+  let { content_body, title, uid_likes, tag, content_type, image } = input;
   if (!title) {
     throw {
       message: "Please specify title",
@@ -236,11 +235,31 @@ module.exports.getCommentByContentId = async (
       status: 404,
     };
   }
-
-  const comments = await CommentModel.find({
-    content_id: input_content_id,
-    isDeleted: false,
-  })
+  const comments = await CommentModel.aggregate([
+    {
+      $lookup: {
+        from: "userauths",
+        localField: "uid",
+        foreignField: "_id",
+        as: "personData",
+      },
+    },
+    {
+      $unwind: {
+        path: "$personData",
+      },
+    },
+    {
+      $addFields: {
+        username: "$personData.username",
+      },
+    },
+    {
+      $project: {
+        personData: 0,
+      },
+    },
+  ])
     .skip((page - 1) * limit)
     .limit(limit);
 
