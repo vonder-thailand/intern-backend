@@ -261,16 +261,6 @@ module.exports.getCommentByContentId = async (
   ])
     .skip((page - 1) * limit)
     .limit(limit);
-  // .skip((page - 1) * limit)
-  // .limit(limit);
-
-  // const comments = await CommentModel.find({
-  //   content_id: input_content_id,
-  //   isDeleted: false,
-  // });
-
-  // .skip((page - 1) * limit)
-  // .limit(limit);
 
   if (!comments.length) {
     throw {
