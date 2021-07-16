@@ -1,103 +1,128 @@
 const express = require("express");
+const multer = require("multer");
 const router = express.Router();
 const usersController = require("../controllers/usersController");
 const auth = require("../middlewares/auth");
-const multer = require("multer");
+const { tryCatch } = require("../middlewares/tryCatchController");
 
 //GET
-router.get("/user/find", auth.authMiddleware, usersController.findUserById);
-router.get("/user", auth.authMiddleware, usersController.getAllUsers);
+router.get(
+  "/user/find",
+  auth.authMiddleware,
+  tryCatch(usersController.findUserById)
+);
+router.get("/user", auth.authMiddleware, tryCatch(usersController.getAllUsers));
 router.get(
   "/user/content/get",
   auth.authMiddleware,
-  usersController.getAllContents
+  tryCatch(usersController.getAllContents)
 );
 router.get(
   "/user/comment/get/:page-:limit/:contentId",
   auth.authMiddleware,
-  usersController.getCommentByContentId
+  tryCatch(usersController.getCommentByContentId)
 );
 router.get(
   "/user/search/:keyword",
   auth.authMiddleware,
-  usersController.search
+  tryCatch(usersController.search)
 );
 router.get(
   "/user/newResult",
   auth.authMiddleware,
-  usersController.getNewResult
+  tryCatch(usersController.getNewResult)
 );
 router.get(
   "/user/content",
   auth.authMiddleware,
-  usersController.getContentById
+  tryCatch(usersController.getContentById)
 );
 
 router.get(
   "/user/contentID/:_id",
   auth.authMiddleware,
-  usersController.getContentByContentId
+  tryCatch(usersController.getContentByContentId)
 );
 
 router.get(
   "/user/newestContent",
   auth.authMiddleware,
-  usersController.getNewestContent
+  tryCatch(usersController.getNewestContent)
 );
 
-router.get("/user/profile", auth.authMiddleware, usersController.getProfile);
+router.get(
+  "/user/profile",
+  auth.authMiddleware,
+  tryCatch(usersController.getProfile)
+);
 
 //POST
 router.post(
   "/images",
   auth.authMiddleware,
   multer({ dest: "uploads/" }).array("photo", 10),
-  usersController.postImage
+  tryCatch(usersController.postImage)
 );
 
-router.post("/comment", auth.authMiddleware, usersController.postComment);
+router.post(
+  "/comment",
+  auth.authMiddleware,
+  tryCatch(usersController.postComment)
+);
 
-router.post("/user/content", auth.authMiddleware, usersController.postContent);
+router.post(
+  "/user/content",
+  auth.authMiddleware,
+  tryCatch(usersController.postContent)
+);
 
 router.post(
   "/user/content/tag",
   auth.authMiddleware,
-  usersController.getSortByTag
+  tryCatch(usersController.getSortByTag)
 );
 
 router.post(
   "/user/newResult",
   auth.authMiddleware,
-  usersController.postNewResult
+  tryCatch(usersController.postNewResult)
 );
 
 router.put(
   "/user/content",
   auth.authMiddleware,
-  usersController.contentIsLiked
+  tryCatch(usersController.contentIsLiked)
 );
 
 //PUT
-router.put("/user", auth.authMiddleware, usersController.updateUserById);
+router.put(
+  "/user",
+  auth.authMiddleware,
+  tryCatch(usersController.updateUserById)
+);
 
-router.delete("/user", auth.authMiddleware, usersController.deleteUserById);
+router.delete(
+  "/user",
+  auth.authMiddleware,
+  tryCatch(usersController.deleteUserById)
+);
 
 //DELETE
 router.delete(
   "/user/comment",
   auth.authMiddleware,
-  usersController.deleteComment
+  tryCatch(usersController.deleteComment)
 );
 router.delete(
   "/user/content",
   auth.authMiddleware,
-  usersController.deleteContent
+  tryCatch(usersController.deleteContent)
 );
 
 router.get(
   "/user/content/sort/like/:page-:limit",
   auth.authMiddleware,
-  usersController.getSortedContentByLike
+  tryCatch(usersController.getSortedContentByLike)
 );
 
 module.exports = router;
