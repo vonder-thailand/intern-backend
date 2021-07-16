@@ -2,9 +2,9 @@ const express = require("express");
 const authController = require("../controllers/authController");
 const { body, validationResult } = require("express-validator");
 const router = express.Router();
+const { tryCatch } = require("../middlewares/tryCatchController");
 
-//POST
-router.post("/login", authController.login);
+router.post("/login", tryCatch(authController.login));
 router.post(
   "/signup",
   body("username").notEmpty(),
@@ -12,7 +12,7 @@ router.post(
   body("lastName").notEmpty(),
   body("email").notEmpty(),
   body("password").notEmpty(),
-  authController.signup
+  tryCatch(authController.signup)
 );
 
 module.exports = router;
