@@ -231,12 +231,9 @@ exports.getCommentByContentId = async (req, res, next) => {
     const page = req.params.page || 1;
     const r_limit = req.params.limit || 2;
     const limit = parseInt(r_limit);
+    const contentId = req.params.contentId;
 
-    const comments = await getCommentByContentId(
-      req.body.content_id,
-      page,
-      limit
-    );
+    const comments = await getCommentByContentId(contentId, page, limit);
     res.send(comments);
   } catch (err) {
     next(err);

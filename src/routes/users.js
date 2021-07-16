@@ -13,7 +13,7 @@ router.get(
   usersController.getAllContents
 );
 router.get(
-  "/user/comment/get/:page-:limit",
+  "/user/comment/get/:page-:limit/:contentId",
   auth.authMiddleware,
   usersController.getCommentByContentId
 );
