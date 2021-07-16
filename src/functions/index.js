@@ -1,4 +1,4 @@
-const { filter } = require("../functions/const");
+const { filter,filterTwo } = require("../functions/const");
 const summariseModel = require("../models/summarise.model");
 module.exports.arrayLower = (array) => {
   array = array.map((item) => {
@@ -56,6 +56,7 @@ module.exports.checkStage = (tag, content_type, dataSet, stage) => {
 
   return stage;
 };
+
 
 function formatDate(date) {
   const monthNames = [
@@ -123,4 +124,16 @@ module.exports.formatResult = async (result) => {
     obj_arr.push(obj_inside);
   });
   return obj_arr;
+};
+
+
+module.exports.checkStageContent = (tag, content_type, stage) => {
+
+
+  if(tag && content_type) stage = filterTwo.TAG_AND_CONTENT;
+  else if(!tag && !content_type) stage = filterTwo.NONE;
+  else if(!tag && content_type) stage = filterTwo.CONTENT;
+  else if(!content_type && tag) stage = filterTwo.TAG;
+
+  return stage;
 };

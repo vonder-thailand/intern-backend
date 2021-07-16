@@ -267,7 +267,24 @@ exports.search = async (req, res, next) => {
         req.body.content_type
       );
       res.send(search_result);
-    } else {
+    } 
+    else if (!req.body.content_type && req.body.tag) {
+      const search_result = await search(
+        req.params.keyword,
+        req.body.tag,
+        null
+      );
+      res.send(search_result);
+    }    
+    else if (req.body.content_type && !req.body.tag) {
+      const search_result = await search(
+        req.params.keyword,
+        null,
+        req.body.content_type
+      );
+      res.send(search_result);
+    }       
+    else {
       res.send(await search(req.params.keyword, null, null));
     }
   } catch (err) {
