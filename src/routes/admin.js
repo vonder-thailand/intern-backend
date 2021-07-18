@@ -10,6 +10,7 @@ router.get(
   auth.authMiddleware,
   tryCatch(adminController.getAllResult)
 );
+router.get("/user", auth.authMiddleware, tryCatch(adminController.getAllUsers));
 router.get(
   "/admin/find",
   auth.authMiddleware,

@@ -21,7 +21,6 @@ before(function (done) {
 });
 
 describe("User api", () => {
-  //test path /user/find
   it("GET /user/find", (done) => {
     chai
       .request(server)
@@ -34,6 +33,101 @@ describe("User api", () => {
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.body).to.be.a("object");
+        done();
+      });
+  });
+  it("GET /user/content/get", (done) => {
+    chai
+      .request(server)
+      .get("/user/content/get")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("Array");
+        done();
+      });
+  });
+  it("GET /user/comment/get/:page-:limit/:contentId", (done) => {
+    chai
+      .request(server)
+      .get("/user/comment/get/1-2/60ed5544b735fb713a22d5bb")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("Array");
+        done();
+      });
+  });
+  it("GET /user/search/:keyword", (done) => {
+    chai
+      .request(server)
+      .get("/user/search/moon")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("Array");
+        done();
+      });
+  });
+  it("GET /user/newResult", (done) => {
+    chai
+      .request(server)
+      .get("/user/newResult")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("Array");
+        done();
+      });
+  });
+  it("GET /user/content", (done) => {
+    chai
+      .request(server)
+      .get("/user/content")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("Array");
+        done();
+      });
+  });
+  it("GET /user/contentID/:_id", (done) => {
+    chai
+      .request(server)
+      .get("/user/contentID/60f3e49cceddbc3818cab575")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("object");
+        done();
+      });
+  });
+  it("GET /user/profile", (done) => {
+    chai
+      .request(server)
+      .get("/user/profile")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("object");
+        done();
+      });
+  });
+  it("POST /images", (done) => {
+    chai
+      .request(server)
+      .post("/images")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .attach("photo", "uploads/test.jpg")
+      .end((err, res) => {
         done();
       });
   });
