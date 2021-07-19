@@ -143,7 +143,6 @@ describe("User api", () => {
       });
   });
 
-  /*
   it("GET /user/content", (done) => {
     chai
       .request(server)
@@ -152,10 +151,12 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.a("Array");
+        expect(res.body).to.matchPattern(arrayContentPattern);
         done();
       });
   });
+
+  /*
   it("GET /user/contentID/:_id", (done) => {
     chai
       .request(server)
