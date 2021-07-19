@@ -2,6 +2,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const server = require("../../app");
 const expect = chai.expect;
+const userModel = require("../models/auth.model");
 
 chai.use(chaiHttp);
 
@@ -25,10 +26,26 @@ describe("Authentication api ", () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.token).to.not.be.undefined;
+          expect(res.body.resuit)
+            .to.be.an("object")
+            .to.have.keys([
+              "role",
+              "username",
+              "isDeleted",
+              "_id",
+              "firstName",
+              "lastName",
+              "email",
+              "password",
+              "created_at",
+              "updated_at",
+            ]);
+
           done();
         });
     });
   });
+
   describe("POST signup", () => {
     it("should return a token", (done) => {
       chai
@@ -47,6 +64,12 @@ describe("Authentication api ", () => {
           expect(res.body.token).to.not.be.undefined;
           done();
         });
+    });
+  });
+
+  describe("Clear Databse", () => {
+    it("should remove dummy documents", async () => {
+      return await userModel.deleteOne({ username: username });
     });
   });
 });

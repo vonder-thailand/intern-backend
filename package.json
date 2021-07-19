@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon --exec mocha ./src/testing --timeout 1000000000", 
+    "test": "nodemon --exec mocha ./src/testing --timeout 1000000000",
     "start": "nodemon app.js"
   },
   "repository": {
