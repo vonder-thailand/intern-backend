@@ -87,7 +87,6 @@ router.post(
   tryCatch(usersController.postNewResult)
 );
 
-//tdd here
 router.put(
   "/user/content",
   auth.authMiddleware,

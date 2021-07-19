@@ -16,11 +16,13 @@ const {
 const commentModel = require("../models/comment.model");
 const contentModel = require("../models/content.model");
 const resultModel = require("../models/resultNew.model");
+const userModel = require("../models/auth.model");
 
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);
 
 let token, comment_id, content_id, dataSet, result_id;
+const email = "jay@gmail.com";
 
 const search_keyword = "moon";
 const tag = ["word smart"];
@@ -32,7 +34,7 @@ before(function (done) {
     .request(server)
     .post("/login")
     .send({
-      email: "jay@gmail.com",
+      email: email,
       password: "1234",
     })
     .end((err, res) => {
@@ -409,12 +411,15 @@ describe("User api", () => {
   it("PUT /user/content", (done) => {
     chai
       .request(server)
-      .get("/user/contentID/" + content_id)
+      .put("/user/content")
       .set("Accept", "application/json")
       .set("Authorization", "Bearer " + token)
+      .send({
+        content_id: content_id,
+      })
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(contentPattern);
+        expect(res.body).to.matchPattern(createContentPattern);
         done();
       });
   });
@@ -422,13 +427,60 @@ describe("User api", () => {
   it("PUT /user", (done) => {
     chai
       .request(server)
-      .get("/user/contentID/" + content_id)
+      .put("/user")
       .set("Accept", "application/json")
       .set("Authorization", "Bearer " + token)
-      .send({})
+      .send({
+        username: "TDD Testing",
+      })
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(contentPattern);
+        expect(res.body).to.matchPattern(authPattern);
+        done();
+      });
+  });
+
+  it("DELETE /user", (done) => {
+    chai
+      .request(server)
+      .delete("/user")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property("isDeleted").to.equal(true);
+        done();
+      });
+  });
+
+  it("DELETE /user/comment", (done) => {
+    chai
+      .request(server)
+      .delete("/user/comment")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .send({
+        comment_id: comment_id,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property("isDeleted").to.equal(true);
+        done();
+      });
+  });
+
+  it("DELETE /user/content", (done) => {
+    chai
+      .request(server)
+      .delete("/user/content")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .send({
+        content_id: content_id,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property("isDeleted").to.equal(true);
         done();
       });
   });
@@ -458,6 +510,27 @@ describe("User api", () => {
       return await resultModel.updateOne(
         { _id: result_id },
         { results: results_array.results },
+        async (unit, err, data) => {
+          console.log("pass");
+        }
+      );
+    });
+
+    it("change username back", async () => {
+      return await userModel.updateOne(
+        { email: email },
+        { username: "superJay" },
+        async (unit, err, data) => {
+          console.log("pass");
+        }
+      );
+    });
+
+    it("change deleted user back", async () => {
+      return await userModel.updateOne(
+        { email: email },
+        { $unset: { delete_at: 1 }, isDeleted: false },
+        { new: true },
         async (unit, err, data) => {
           console.log("pass");
         }
