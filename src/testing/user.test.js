@@ -7,7 +7,7 @@ const {
   authPattern,
   arrayContentPattern,
   arrayCommentPattern,
-} = require("./pattern");
+} = require("./user.pattern");
 
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);
