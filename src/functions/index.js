@@ -1,5 +1,6 @@
 const { filter,filterTwo } = require("../functions/const");
 const summariseModel = require("../models/summarise.model");
+const contentModel = require("../models/content.model");
 module.exports.arrayLower = (array) => {
   array = array.map((item) => {
     return item.toLowerCase();
@@ -136,4 +137,53 @@ module.exports.checkStageContent = (tag, content_type, stage) => {
   else if(!content_type && tag) stage = filterTwo.TAG;
 
   return stage;
+};
+
+
+module.exports.doSearch = async (tag, content_type, new_input) => {
+console.log("TAG:",tag);
+console.log("TYPE:",content_type);
+console.log("NEW INPUT",new_input);
+
+  return await contentModel.aggregate([
+    {
+      $lookup: {
+        from: "userauths",
+        localField: "author_id",
+        foreignField: "_id",
+        as: "author_data",
+      },
+    },
+
+    {
+      $match: {
+        $or: [
+          {
+            content_type: {  $in: content_type },
+            tag: { $in: tag },
+            isDeleted: false,
+            "author_data.username": { $regex: new_input },
+          },
+          {
+            content_type: {  $in: content_type },
+            tag: { $in: tag },
+            isDeleted: false,
+            title: { $regex: new_input },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        isDeleted: 0,
+        author_id: 0,
+      },
+    },
+  ]);
+
+
+
+
+
 };
