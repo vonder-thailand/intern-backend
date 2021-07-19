@@ -15,11 +15,12 @@ const {
 
 const commentModel = require("../models/comment.model");
 const contentModel = require("../models/content.model");
+const resultModel = require("../models/resultNew.model");
 
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);
 
-let token, comment_id, content_id;
+let token, comment_id, content_id, dataSet, result_id;
 
 const search_keyword = "moon";
 const tag = ["word smart"];
@@ -78,24 +79,8 @@ describe("User api", () => {
         done();
       });
   });
-  /*
-  it("POST /user/content/tag", (done) => {
-    chai
-      .request(server)
-      .post("/user/content/tag")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .send({
-        tag: ["logic smart"],
-        content_type: ["question", "board"],
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.a("Array");
-        done();
-      });
-  });
-  it("POST /user/newResult", () => {
+
+  it("POST /user/newResult", (done) => {
     chai
       .request(server)
       .post("/user/newResult")
@@ -130,21 +115,24 @@ describe("User api", () => {
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.body).to.be.a("Object");
-      });
-  });
-  it("POST /images", (done) => {
-    chai
-      .request(server)
-      .post("/images")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .attach("photo", "uploads/test.jpg")
-      .end((err, res) => {
-        expect(res).to.have.status(500);
-        expect(res.body).to.be.a("String");
+        result_id = res.body._id;
         done();
       });
-  });*/
+  });
+
+  // it("POST /images", (done) => {
+  //   chai
+  //     .request(server)
+  //     .post("/images")
+  //     .set("Accept", "application/json")
+  //     .set("Authorization", "Bearer " + token)
+  //     .attach("photo", "uploads/test.jpg")
+  //     .end((err, res) => {
+  //       expect(res).to.have.status(500);
+  //       expect(res.body).to.be.a("String");
+  //       done();
+  //     });
+  // });
   //testing
   it("GET /user/profile", (done) => {
     chai
@@ -210,6 +198,7 @@ describe("User api", () => {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.matchPattern(arraySearchPatten);
+          dataSet = res.body;
           done();
         });
     });
@@ -249,6 +238,130 @@ describe("User api", () => {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.matchPattern(arraySearchPatten);
+          done();
+        });
+    });
+  });
+
+  describe("POST /user/content/tag", () => {
+    it("filter by tag && content", (done) => {
+      chai
+        .request(server)
+        .post("/user/content/tag")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({
+          tag: tag,
+          content_type: content_type,
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern([contentPattern]);
+          done();
+        });
+    });
+
+    it("filter by tag", (done) => {
+      chai
+        .request(server)
+        .post("/user/content/tag")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({
+          tag: tag,
+          content_type: [],
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern([contentPattern]);
+          done();
+        });
+    });
+
+    it("filter by content", (done) => {
+      chai
+        .request(server)
+        .post("/user/content/tag")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({
+          tag: [],
+          content_type: content_type,
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern([contentPattern]);
+          done();
+        });
+    });
+
+    it("filter by nothing", (done) => {
+      chai
+        .request(server)
+        .post("/user/content/tag")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({
+          tag: [],
+          content_type: [],
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern([contentPattern]);
+          done();
+        });
+    });
+
+    it("search -> filter by tag && content_type", (done) => {
+      chai
+        .request(server)
+        .post("/user/content/tag")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({
+          tag: tag,
+          content_type: content_type,
+          dataSet: dataSet,
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern([contentPattern]);
+          done();
+        });
+    });
+
+    it("search -> filter by tag", (done) => {
+      chai
+        .request(server)
+        .post("/user/content/tag")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({
+          tag: tag,
+          content_type: [],
+          dataSet: dataSet,
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern([contentPattern]);
+          done();
+        });
+    });
+
+    it("search -> filter by content_type", (done) => {
+      chai
+        .request(server)
+        .post("/user/content/tag")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({
+          tag: [],
+          content_type: content_type,
+          dataSet: dataSet,
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern([contentPattern]);
           done();
         });
     });
@@ -303,9 +416,21 @@ describe("User api", () => {
       );
     });
 
-    it("clear dummy comment", async () => {
+    it("clear dummy content", async () => {
       return await contentModel.deleteOne(
         { _id: content_id },
+        async (unit, err, data) => {
+          console.log("pass");
+        }
+      );
+    });
+
+    it("clear dummy result", async () => {
+      const results_array = await resultModel.findOne({ _id: result_id });
+      results_array.results.pop();
+      return await resultModel.updateOne(
+        { _id: result_id },
+        { results: results_array.results },
         async (unit, err, data) => {
           console.log("pass");
         }
