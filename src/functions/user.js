@@ -335,6 +335,9 @@ module.exports.search = async (input, tag, content_type) => {
   let new_input = new RegExp(input, "i");
 
   stage = checkStageContent(tag, content_type, stage);
+  console.log("TAG:", tag);
+  console.log("TYPE:", content_type);
+  console.log("NEW INPUT", new_input);
 
   switch (stage) {
     case filterTwo.TAG_AND_CONTENT:
@@ -489,49 +492,7 @@ module.exports.search = async (input, tag, content_type) => {
       ]);
       break;
     case filterTwo.NONE:
-      return await ContentModel.aggregate([
-        {
-          $lookup: {
-            from: "userauths",
-            localField: "author_id",
-            foreignField: "_id",
-            as: "author_data",
-          },
-        },
-        {
-          $match: {
-            $or: [
-              {
-                isDeleted: false,
-                "author_data.username": { $regex: new_input },
-              },
-              {
-                isDeleted: false,
-                title: { $regex: new_input },
-              },
-              {
-                tag: { $regex: new_input },
-              },
-            ],
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            content_body: 1,
-            title: 1,
-            likes: 1,
-            uid_likes: 1,
-            tag: 1,
-            image: 1,
-            isDeleted: 1,
-            author_id: 1,
-            created_at: 1,
-            "author_data.username": 1,
-            content_type: 1,
-          },
-        },
-      ]);
+      return await doSearch(tag, content_type, new_input);
       break;
   }
 };
