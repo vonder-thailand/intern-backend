@@ -39,3 +39,23 @@ module.exports.arrayCommentPattern = [
     username: String,
   },
 ];
+
+module.exports.arraySearchPatten = [
+  {
+    _id: String,
+    content_body: String,
+    title: String,
+    uid_likes: [String],
+    tag: [String],
+    content_type: String,
+    image: String,
+    isDeleted: Boolean(),
+    author_id: String,
+    created_at: String,
+    author_data: [
+      {
+        username: String,
+      },
+    ],
+  },
+];
