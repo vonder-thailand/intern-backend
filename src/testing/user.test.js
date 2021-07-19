@@ -12,10 +12,13 @@ const {
   userProfilePattern,
 } = require("./user.pattern");
 
+const commentModel = require("../models/comment.model");
+
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);
 
 let token;
+let comment_id;
 const search_keyword = "moon";
 const tag = ["word smart"];
 const content_type = ["board"];
@@ -183,8 +186,6 @@ describe("User api", () => {
         done();
       });
   });
-
-  /*
   it("POST /comment", (done) => {
     chai
       .request(server)
@@ -192,15 +193,18 @@ describe("User api", () => {
       .set("Accept", "application/json")
       .set("Authorization", "Bearer " + token)
       .send({
-        contentId: "60f3e49cceddbc3818cab575",
-        comment: "This is a comment",
+        contentId: content_id,
+        comment: "TDD",
       })
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.a("object");
+        expect(res.body).to.matchPattern(commentPattern);
+        commen_id = res.body._id;
         done();
       });
   });
+
+  /*
   it("POST /user/content", (done) => {
     chai
       .request(server)
@@ -286,4 +290,15 @@ describe("User api", () => {
       });
   });*/
   //testing
+});
+
+describe("clear dummy database", () => {
+  it("clear comment", async (done) => {
+    const comment = await commentModel.deleteOne(
+      { _id: comment_id },
+      (unit, err, data) => {
+        done();
+      }
+    );
+  });
 });
