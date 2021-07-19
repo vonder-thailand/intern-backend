@@ -1,10 +1,13 @@
 const chai = require("chai");
+const chaiJsonPattern = require("chai-json-pattern").default;
 const chaiHttp = require("chai-http");
 const server = require("../../app");
 const expect = chai.expect;
 const userModel = require("../models/auth.model");
+const { authPattern } = require("./pattern");
 
 chai.use(chaiHttp);
+chai.use(chaiJsonPattern);
 
 let email = "" + Math.random() + "@gmail.com";
 let password = "p" + Math.random();
@@ -26,30 +29,7 @@ describe("Authentication api ", () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.token).to.not.be.undefined;
-          expect(res.body.resuit)
-            .to.be.an("object")
-            .to.have.keys([
-              "role",
-              "isDeleted",
-              "_id",
-              "firstName",
-              "lastName",
-              "email",
-              "password",
-              "username",
-              "created_at",
-              "updated_at",
-            ]);
-          expect(res.body.resuit.role).to.be.a("String");
-          expect(res.body.resuit.isDeleted).to.be.a("Boolean");
-          expect(res.body.resuit._id).to.be.a("String");
-          expect(res.body.resuit.firstName).to.be.a("String");
-          expect(res.body.resuit.lastName).to.be.a("String");
-          expect(res.body.resuit.username).to.be.a("String");
-          expect(res.body.resuit.email).to.be.a("String");
-          expect(res.body.resuit.password).to.be.a("String");
-          expect(res.body.resuit.created_at).to.be.a("String");
-          expect(res.body.resuit.updated_at).to.be.a("String");
+          expect(res.body.resuit).to.matchPattern(authPattern);
           done();
         });
     });
@@ -71,6 +51,7 @@ describe("Authentication api ", () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.token).to.not.be.undefined;
+          expect(res.body.resuit).to.matchPattern(authPattern);
           done();
         });
     });
