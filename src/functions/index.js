@@ -136,9 +136,6 @@ module.exports.checkStageContent = (tag, content_type, stage) => {
 };
 
 module.exports.doSearch = async (tag, content_type, new_input) => {
-  console.log("TAG:", tag);
-  console.log("TYPE:", content_type);
-  console.log("NEW INPUT", new_input);
 
   let query = {
     $or: [
