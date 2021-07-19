@@ -5,10 +5,11 @@ const server = require("../../app");
 const expect = chai.expect;
 const {
   authPattern,
-  arrayContentPattern,
-  arrayCommentPattern,
+  contentPattern,
+  commentPattern,
   arraySearchPatten,
-  arrayResultPattern,
+  resultPattern,
+  userProfilePattern,
 } = require("./user.pattern");
 
 chai.use(chaiHttp);
@@ -18,6 +19,7 @@ let token;
 const search_keyword = "moon";
 const tag = ["word smart"];
 const content_type = ["board"];
+const content_id = "60e280a87d0a2a6450588ec9";
 
 before(function (done) {
   chai
@@ -58,7 +60,7 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(arrayContentPattern);
+        expect(res.body).to.matchPattern([contentPattern]);
         done();
       });
   });
@@ -71,7 +73,7 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(arrayCommentPattern);
+        expect(res.body).to.matchPattern([commentPattern]);
         done();
       });
   });
@@ -138,7 +140,7 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(arrayResultPattern);
+        expect(res.body).to.matchPattern([resultPattern]);
         done();
       });
   });
@@ -151,24 +153,24 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(arrayContentPattern);
+        expect(res.body).to.matchPattern([contentPattern]);
         done();
       });
   });
 
-  /*
   it("GET /user/contentID/:_id", (done) => {
     chai
       .request(server)
-      .get("/user/contentID/60f3e49cceddbc3818cab575")
+      .get("/user/contentID/" + content_id)
       .set("Accept", "application/json")
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.a("object");
+        expect(res.body).to.matchPattern(contentPattern);
         done();
       });
   });
+
   it("GET /user/profile", (done) => {
     chai
       .request(server)
@@ -177,10 +179,12 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.a("object");
+        expect(res.body).to.matchPattern(userProfilePattern);
         done();
       });
   });
+
+  /*
   it("POST /comment", (done) => {
     chai
       .request(server)

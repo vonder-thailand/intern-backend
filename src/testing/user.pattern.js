@@ -11,34 +11,30 @@ module.exports.authPattern = {
   updated_at: String,
 };
 
-module.exports.arrayContentPattern = [
-  {
-    _id: String,
-    author_id: String,
-    content_body: String,
-    title: String,
-    uid_likes: [String],
-    tag: [String],
-    content_type: String,
-    image: String,
-    author_username: String,
-    created_at: String,
-    updated_at: String,
-  },
-];
+module.exports.contentPattern = {
+  _id: String,
+  author_id: String,
+  content_body: String,
+  title: String,
+  uid_likes: [String],
+  tag: [String],
+  content_type: String,
+  image: String,
+  author_username: String,
+  created_at: String,
+  updated_at: String,
+};
 
-module.exports.arrayCommentPattern = [
-  {
-    _id: String,
-    comment_body: String,
-    isDeleted: Boolean(),
-    content_id: String,
-    uid: String,
-    created_at: String,
-    updated_at: String,
-    username: String,
-  },
-];
+module.exports.commentPattern = {
+  _id: String,
+  comment_body: String,
+  isDeleted: Boolean(),
+  content_id: String,
+  uid: String,
+  created_at: String,
+  updated_at: String,
+  username: String,
+};
 
 module.exports.arraySearchPatten = [
   {
@@ -60,16 +56,20 @@ module.exports.arraySearchPatten = [
   },
 ];
 
-module.exports.arrayResultPattern = [
-  {
-    category_id: Number,
-    description: String,
-    description_career: String,
-    image_charactor: String,
-    skill_summarize: String,
-    charactor_summarize: String,
-    skill: String,
-    score: Number,
-    created_at: String,
-  },
-];
+module.exports.resultPattern = {
+  category_id: Number,
+  description: String,
+  description_career: String,
+  image_charactor: String,
+  skill_summarize: String,
+  charactor_summarize: String,
+  skill: String,
+  score: Number,
+  created_at: String,
+};
+
+module.exports.userProfilePattern = {
+  auth: [this.authPattern],
+  results: [[this.resultPattern]],
+  contents: [this.contentPattern],
+};
