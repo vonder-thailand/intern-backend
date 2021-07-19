@@ -406,6 +406,33 @@ describe("User api", () => {
       });
   });
 
+  it("PUT /user/content", (done) => {
+    chai
+      .request(server)
+      .get("/user/contentID/" + content_id)
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.matchPattern(contentPattern);
+        done();
+      });
+  });
+
+  it("PUT /user", (done) => {
+    chai
+      .request(server)
+      .get("/user/contentID/" + content_id)
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .send({})
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.matchPattern(contentPattern);
+        done();
+      });
+  });
+
   describe("clear dummy database", () => {
     it("clear dummy comment", async () => {
       return await commentModel.deleteOne(
