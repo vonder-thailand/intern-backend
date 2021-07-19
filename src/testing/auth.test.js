@@ -30,17 +30,26 @@ describe("Authentication api ", () => {
             .to.be.an("object")
             .to.have.keys([
               "role",
-              "username",
               "isDeleted",
               "_id",
               "firstName",
               "lastName",
               "email",
               "password",
+              "username",
               "created_at",
               "updated_at",
             ]);
-
+          expect(res.body.resuit.role).to.be.a("String");
+          expect(res.body.resuit.isDeleted).to.be.a("Boolean");
+          expect(res.body.resuit._id).to.be.a("String");
+          expect(res.body.resuit.firstName).to.be.a("String");
+          expect(res.body.resuit.lastName).to.be.a("String");
+          expect(res.body.resuit.username).to.be.a("String");
+          expect(res.body.resuit.email).to.be.a("String");
+          expect(res.body.resuit.password).to.be.a("String");
+          expect(res.body.resuit.created_at).to.be.a("String");
+          expect(res.body.resuit.updated_at).to.be.a("String");
           done();
         });
     });
