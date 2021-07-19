@@ -1,4 +1,4 @@
-const { filter,filterTwo } = require("../functions/const");
+const { filter, filterTwo } = require("../functions/const");
 const summariseModel = require("../models/summarise.model");
 const contentModel = require("../models/content.model");
 module.exports.arrayLower = (array) => {
@@ -57,7 +57,6 @@ module.exports.checkStage = (tag, content_type, dataSet, stage) => {
 
   return stage;
 };
-
 
 function formatDate(date) {
   const monthNames = [
@@ -127,23 +126,46 @@ module.exports.formatResult = async (result) => {
   return obj_arr;
 };
 
-
 module.exports.checkStageContent = (tag, content_type, stage) => {
-
-
-  if(tag && content_type) stage = filterTwo.TAG_AND_CONTENT;
-  else if(!tag && !content_type) stage = filterTwo.NONE;
-  else if(!tag && content_type) stage = filterTwo.CONTENT;
-  else if(!content_type && tag) stage = filterTwo.TAG;
+  if (tag && content_type) stage = filterTwo.TAG_AND_CONTENT;
+  else if (!tag && !content_type) stage = filterTwo.NONE;
+  else if (!tag && content_type) stage = filterTwo.CONTENT;
+  else if (!content_type && tag) stage = filterTwo.TAG;
 
   return stage;
 };
 
-
 module.exports.doSearch = async (tag, content_type, new_input) => {
-console.log("TAG:",tag);
-console.log("TYPE:",content_type);
-console.log("NEW INPUT",new_input);
+  console.log("TAG:", tag);
+  console.log("TYPE:", content_type);
+  console.log("NEW INPUT", new_input);
+
+  let query = {
+    $or: [
+      {
+        isDeleted: false,
+        title: { $regex: new_input },
+      },
+      {
+        isDeleted: false,
+        "author_data.username": { $regex: new_input },
+      },
+      {
+        isDeleted: false,
+        tag: { $regex: new_input },
+      },
+    ],
+  };
+
+  if (content_type.length > 0) {
+    query["$or"][0]["content_type"] = { $in: content_type };
+    query["$or"][1]["content_type"] = { $in: content_type };
+  }
+
+  if (tag.length > 0) {
+    query["$or"][0]["tag"] = { $in: tag };
+    query["$or"][1]["tag"] = { $in: tag };
+  }
 
   return await contentModel.aggregate([
     {
@@ -155,35 +177,18 @@ console.log("NEW INPUT",new_input);
       },
     },
 
-    {
-      $match: {
-        $or: [
-          {
-            content_type: {  $in: content_type },
-            tag: { $in: tag },
-            isDeleted: false,
-            "author_data.username": { $regex: new_input },
-          },
-          {
-            content_type: {  $in: content_type },
-            tag: { $in: tag },
-            isDeleted: false,
-            title: { $regex: new_input },
-          },
-        ],
-      },
-    },
+    { $match: query },
     {
       $project: {
-        _id: 0,
-        isDeleted: 0,
-        author_id: 0,
+        content_body: 1,
+        title: 1,
+        uid_likes: 1,
+        tag: 1,
+        image: 1,
+        created_at: 1,
+        "author_data.username": 1,
+        content_type: 1,
       },
     },
   ]);
-
-
-
-
-
 };

@@ -339,31 +339,27 @@ module.exports.search = async (input, tag, content_type) => {
   let new_input = new RegExp(input, "i");
 
   stage = checkStageContent(tag, content_type, stage);
-    console.log("TAG:",tag);
-    console.log("TYPE:",content_type);
-    console.log("NEW INPUT",new_input);
 
   content_type.length ? (content_type = arrayLower(content_type)) : {};
-  tag.length 
+  tag.length
     ? function () {
         tag = arrayLower(tag);
         checkTag(tag);
       }
     : {};
 
-
   switch (stage) {
     case filterTwo.TAG_AND_CONTENT:
       return await doSearch(tag, content_type, new_input);
       break;
     case filterTwo.TAG:
-      return await doSearch(tag,content_type, new_input);
+      return await doSearch(tag, content_type, new_input);
       break;
     case filterTwo.CONTENT:
-      return await doSearch(tag,content_type, new_input);
+      return await doSearch(tag, content_type, new_input);
       break;
     case filterTwo.NONE:
-      return await doSearch(tag,content_type,new_input);
+      return await doSearch(tag, content_type, new_input);
       break;
   }
 };
