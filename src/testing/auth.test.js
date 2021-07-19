@@ -13,7 +13,7 @@ let lastName = "last" + Math.random();
 let role = Math.random() > 0.5 ? "admin" : "user";
 
 describe("Authentication api ", () => {
-  /*describe("POST login", () => {
+  describe("POST login", () => {
     it("should return a token", (done) => {
       chai
         .request(server)
@@ -48,5 +48,5 @@ describe("Authentication api ", () => {
           done();
         });
     });
-  });*/
+  });
 });
