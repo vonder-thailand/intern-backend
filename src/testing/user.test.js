@@ -10,19 +10,21 @@ const {
   arraySearchPatten,
   resultPattern,
   userProfilePattern,
+  createContentPattern,
 } = require("./user.pattern");
 
 const commentModel = require("../models/comment.model");
+const contentModel = require("../models/content.model");
 
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);
 
-let token;
-let comment_id;
+let token, comment_id, content_id;
+
 const search_keyword = "moon";
 const tag = ["word smart"];
 const content_type = ["board"];
-const content_id = "60e280a87d0a2a6450588ec9";
+const create_content_type = "board";
 
 before(function (done) {
   chai
@@ -39,6 +41,123 @@ before(function (done) {
 });
 
 describe("User api", () => {
+  it("POST /comment", (done) => {
+    chai
+      .request(server)
+      .post("/comment")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .send({
+        contentId: content_id,
+        comment_body: "TDD",
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.matchPattern(commentPattern);
+        comment_id = res.body._id;
+        done();
+      });
+  });
+
+  it("POST /user/content", (done) => {
+    chai
+      .request(server)
+      .post("/user/content")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .send({
+        content_body: "TDD Testing",
+        content_type: create_content_type,
+        title: "TDD testing",
+        tag: tag,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.matchPattern(createContentPattern);
+        content_id = res.body._id;
+        done();
+      });
+  });
+  /*
+  it("POST /user/content/tag", (done) => {
+    chai
+      .request(server)
+      .post("/user/content/tag")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .send({
+        tag: ["logic smart"],
+        content_type: ["question", "board"],
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("Array");
+        done();
+      });
+  });
+  it("POST /user/newResult", () => {
+    chai
+      .request(server)
+      .post("/user/newResult")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .send([
+        { categoryId: 1, score: 2 },
+        { categoryId: 2, score: 1 },
+        { categoryId: 3, score: 1 },
+        { categoryId: 4, score: 1 },
+        { categoryId: 5, score: 1 },
+        { categoryId: 6, score: 1 },
+        { categoryId: 7, score: 1 },
+        { categoryId: 8, score: 1 },
+        { categoryId: 1, score: 1 },
+        { categoryId: 2, score: 1 },
+        { categoryId: 3, score: 1 },
+        { categoryId: 4, score: 1 },
+        { categoryId: 5, score: 1 },
+        { categoryId: 6, score: 1 },
+        { categoryId: 7, score: 1 },
+        { categoryId: 8, score: 1 },
+        { categoryId: 1, score: 1 },
+        { categoryId: 2, score: 2 },
+        { categoryId: 3, score: 3 },
+        { categoryId: 4, score: 3 },
+        { categoryId: 5, score: 3 },
+        { categoryId: 6, score: 3 },
+        { categoryId: 7, score: 3 },
+        { categoryId: 8, score: 3 },
+      ])
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a("Object");
+      });
+  });
+  it("POST /images", (done) => {
+    chai
+      .request(server)
+      .post("/images")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .attach("photo", "uploads/test.jpg")
+      .end((err, res) => {
+        expect(res).to.have.status(500);
+        expect(res.body).to.be.a("String");
+        done();
+      });
+  });*/
+  //testing
+  it("GET /user/profile", (done) => {
+    chai
+      .request(server)
+      .get("/user/profile")
+      .set("Accept", "application/json")
+      .set("Authorization", "Bearer " + token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.matchPattern(userProfilePattern);
+        done();
+      });
+  });
   it("GET /user/find", (done) => {
     chai
       .request(server)
@@ -174,131 +293,23 @@ describe("User api", () => {
       });
   });
 
-  it("GET /user/profile", (done) => {
-    chai
-      .request(server)
-      .get("/user/profile")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(userProfilePattern);
-        done();
-      });
-  });
-  it("POST /comment", (done) => {
-    chai
-      .request(server)
-      .post("/comment")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .send({
-        contentId: content_id,
-        comment: "TDD",
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.matchPattern(commentPattern);
-        commen_id = res.body._id;
-        done();
-      });
-  });
+  describe("clear dummy database", () => {
+    it("clear dummy comment", async () => {
+      return await commentModel.deleteOne(
+        { _id: comment_id },
+        async (unit, err, data) => {
+          console.log("pass");
+        }
+      );
+    });
 
-  /*
-  it("POST /user/content", (done) => {
-    chai
-      .request(server)
-      .post("/user/content")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .send({
-        content_body: "hello world",
-        content_type: "board",
-        title: "hero",
-        tag: ["logic smart"],
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.a("object");
-        done();
-      });
-  });
-  it("POST /user/content/tag", (done) => {
-    chai
-      .request(server)
-      .post("/user/content/tag")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .send({
-        tag: ["logic smart"],
-        content_type: ["question", "board"],
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.a("Array");
-        done();
-      });
-  });
-  it("POST /user/newResult", () => {
-    chai
-      .request(server)
-      .post("/user/newResult")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .send([
-        { categoryId: 1, score: 2 },
-        { categoryId: 2, score: 1 },
-        { categoryId: 3, score: 1 },
-        { categoryId: 4, score: 1 },
-        { categoryId: 5, score: 1 },
-        { categoryId: 6, score: 1 },
-        { categoryId: 7, score: 1 },
-        { categoryId: 8, score: 1 },
-        { categoryId: 1, score: 1 },
-        { categoryId: 2, score: 1 },
-        { categoryId: 3, score: 1 },
-        { categoryId: 4, score: 1 },
-        { categoryId: 5, score: 1 },
-        { categoryId: 6, score: 1 },
-        { categoryId: 7, score: 1 },
-        { categoryId: 8, score: 1 },
-        { categoryId: 1, score: 1 },
-        { categoryId: 2, score: 2 },
-        { categoryId: 3, score: 3 },
-        { categoryId: 4, score: 3 },
-        { categoryId: 5, score: 3 },
-        { categoryId: 6, score: 3 },
-        { categoryId: 7, score: 3 },
-        { categoryId: 8, score: 3 },
-      ])
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.a("Object");
-      });
-  });
-  it("POST /images", (done) => {
-    chai
-      .request(server)
-      .post("/images")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .attach("photo", "uploads/test.jpg")
-      .end((err, res) => {
-        expect(res).to.have.status(500);
-        expect(res.body).to.be.a("String");
-        done();
-      });
-  });*/
-  //testing
-});
-
-describe("clear dummy database", () => {
-  it("clear comment", async (done) => {
-    const comment = await commentModel.deleteOne(
-      { _id: comment_id },
-      (unit, err, data) => {
-        done();
-      }
-    );
+    it("clear dummy comment", async () => {
+      return await contentModel.deleteOne(
+        { _id: content_id },
+        async (unit, err, data) => {
+          console.log("pass");
+        }
+      );
+    });
   });
 });

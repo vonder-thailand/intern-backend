@@ -25,6 +25,20 @@ module.exports.contentPattern = {
   updated_at: String,
 };
 
+module.exports.createContentPattern = {
+  _id: String,
+  author_id: String,
+  content_body: String,
+  title: String,
+  uid_likes: [String],
+  tag: [String],
+  content_type: String,
+  image: String,
+  isDeleted: Boolean(),
+  created_at: String,
+  updated_at: String,
+};
+
 module.exports.commentPattern = {
   _id: String,
   comment_body: String,
