@@ -16,7 +16,6 @@ const {
   formatContent,
   formatResult,
   checkStageContent,
-  doSearch,
 } = require("../functions/index");
 
 module.exports.findUserById = async (input) => {
@@ -272,10 +271,7 @@ module.exports.getCommentByContentId = async (
     .limit(limit);
 
   if (!comments.length) {
-    throw {
-      message: "no comment found",
-      status: 404,
-    };
+    return [];
   }
 
   return comments;
@@ -350,7 +346,57 @@ module.exports.search = async (input, tag, content_type) => {
 
   switch (stage) {
     case filterTwo.TAG_AND_CONTENT:
-      return await doSearch(tag, content_type, new_input);
+      tag = tag.map((item) => {
+        return item.toLowerCase();
+      });
+      content_type = content_type.map((item) => {
+        return item.toLowerCase();
+      });
+      return await ContentModel.aggregate([
+        {
+          $lookup: {
+            from: "userauths",
+            localField: "author_id",
+            foreignField: "_id",
+            as: "author_data",
+          },
+        },
+
+        {
+          $match: {
+            $or: [
+              {
+                content_type: { $in: content_type },
+                tag: { $in: tag },
+                isDeleted: false,
+                "author_data.username": { $regex: new_input },
+              },
+              {
+                content_type: { $in: content_type },
+                tag: { $in: tag },
+                isDeleted: false,
+                title: { $regex: new_input },
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            content_body: 1,
+            title: 1,
+            likes: 1,
+            uid_likes: 1,
+            tag: 1,
+            image: 1,
+            isDeleted: 1,
+            author_id: 1,
+            created_at: 1,
+            "author_data.username": 1,
+            content_type: 1,
+          },
+        },
+      ]);
       break;
     case filterTwo.TAG:
       return await doSearch(tag, content_type, new_input);
