@@ -59,3 +59,17 @@ module.exports.arraySearchPatten = [
     ],
   },
 ];
+
+module.exports.arrayResultPattern = [
+  {
+    category_id: Number,
+    description: String,
+    description_career: String,
+    image_charactor: String,
+    skill_summarize: String,
+    charactor_summarize: String,
+    skill: String,
+    score: Number,
+    created_at: String,
+  },
+];
