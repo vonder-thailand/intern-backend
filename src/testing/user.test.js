@@ -7,6 +7,7 @@ const {
   authPattern,
   arrayContentPattern,
   arrayCommentPattern,
+  arraySearchPatten,
 } = require("./user.pattern");
 
 chai.use(chaiHttp);
@@ -70,19 +71,61 @@ describe("User api", () => {
       });
   });
 
-  /*
-  it("GET /user/search/:keyword", (done) => {
-    chai
-      .request(server)
-      .get("/user/search/moon")
-      .set("Accept", "application/json")
-      .set("Authorization", "Bearer " + token)
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.a("Array");
-        done();
-      });
+  describe("GET /user/search/:keyword", () => {
+    it("just search", (done) => {
+      chai
+        .request(server)
+        .get("/user/search/moon")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern(arraySearchPatten);
+          done();
+        });
+    });
+    it("filter tag && content_type -> search", (done) => {
+      chai
+        .request(server)
+        .get("/user/search/moon")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({ tag: ["word smart"], content_type: ["board"] })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern(arraySearchPatten);
+          done();
+        });
+    });
+    it("filter tag -> search", (done) => {
+      chai
+        .request(server)
+        .get("/user/search/moon")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({ tag: ["word smart"] })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern(arraySearchPatten);
+          done();
+        });
+    });
+    it("filter content_type -> search", (done) => {
+      chai
+        .request(server)
+        .get("/user/search/moon")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({ content_type: ["board"] })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.matchPattern(arraySearchPatten);
+          done();
+        });
+    });
   });
+
+  /*
   it("GET /user/newResult", (done) => {
     chai
       .request(server)
