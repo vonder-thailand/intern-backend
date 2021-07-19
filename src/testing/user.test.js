@@ -3,7 +3,11 @@ const chaiJsonPattern = require("chai-json-pattern").default;
 const chaiHttp = require("chai-http");
 const server = require("../../app");
 const expect = chai.expect;
-const { authPattern } = require("./pattern");
+const {
+  authPattern,
+  arrayContentPattern,
+  arrayCommentPattern,
+} = require("./pattern");
 
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);
@@ -39,7 +43,7 @@ describe("User api", () => {
         done();
       });
   });
-  
+
   it("GET /user/content/get", (done) => {
     chai
       .request(server)
@@ -48,11 +52,11 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.a("Array");
+        expect(res.body).to.matchPattern(arrayContentPattern);
         done();
       });
   });
-  /*
+
   it("GET /user/comment/get/:page-:limit/:contentId", (done) => {
     chai
       .request(server)
@@ -61,10 +65,12 @@ describe("User api", () => {
       .set("Authorization", "Bearer " + token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.a("Array");
+        expect(res.body).to.matchPattern(arrayCommentPattern);
         done();
       });
   });
+
+  /*
   it("GET /user/search/:keyword", (done) => {
     chai
       .request(server)
