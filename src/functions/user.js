@@ -16,6 +16,7 @@ const {
   formatContent,
   formatResult,
   checkStageContent,
+  doSearch,
 } = require("../functions/index");
 
 module.exports.findUserById = async (input) => {
@@ -121,10 +122,9 @@ module.exports.getAllContents = async () => {
     isDeleted: false,
   });
 
-  const username = await authModel.find({ _id: content[0].author_id });
-  const auth_username = username[0].username;
   const content_promise = content.map(async (element) => {
-    const content = await formatContent(element, auth_username);
+    const user = await authModel.findOne({ _id: element.author_id });
+    const content = await formatContent(element, user.username);
     return content;
   });
   const new_contents = await Promise.all(content_promise);
@@ -271,10 +271,7 @@ module.exports.getCommentByContentId = async (
     .limit(limit);
 
   if (!comments.length) {
-    throw {
-      message: "no comment found",
-      status: 404,
-    };
+    return [];
   }
 
   return comments;
@@ -339,202 +336,27 @@ module.exports.search = async (input, tag, content_type) => {
 
   stage = checkStageContent(tag, content_type, stage);
 
+
+  content_type.length ? (content_type = arrayLower(content_type)) : {};
+  tag.length
+    ? function () {
+        tag = arrayLower(tag);
+        checkTag(tag);
+      }
+    : {};
+
   switch (stage) {
     case filterTwo.TAG_AND_CONTENT:
-      tag = tag.map((item) => {
-        return item.toLowerCase();
-      });
-      content_type = content_type.map((item) => {
-        return item.toLowerCase();
-      });
-      return await ContentModel.aggregate([
-        {
-          $lookup: {
-            from: "userauths",
-            localField: "author_id",
-            foreignField: "_id",
-            as: "author_data",
-          },
-        },
-
-        {
-          $match: {
-            $or: [
-              {
-                content_type: { $in: content_type },
-                tag: { $in: tag },
-                isDeleted: false,
-                "author_data.username": { $regex: new_input },
-              },
-              {
-                content_type: { $in: content_type },
-                tag: { $in: tag },
-                isDeleted: false,
-                title: { $regex: new_input },
-              },
-            ],
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            content_body: 1,
-            title: 1,
-            likes: 1,
-            uid_likes: 1,
-            tag: 1,
-            image: 1,
-            isDeleted: 1,
-            author_id: 1,
-            created_at: 1,
-            "author_data.username": 1,
-            content_type: 1,
-          },
-        },
-      ]);
+      return await doSearch(tag, content_type, new_input);
       break;
     case filterTwo.TAG:
-      tag = tag.map((item) => {
-        return item.toLowerCase();
-      });
-
-      return await ContentModel.aggregate([
-        {
-          $lookup: {
-            from: "userauths",
-            localField: "author_id",
-            foreignField: "_id",
-            as: "author_data",
-          },
-        },
-
-        {
-          $match: {
-            $or: [
-              {
-                tag: { $in: tag },
-                isDeleted: false,
-                "author_data.username": { $regex: new_input },
-              },
-              {
-                tag: { $in: tag },
-                isDeleted: false,
-                title: { $regex: new_input },
-              },
-            ],
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            content_body: 1,
-            title: 1,
-            likes: 1,
-            uid_likes: 1,
-            tag: 1,
-            image: 1,
-            isDeleted: 1,
-            author_id: 1,
-            created_at: 1,
-            "author_data.username": 1,
-            content_type: 1,
-          },
-        },
-      ]);
+      return await doSearch(tag, content_type, new_input);
       break;
     case filterTwo.CONTENT:
-      content_type = content_type.map((item) => {
-        return item.toLowerCase();
-      });
-
-      return await ContentModel.aggregate([
-        {
-          $lookup: {
-            from: "userauths",
-            localField: "author_id",
-            foreignField: "_id",
-            as: "author_data",
-          },
-        },
-
-        {
-          $match: {
-            $or: [
-              {
-                content_type: { $in: content_type },
-                isDeleted: false,
-                "author_data.username": { $regex: new_input },
-              },
-              {
-                content_type: { $in: content_type },
-                isDeleted: false,
-                title: { $regex: new_input },
-              },
-            ],
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            content_body: 1,
-            title: 1,
-            likes: 1,
-            uid_likes: 1,
-            tag: 1,
-            image: 1,
-            isDeleted: 1,
-            author_id: 1,
-            created_at: 1,
-            "author_data.username": 1,
-            content_type: 1,
-          },
-        },
-      ]);
+      return await doSearch(tag, content_type, new_input);
       break;
     case filterTwo.NONE:
-      return await ContentModel.aggregate([
-        {
-          $lookup: {
-            from: "userauths",
-            localField: "author_id",
-            foreignField: "_id",
-            as: "author_data",
-          },
-        },
-        {
-          $match: {
-            $or: [
-              {
-                isDeleted: false,
-                "author_data.username": { $regex: new_input },
-              },
-              {
-                isDeleted: false,
-                title: { $regex: new_input },
-              },
-              {
-                tag: { $regex: new_input },
-              },
-            ],
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            content_body: 1,
-            title: 1,
-            likes: 1,
-            uid_likes: 1,
-            tag: 1,
-            image: 1,
-            isDeleted: 1,
-            author_id: 1,
-            created_at: 1,
-            "author_data.username": 1,
-            content_type: 1,
-          },
-        },
-      ]);
+      return await doSearch(tag, content_type, new_input);
       break;
   }
 };

@@ -21,7 +21,7 @@ router.get(
   auth.authMiddleware,
   tryCatch(usersController.getCommentByContentId)
 );
-router.get(
+router.post(
   "/user/search/:keyword",
   auth.authMiddleware,
   tryCatch(usersController.search)
