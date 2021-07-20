@@ -37,7 +37,7 @@ describe("Admin API", () => {
     });
   });
   describe("GET /user", () => {
-    it("should return all results", (done) => {
+    it("should return all users", (done) => {
       chai
         .request(server)
         .get("/user")
