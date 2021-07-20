@@ -4,11 +4,7 @@ const chaiJsonPattern = require("chai-json-pattern").default;
 const questionModel = require("../models/questions.model");
 const server = require("../../app");
 const expect = chai.expect;
-const {
-  authPattern,
-  resultsPattern,
-  questionPattern,
-} = require("./user.pattern");
+const { authPattern, questionPattern } = require("./pattern");
 
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);

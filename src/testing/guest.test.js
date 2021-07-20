@@ -5,7 +5,6 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 describe("guest API", () => {
-  //test POST /guest/result
   it("POST /guest/result", (done) => {
     chai
       .request(server)

@@ -11,7 +11,7 @@ const {
   resultPattern,
   userProfilePattern,
   createContentPattern,
-} = require("./user.pattern");
+} = require("./pattern");
 
 const commentModel = require("../models/comment.model");
 const contentModel = require("../models/content.model");
