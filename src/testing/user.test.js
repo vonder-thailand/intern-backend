@@ -194,12 +194,17 @@ describe("User api", () => {
     it("just search", (done) => {
       chai
         .request(server)
-        .get("/user/search/" + search_keyword)
+        .post("/user/search/" + "search_keyword")
         .set("Accept", "application/json")
         .set("Authorization", "Bearer " + token)
+        .send({
+          tag: [],
+          content_type: [],
+        })
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.matchPattern(arraySearchPatten);
+
           dataSet = res.body;
           done();
         });
@@ -207,7 +212,7 @@ describe("User api", () => {
     it("filter tag && content_type -> search", (done) => {
       chai
         .request(server)
-        .get("/user/search/" + search_keyword)
+        .post("/user/search/" + search_keyword)
         .set("Accept", "application/json")
         .set("Authorization", "Bearer " + token)
         .send({ tag: tag, content_type: content_type })
@@ -220,10 +225,10 @@ describe("User api", () => {
     it("filter tag -> search", (done) => {
       chai
         .request(server)
-        .get("/user/search/" + search_keyword)
+        .post("/user/search/" + search_keyword)
         .set("Accept", "application/json")
         .set("Authorization", "Bearer " + token)
-        .send({ tag: tag })
+        .send({ tag: tag, content_type: [] })
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.matchPattern(arraySearchPatten);
@@ -233,10 +238,10 @@ describe("User api", () => {
     it("filter content_type -> search", (done) => {
       chai
         .request(server)
-        .get("/user/search/" + search_keyword)
+        .post("/user/search/" + search_keyword)
         .set("Accept", "application/json")
         .set("Authorization", "Bearer " + token)
-        .send({ content_type: content_type })
+        .send({ tag: [], content_type: content_type })
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.matchPattern(arraySearchPatten);

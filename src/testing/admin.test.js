@@ -117,23 +117,24 @@ describe("Admin API", () => {
         });
     });
   });
-  describe("POST /questions", () => {
-    it("post questions", (done) => {
-      chai
-        .request(server)
-        .post("/questions")
-        .set("Accept", "application/json")
-        .set("Authorization", "Bearer " + token)
-        .send({
-          questionIndex: "25",
-          category_id: "3",
-          questionBody: "ฉันชอบเรียนรู้",
-        })
-        .end((err, res) => {
-          expect(res.status).to.equal(200);
-          expect(res.body).to.matchPattern(questionPattern);
-          done();
-        });
-    });
-  });
+  
+  // describe("POST /questions", () => {
+  //   it("post questions", (done) => {
+  //     chai
+  //       .request(server)
+  //       .post("/questions")
+  //       .set("Accept", "application/json")
+  //       .set("Authorization", "Bearer " + token)
+  //       .send({
+  //         questionIndex: "25",
+  //         category_id: "3",
+  //         questionBody: "ฉันชอบเรียนรู้",
+  //       })
+  //       .end((err, res) => {
+  //         expect(res.status).to.equal(200);
+  //         expect(res.body).to.matchPattern(questionPattern);
+  //         done();
+  //       });
+  //   });
+  // });
 });

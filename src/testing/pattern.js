@@ -59,8 +59,6 @@ module.exports.arraySearchPatten = [
     tag: [String],
     content_type: String,
     image: String,
-    isDeleted: Boolean(),
-    author_id: String,
     created_at: String,
     author_data: [
       {
