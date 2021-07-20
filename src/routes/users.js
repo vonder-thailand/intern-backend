@@ -13,17 +13,14 @@ router.get(
 );
 router.get(
   "/user/content/get",
-  auth.authMiddleware,
   tryCatch(usersController.getAllContents)
 );
 router.get(
   "/user/comment/get/:page-:limit/:contentId",
-  auth.authMiddleware,
   tryCatch(usersController.getCommentByContentId)
 );
 router.post(
   "/user/search/:keyword",
-  auth.authMiddleware,
   tryCatch(usersController.search)
 );
 router.get(
@@ -39,7 +36,6 @@ router.get(
 
 router.get(
   "/user/contentID/:_id",
-  auth.authMiddleware,
   tryCatch(usersController.getContentByContentId)
 );
 
@@ -77,7 +73,6 @@ router.post(
 
 router.post(
   "/user/content/tag",
-  auth.authMiddleware,
   tryCatch(usersController.getSortByTag)
 );
 
@@ -120,7 +115,6 @@ router.delete(
 
 router.get(
   "/user/content/sort/like/:page-:limit",
-  auth.authMiddleware,
   tryCatch(usersController.getSortedContentByLike)
 );
 
