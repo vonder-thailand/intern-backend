@@ -9,79 +9,79 @@ const {
   getSummarise,
 } = require("../functions/admin");
 
-exports.getAllResult = async (req, res) => {
-  const results = await resultModel.find();
-  const { role } = req;
-  if (role != "admin") {
-    return res.status(400).json({
-      status: "error",
-      message: "only admin can access",
-    });
-  } else if (!results.length) {
+exports.getAllResult = async (req, res, next) => {
+  if (req.role != "admin") {
     throw {
-      message: "result not found",
+      status: 400,
+      message: "only admin can access",
+    };
+  }
+  const results = await resultModel.find();
+  if (!results.length) {
+    throw {
+      message: "no results found in database",
       status: 404,
     };
-  } else res.send(results);
+  }
+  res.send(results);
 };
 
 exports.getAdminById = async (req, res, next) => {
-  const { role } = req;
-  if (role != "admin") {
-    return res.status(400).json({
-      status: "error",
+  if (req.role != "admin") {
+    throw {
+      status: 400,
       message: "only admin can access",
-    });
-  } else if (req.body._id) {
-    const userId = req.body._id;
-    const admin = await findAdminById(userId);
-    res.send(admin);
-  } else {
-    const { userId } = req;
-    const admin = await findAdminById(userId);
-    res.send(admin);
+    };
   }
+  req.body._id
+    ? res.send(await findAdminById(req.body._id))
+    : res.send(await findAdminById(req.userId));
 };
 
 exports.getAllAdmins = async (req, res, next) => {
-  const admins = await findAllAdmins();
-  const { role } = req;
-  if (role != "admin") {
-    return res.status(400).json({
-      status: "error",
+  if (req.role != "admin") {
+    throw {
+      status: 400,
       message: "only admin can access",
-    });
-  } else res.send(admins);
+    };
+  }
+  res.send(await findAllAdmins());
 };
+
 exports.getAllUsers = async (req, res, next) => {
-  const users = await getAllUsers();
-  res.send(users);
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
+  }
+  res.send(await getAllUsers());
 };
 
 exports.getAllQuestions = async (req, res, next) => {
   const question = await questionModel.find({});
-  const { role } = req;
   if (!question.length) {
     throw {
-      message: "question not found",
+      message: "no questions found in database",
       status: 404,
     };
-  } else res.send(question);
+  }
+  res.send(question);
 };
 
 exports.getQuestionByCat = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
+  }
   const catName = req.body.categoryIndex;
   const question = await questionModel.find({ categoryIndex: catName });
-  const { role } = req;
-  if (role != "admin") {
-    return res.status(400).json({
-      status: "error",
-      message: "only admin can access",
-    });
-  } else if (!question.length) {
+  if (!question.length) {
     throw {
-      message: "Invalid category",
-      status: 400,
+      message: `could not find question from category ${catName}`,
+      status: 404,
     };
   }
   res.send(question);
@@ -93,26 +93,25 @@ exports.getSummarise = async (req, res, next) => {
 };
 
 exports.postQuestion = async (req, res, next) => {
-  const question = await postQuestion(req.body);
-  const { role } = req;
-  if (role != "admin") {
-    return res.status(400).json({
-      status: "error",
+  if (req.role != "admin") {
+    throw {
+      status: 400,
       message: "only admin can access",
-    });
-  } else res.send(question);
-  console.log("gg", req.body);
+    };
+  }
+  const question = await postQuestion(req.body);
+  res.send(question);
 };
 
 exports.postSummarise = async (req, res, next) => {
-  const summarise = await postSummarise(req.body);
-  const { role } = req;
-  if (role != "admin") {
-    return res.status(400).json({
-      status: "error",
+  if (req.role != "admin") {
+    throw {
+      status: 400,
       message: "only admin can access",
-    });
-  } else res.send(summarise);
+    };
+  }
+  const summarise = await postSummarise(req.body);
+  res.send(summarise);
 };
 
 exports.updateFields = async (req, res, next) => {

@@ -30,7 +30,8 @@ router.get(
 
 router.get(
   "/summarize",
-  tryCatch(auth.authMiddleware, adminController.getSummarise)
+  auth.authMiddleware,
+  tryCatch(adminController.getSummarise)
 );
 //POST
 router.post("/questions", tryCatch(adminController.postQuestion));
