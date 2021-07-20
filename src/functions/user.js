@@ -336,6 +336,7 @@ module.exports.search = async (input, tag, content_type) => {
 
   stage = checkStageContent(tag, content_type, stage);
 
+
   content_type.length ? (content_type = arrayLower(content_type)) : {};
   tag.length
     ? function () {

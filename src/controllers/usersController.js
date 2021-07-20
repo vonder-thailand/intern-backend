@@ -4,7 +4,6 @@ const {
   deleteUserById,
   createResultById,
   getResultById,
-  getAllUsers,
   createCommnet,
   createGuest,
   createContent,
@@ -65,11 +64,6 @@ exports.createResultById = async (req, res, next) => {
   const answers = req.body;
   const user = await createResultById(answers, req);
   res.send(user);
-};
-
-exports.getAllUsers = async (req, res, next) => {
-  const users = await getAllUsers();
-  res.send(users);
 };
 
 exports.postComment = async (req, res, next) => {

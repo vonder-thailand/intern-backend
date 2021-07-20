@@ -3,6 +3,7 @@ const resultModel = require("../models/result.model");
 const {
   findAdminById,
   findAllAdmins,
+  getAllUsers,
   postQuestion,
   postSummarise,
   getSummarise,
@@ -52,6 +53,10 @@ exports.getAllAdmins = async (req, res, next) => {
     });
   } else res.send(admins);
 };
+exports.getAllUsers = async (req, res, next) => {
+  const users = await getAllUsers();
+  res.send(users);
+};
 
 exports.getAllQuestions = async (req, res, next) => {
   const question = await questionModel.find({});
@@ -96,6 +101,7 @@ exports.postQuestion = async (req, res, next) => {
       message: "only admin can access",
     });
   } else res.send(question);
+  console.log("gg", req.body);
 };
 
 exports.postSummarise = async (req, res, next) => {

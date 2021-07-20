@@ -11,7 +11,6 @@ router.get(
   auth.authMiddleware,
   tryCatch(usersController.findUserById)
 );
-router.get("/user", auth.authMiddleware, tryCatch(usersController.getAllUsers));
 router.get(
   "/user/content/get",
   auth.authMiddleware,
