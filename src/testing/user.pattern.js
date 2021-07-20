@@ -87,3 +87,11 @@ module.exports.userProfilePattern = {
   results: [[this.resultPattern]],
   contents: [this.contentPattern],
 };
+module.exports.questionPattern = {
+  questionIndex: Number,
+  category_id: Number,
+  questionBody: String,
+  _id: String,
+  created_at: String,
+  updated_at: String,
+};
