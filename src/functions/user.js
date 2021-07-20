@@ -16,7 +16,7 @@ const {
   formatContent,
   formatResult,
   checkStageContent,
-  doSearch
+  doSearch,
 } = require("../functions/index");
 
 module.exports.findUserById = async (input) => {
@@ -122,10 +122,9 @@ module.exports.getAllContents = async () => {
     isDeleted: false,
   });
 
-  const username = await authModel.find({ _id: content[0].author_id });
-  const auth_username = username[0].username;
   const content_promise = content.map(async (element) => {
-    const content = await formatContent(element, auth_username);
+    const user = await authModel.findOne({ _id: element.author_id });
+    const content = await formatContent(element, user.username);
     return content;
   });
   const new_contents = await Promise.all(content_promise);
