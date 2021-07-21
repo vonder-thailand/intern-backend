@@ -204,16 +204,18 @@ module.exports.contentIsLiked = async (input_uid, input_content_id) => {
     _id: input_content_id,
     isDeleted: false,
   });
+
   const array = content_obj[0].uid_likes;
+  let unlike = false;
+
   for (let i = 0; i < array.length; i++) {
     if (array[i] == input_uid) {
-      throw {
-        message: "you already liked this post",
-        status: 409,
-      };
+      array.splice(i, 1);
+      unlike = true;
     }
   }
-  array.push(input_uid);
+  console.log(input_uid);
+  !unlike ? array.push(input_uid) : console.log("unlike");
 
   const content = await ContentModel.findOneAndUpdate(
     { _id: input_content_id, isDeleted: false },
@@ -335,7 +337,6 @@ module.exports.search = async (input, tag, content_type) => {
   let new_input = new RegExp(input, "i");
 
   stage = checkStageContent(tag, content_type, stage);
-
 
   content_type.length ? (content_type = arrayLower(content_type)) : {};
   tag.length
