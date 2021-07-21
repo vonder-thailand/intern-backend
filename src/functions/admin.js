@@ -87,7 +87,7 @@ module.exports.postQuestion = async (input) => {
 };
 
 module.exports.postSummarise = async (input) => {
-  if (!(parseInt(category_index) <= 8 && parseInt(category_index) >= 1)) {
+  if (!(parseInt(category_id) <= 8 && parseInt(category_id) >= 1)) {
     throw {
       message: "out of category index",
       status: 404,
@@ -103,7 +103,6 @@ module.exports.postSummarise = async (input) => {
       status: 404,
     };
   } else {
-    console.log(category_index);
     const summarise = await summariseModel.create({
       category_id: category_id,
       description: description,
