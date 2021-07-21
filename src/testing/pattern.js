@@ -93,3 +93,16 @@ module.exports.questionPattern = {
   created_at: String,
   updated_at: String,
 };
+
+module.exports.summarizePattern = {
+  description: String,
+  description_career: String,
+  image_charactor: String,
+  skill_summarize: String,
+  charactor_summarize: String,
+  skill: String,
+  _id: String,
+  created_at: String,
+  updated_at: String,
+  category_id: Number,
+};

@@ -4,7 +4,7 @@ const chaiJsonPattern = require("chai-json-pattern").default;
 const questionModel = require("../models/questions.model");
 const server = require("../../app");
 const expect = chai.expect;
-const { authPattern, questionPattern } = require("./pattern");
+const { authPattern, questionPattern, summarizePattern } = require("./pattern");
 
 chai.use(chaiHttp);
 chai.use(chaiJsonPattern);
@@ -117,7 +117,23 @@ describe("Admin API", () => {
         });
     });
   });
-  
+  describe("GET /summarize", () => {
+    it("should return all questions", (done) => {
+      chai
+        .request(server)
+        .get("/summarize")
+        .set("Accept", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .send({ category: "1" })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          for (let i = 0; i < res.body.length; i++) {
+            expect(res.body[i]).to.matchPattern(summarizePattern);
+          }
+          done();
+        });
+    });
+  });
   // describe("POST /questions", () => {
   //   it("post questions", (done) => {
   //     chai
