@@ -176,6 +176,16 @@ module.exports.doSearch = async (tag, content_type, new_input) => {
 
     { $match: query },
     {
+      $unwind: {
+        path: "$author_data",
+      },
+    },
+    {
+      $addFields: {
+        author_username: "$author_data.username",
+      },
+    },
+    {
       $project: {
         content_body: 1,
         title: 1,
@@ -183,7 +193,7 @@ module.exports.doSearch = async (tag, content_type, new_input) => {
         tag: 1,
         image: 1,
         created_at: 1,
-        "author_data.username": 1,
+        "author_username": 1,
         content_type: 1,
       },
     },
