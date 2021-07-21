@@ -291,6 +291,7 @@ exports.getContentByContentId = async (req, res, next) => {
 
 exports.getProfile = async (req, res, next) => {
   const userId = req.userId;
+  let results_array;
   const authData = await authModel.find({ _id: userId, isDeleted: false });
   const resultData = await resultNew.find({
     userid: userId,
@@ -299,7 +300,10 @@ exports.getProfile = async (req, res, next) => {
     author_id: userId,
     isDeleted: false,
   });
-  const results_array = resultData[0].results;
+
+  resultData.length
+    ? (results_array = resultData[0].results)
+    : (results_array = new Array());
 
   const promises = results_array.map(async (element) => {
     const result = await formatResult(element);
