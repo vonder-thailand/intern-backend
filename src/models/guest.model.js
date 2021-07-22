@@ -10,6 +10,6 @@ const guests = new Schema(
   }
 );
 
-guests.index({ createdAt: 1 }, { expireAfterSeconds: "2d" });
+guests.index({ createdAt: 1 }, { expireAfterSeconds: "1d" });
 
 module.exports = mongoose.model("guests", guests);
