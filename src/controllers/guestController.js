@@ -49,6 +49,11 @@ module.exports.getResult = async (req, res, next) => {
         path: "$result",
       },
     },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
   ]);
-  res.send(results);
+  res.send(results[0].result);
 };
