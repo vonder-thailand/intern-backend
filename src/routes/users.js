@@ -51,6 +51,13 @@ router.get(
   tryCatch(usersController.getProfile)
 );
 
+
+router.get(
+  "/user/getResultbyIndex/:user_id/:array_index",
+  auth.authMiddleware,
+  tryCatch(usersController.getResultByIndex)
+);
+
 //POST
 router.post(
   "/images",

@@ -16,6 +16,7 @@ const {
   search,
   getContentById,
   getContentByContentId,
+  getResultByIndex
 } = require("../functions/user");
 const { formatContent, formatResult } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
@@ -346,4 +347,14 @@ exports.getSortedContentByLike = async (req, res, next) => {
   const new_contents = await Promise.all(content_promise);
 
   res.send(new_contents);
+};
+
+
+exports.getResultByIndex = async (req,res,next) => {
+  
+  const user_id = mongoose.Types.ObjectId(req.params.user_id);
+  const index = req.params.array_index;
+
+  const result = await getResultByIndex(user_id,index);
+  res.send(result);
 };
