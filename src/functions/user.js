@@ -431,7 +431,7 @@ module.exports.getContentByContentId = async (input) => {
   }
 };
 
-exports.getResultByIndex = async (user_id,index) => {
+exports.getResultByIndex = async (user_id, index) => {
   const userid = await userAuth.findOne({
     _id: user_id,
     isDeleted: false,
@@ -453,12 +453,7 @@ exports.getResultByIndex = async (user_id,index) => {
     };
   }
 
-console.log("user:",user_id)
-console.log("index:",index)
-
-const index_number = parseInt(index)
-console.log("index:",index_number)
-console.log("type:",typeof(index_number))
+  const index_number = parseInt(index);
 
   const newResult = await resultNew.aggregate([
     {
@@ -466,9 +461,9 @@ console.log("type:",typeof(index_number))
     },
     {
       $addFields: {
-        results:"$results"
-        },
+        results: "$results",
       },
+    },
     {
       $unwind: {
         path: "$results",
@@ -476,9 +471,7 @@ console.log("type:",typeof(index_number))
     },
   ]);
 
-console.log("Result: ",newResult)
-
   const score = newResult[index_number].results;
   const new_result = await formatResult(score);
-return new_result
+  return new_result;
 };
