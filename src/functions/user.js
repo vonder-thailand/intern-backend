@@ -430,3 +430,55 @@ module.exports.getContentByContentId = async (input) => {
     };
   }
 };
+
+exports.getResultByIndex = async (user_id,index) => {
+  const userid = await userAuth.findOne({
+    _id: user_id,
+    isDeleted: false,
+  });
+  if (!userid) {
+    throw {
+      message: "invalid user id",
+      status: 404,
+    };
+  }
+
+  const user = await resultNew.findOne({ userid: user_id });
+
+  if (!user) {
+    throw {
+      message:
+        "Error from trying to get non-existing result, please do the test first",
+      status: 404,
+    };
+  }
+
+console.log("user:",user_id)
+console.log("index:",index)
+
+const index_number = parseInt(index)
+console.log("index:",index_number)
+console.log("type:",typeof(index_number))
+
+  const newResult = await resultNew.aggregate([
+    {
+      $match: { userid: mongoose.Types.ObjectId(user_id) },
+    },
+    {
+      $addFields: {
+        results:"$results"
+        },
+      },
+    {
+      $unwind: {
+        path: "$results",
+      },
+    },
+  ]);
+
+console.log("Result: ",newResult)
+
+  const score = newResult[index_number].results;
+  const new_result = await formatResult(score);
+return new_result
+};
