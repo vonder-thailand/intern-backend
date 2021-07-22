@@ -96,7 +96,7 @@ module.exports.postSummarise = async (input) => {
   const ob = await summariseModel.find({
     category_id: category_id,
   });
-  console.log(ob.length);
+
   if (ob.length !== 0) {
     throw {
       message: "question redundant please check question number",
@@ -110,6 +110,7 @@ module.exports.postSummarise = async (input) => {
       image_charactor: image_charactor,
       skill_summarize: skill_summarize,
       charactor_summarize: charactor_summarize,
+      img_result: img_result,
     });
     return summarise;
   }

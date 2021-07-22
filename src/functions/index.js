@@ -120,6 +120,7 @@ module.exports.formatResult = async (result) => {
       skill: item.skill,
       score: score[index] * 10,
       created_at: date,
+      img_result: item.img_result,
     };
     obj_arr.push(obj_inside);
   });
@@ -136,7 +137,6 @@ module.exports.checkStageContent = (tag, content_type, stage) => {
 };
 
 module.exports.doSearch = async (tag, content_type, new_input) => {
-
   let query = {
     $or: [
       {
@@ -193,7 +193,7 @@ module.exports.doSearch = async (tag, content_type, new_input) => {
         tag: 1,
         image: 1,
         created_at: 1,
-        "author_username": 1,
+        author_username: 1,
         content_type: 1,
       },
     },
