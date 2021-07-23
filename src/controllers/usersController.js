@@ -16,7 +16,7 @@ const {
   search,
   getContentById,
   getContentByContentId,
-  getResultByIndex
+  getResultByIndex,
 } = require("../functions/user");
 const { formatContent, formatResult } = require("../functions/index");
 const { uploadManyFile } = require("../utils/s3");
@@ -25,6 +25,7 @@ const userAuth = require("../models/auth.model");
 const mongoose = require("mongoose");
 const Content = require("../models/content.model");
 const authModel = require("../models/auth.model");
+const { tags } = require("../functions/const");
 
 // find user by id
 exports.findUserById = async (req, res, next) => {
@@ -349,12 +350,36 @@ exports.getSortedContentByLike = async (req, res, next) => {
   res.send(new_contents);
 };
 
-
-exports.getResultByIndex = async (req,res,next) => {
-  
+exports.getResultByIndex = async (req, res, next) => {
   const user_id = mongoose.Types.ObjectId(req.params.user_id);
   const index = req.params.array_index;
 
-  const result = await getResultByIndex(user_id,index);
+  const result = await getResultByIndex(user_id, index);
   res.send(result);
+};
+
+exports.getContentByResult = async (req, res, next) => {
+  const { userId } = req;
+
+  const userResult = await resultNew.aggregate([
+    {
+      $match: {
+        userid: mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $addFields: {
+        results: {
+          $slice: ["$results", -1],
+        },
+      },
+    },
+  ]);
+  const result = userResult[0].results[0];
+  let m = Math.max(...result);
+  let maxes = result.reduce((p, c, i, a) => (c == m ? p.concat(i) : p), []);
+  const userTags = maxes.map((userTag) => tags[userTag]);
+  console.log(userTags);
+  const contents = await getSortByTag(userTags, null, []);
+  res.send(contents);
 };
