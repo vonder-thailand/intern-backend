@@ -7,6 +7,7 @@ const valid_id = mongoose.Types.ObjectId.isValid;
 const resultNew = require("../models/resultNew.model");
 const summariseModel = require("../models/summarise.model");
 const { filter, filterTwo } = require("../functions/const");
+const { tags } = require("../functions/const");
 const {
   arrayLower,
   checkTag,
@@ -488,4 +489,35 @@ exports.getResultByIndex = async (user_id, index) => {
   const score = newResult[index_number].results;
   const new_result = await formatResult(score);
   return new_result;
+};
+
+exports.userContentByResult = async (userId) => {
+  const userResult = await resultNew.aggregate([
+    {
+      $match: {
+        userid: mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $addFields: {
+        results: {
+          $slice: ["$results", -1],
+        },
+      },
+    },
+  ]);
+  if (!userResult.length) {
+    throw {
+      status: 404,
+      message:
+        "error from trying to get non-existing result, please do the test first",
+    };
+  }
+  const result = userResult[0].results[0];
+  result.pop();
+  let m = Math.max(...result);
+  let maxes = result.reduce((p, c, i, a) => (c == m ? p.concat(i) : p), []);
+  const userTags = maxes.map((userTag) => tags[userTag]);
+  const contents = await this.getSortByTag(userTags, null, []);
+  return contents;
 };
