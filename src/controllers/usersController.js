@@ -377,7 +377,11 @@ exports.getContentByResult = async (req, res, next) => {
   ]);
   const result = userResult[0].results[0];
   let m = Math.max(...result);
-  let maxes = result.reduce((p, c, i, a) => (c == m ? p.concat(i) : p), []);
+  let maxes = result.reduce(
+    (accumulator, currentValue, index) =>
+      currentValue == m ? accumulator.concat(index) : accumulator,
+    []
+  );
   const userTags = maxes.map((userTag) => tags[userTag]);
   console.log(userTags);
   const contents = await getSortByTag(userTags, null, []);
