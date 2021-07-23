@@ -402,7 +402,6 @@ module.exports.getContentById = async (input) => {
     }
     const username = await authModel.find({
       _id: content[0].author_id,
-      isDeleted: false,
     });
     const auth_username = username[0].username;
 

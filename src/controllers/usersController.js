@@ -267,7 +267,6 @@ exports.getNewestContent = async (req, res, next) => {
 
   const username = await userAuth.find({
     _id: newest.author_id,
-    isDeleted: false,
   });
   const auth_username = username[0].username;
 
@@ -341,7 +340,6 @@ exports.getSortedContentByLike = async (req, res, next) => {
     const authorId = element.author_id;
     const username = await userAuth.findOne({
       _id: authorId,
-      isDeleted: false,
     });
     const content = await formatContent(element, username.username);
     return content;
