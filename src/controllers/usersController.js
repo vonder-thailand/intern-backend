@@ -362,7 +362,6 @@ exports.getResultByIndex = async (req, res, next) => {
 
 exports.getContentByResult = async (req, res, next) => {
   const { userId, role } = req;
-
   if (role) {
     const contents = await userContentByResult(userId);
     res.send(contents);
