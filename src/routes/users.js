@@ -121,4 +121,10 @@ router.get(
   tryCatch(usersController.getContentByResult)
 );
 
+router.get(
+  "/user/content/result/:index",
+  auth.authMiddleware,
+  tryCatch(usersController.getContentByResultIndex)
+);
+
 module.exports = router;

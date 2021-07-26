@@ -368,3 +368,15 @@ exports.getContentByResult = async (req, res, next) => {
     res.send(contents);
   }
 };
+
+exports.getContentByResultIndex = async (req, res, next) => {
+  const { userId } = req;
+  const index = req.params.index;
+  const result = await getResultByIndex(userId, index);
+  result.pop();
+  let m = Math.max(...result);
+  let maxes = result.reduce((p, c, i, a) => (c == m ? p.concat(i) : p), []);
+  const userTags = maxes.map((userTag) => tags[userTag]);
+  const contents = await getSortByTag(userTags, null, []);
+  res.send(contents);
+};
