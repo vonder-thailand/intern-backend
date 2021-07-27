@@ -28,7 +28,7 @@ const mongoose = require("mongoose");
 const Content = require("../models/content.model");
 const authModel = require("../models/auth.model");
 const guestResult = require("../models/guestResult.model");
-const {tags} = require("../functions/const")
+const { tags } = require("../functions/const");
 
 // find user by id
 exports.findUserById = async (req, res, next) => {
