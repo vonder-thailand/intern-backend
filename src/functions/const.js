@@ -20,8 +20,8 @@ module.exports.tags = [
   "logic smart",
   "picture smart",
   "body smart",
-  "nature smart",
-  "self smart",
-  "people smart",
   "music smart",
+  "people smart",
+  "self smart",
+  "nature smart",
 ];
