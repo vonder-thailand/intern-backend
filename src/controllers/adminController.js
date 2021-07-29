@@ -1,76 +1,129 @@
 const questionModel = require("../models/questions.model");
+const resultModel = require("../models/guestResult.model");
 const {
-  createAdmin,
-  getAdminById: getAdminwithId,
-  getAllAdmins: getAllAdminInSystem,
-} = require("../functions/index");
-const resultor = require("../models/user.result");
-exports.getAllResult = async (req, res) => {
-  try {
-    const results = await resultor.find();
-    res.send(results);
-  } catch (err) {
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+  findAdminById,
+  findAllAdmins,
+  getAllUsers,
+  postQuestion,
+  postSummarise,
+  getSummarise,
+} = require("../functions/admin");
+
+exports.getAllResult = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
   }
+  const results = await resultModel.find();
+  if (!results.length) {
+    throw {
+      message: "no results found in database",
+      status: 404,
+    };
+  }
+  res.send(results);
 };
 
-exports.createAdmin = async (req, res) => {
-  try {
-    const admin = await createAdmin(req.body);
-    res.send(admin);
-  } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+exports.getAdminById = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
   }
+  req.body._id
+    ? res.send(await findAdminById(req.body._id))
+    : res.send(await findAdminById(req.userId));
 };
 
-exports.getAdminById = async (req, res) => {
-  try {
-    const admin = await getAdminwithId(req.params._id);
-    res.send(admin);
-  } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+exports.getAllAdmins = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
   }
+  res.send(await findAllAdmins());
 };
 
-exports.getAllAdmins = async (res) => {
-  try {
-    const admins = await getAllAdminInSystem();
-    res.send(admins);
-  } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+exports.getAllUsers = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
   }
+  res.send(await getAllUsers());
 };
 
-exports.postQuestion = async (req, res) => {
-  try {
-    const question = await questionModel.create(req.body);
-    res.send(question);
-  } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+exports.getAllQuestions = async (req, res, next) => {
+  const question = await questionModel.find({});
+  if (!question.length) {
+    throw {
+      message: "no questions found in database",
+      status: 404,
+    };
   }
+  res.send(question);
 };
 
-exports.getQuestions = async (res) => {
-  try {
-    const question = await questionModel.find();
-    res.send(question);
-  } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+exports.getQuestionByCat = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
   }
+  const catName = req.body.categoryIndex;
+  const question = await questionModel.find({ categoryIndex: catName });
+  if (!question.length) {
+    throw {
+      message: `could not find question from category ${catName}`,
+      status: 404,
+    };
+  }
+  res.send(question);
 };
 
-exports.getQuestionByCat = async (req, res) => {
-  try {
-    const catName = req.body.QCAT;
-    const question = await questionModel.find({ QCAT: catName });
-    res.send(question);
-  } catch (err) {
-    console.log("err: ", err);
-    res.status(err.status || 500).send(err.message || "Internal Server Error");
+exports.getSummarise = async (req, res, next) => {
+  const summarise = await getSummarise();
+  res.send(summarise);
+};
+
+exports.postQuestion = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
   }
+  const question = await postQuestion(req.body);
+  res.send(question);
+};
+
+exports.postSummarise = async (req, res, next) => {
+  if (req.role != "admin") {
+    throw {
+      status: 400,
+      message: "only admin can access",
+    };
+  }
+  const summarise = await postSummarise(req.body);
+  res.send(summarise);
+};
+
+exports.updateFields = async (req, res, next) => {
+  const up = await questionModel.updateMany(
+    {},
+    { $rename: { categoryIndex: "category_id" } }
+  );
+  const { role } = req;
+  if (role != "admin") {
+    return res.status(400).json({
+      status: "error",
+      message: "only admin can access",
+    });
+  } else res.send(up);
 };

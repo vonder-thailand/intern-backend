@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const results = new Schema(
+const resultNew = new Schema(
   {
-    userid: { type: String, default: "-" },
-    category: [{ type: Object, default: "-" }],
+    userid: { type: mongoose.ObjectId, index: true },
+    results: [[{ type: Number }]],
   },
   {
     strict: false,
@@ -13,4 +13,4 @@ const results = new Schema(
   }
 );
 
-module.exports = mongoose.model("results", results);
+module.exports = mongoose.model("resultNew", resultNew);

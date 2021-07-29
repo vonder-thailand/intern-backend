@@ -1,237 +1,191 @@
-// functions function structure
-const UserModel = require("../models/user.model");
-const UserResult = require("../models/user.result");
-const AdminModel = require("../models/admin.model");
-const CommentModel = require("../models/comment.model");
-const GuestModel = require("../models/guest.model");
-const ContentModel = require("../models/content.model");
-
-var mongoose = require("mongoose");
-
-module.exports.createUser = async (input) => {
-  const { name, lastname, username, email, password, image, isDeleted } = input;
-
-  //create function handle error
-  if (!name) {
-    throw { message: "no name" };
-  } else if (!lastname) {
-    throw { message: "no lastname" };
-  } else if (!username) {
-    throw { message: "no username" };
-  } else if (!email) {
-    throw { message: "no email" };
-  } else if (!password) {
-    throw { message: "no password" };
-  }
-
-  return await UserModel.create({
-    name,
-    lastname,
-    username,
-    email,
-    password,
-    image,
-    isDeleted,
+const { filter, filterTwo } = require("../functions/const");
+const summariseModel = require("../models/summarise.model");
+const contentModel = require("../models/content.model");
+const { tags } = require("../functions/const");
+module.exports.arrayLower = (array) => {
+  array = array.map((item) => {
+    return item.toLowerCase();
   });
+  return array;
 };
 
-module.exports.findUserById = async (input) => {
-  //mongoose.Types.ObjectId.isValid ใช้เยอะ ประกาศตัวแปรดีกว่า
-  if (mongoose.Types.ObjectId.isValid(input)) {
-    return await UserModel.findOne({ _id: input, isDeleted: false });
-  } else {
-    throw {
-      message: "user not found",
-      status: 404,
-    };
-  }
-};
-
-module.exports.updateUserById = async (payload, userId) => {
-  const { name, lastname, username, email, password, image } = payload;
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    throw {
-      message: "Invalid ID",
-      status: 404,
-    };
-  }
-
-  const user = await UserModel.findOne({
-    _id: userId,
-    isDeleted: false,
-  });
-
-  if (user == null) {
-    throw { message: "user not found", status: 404 };
-  }
-
-  return UserModel.findOneAndUpdate(
-    { _id: userId },
-    { name, lastname, username, email, password, image },
-    { new: true, omitUndefined: true }
+module.exports.checkTag = (tag) => {
+  tag.map((item) =>
+    tags.indexOf(item) == -1
+      ? (function () {
+          throw { message: "Out of Tag", status: 404 };
+        })()
+      : console.log("pass")
   );
 };
 
-module.exports.deleteUserById = async (userId) => {
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    throw {
-      message: "Invalid ID",
-      status: 404,
-    };
-  }
-
-  const checkDelete = await UserModel.findOne({
-    _id: userId,
-    isDeleted: true,
-  });
-
-  if (checkDelete) {
-    throw { message: "This user is already deleted" };
-  }
-
-  return UserModel.findOneAndUpdate(
-    { _id: userId },
-    {
-      delete_at: new Date(),
-      isDeleted: true,
-    },
-    { new: true }
+module.exports.dataSetFilterByTag = (tag, dataSet) => {
+  let newItem = dataSet.filter((item) =>
+    item.tag.some((r) => tag.indexOf(r) >= 0)
   );
+  return newItem;
 };
 
-module.exports.createResultById = async (results, userid) => {
-  let questions = results.length;
-  let category = {
-    "Word Smart": 0,
-    "Logic Smart": 0,
-    "Picture Smart": 0,
-    "Body Smart": 0,
-    "Music Smart": 0,
-    "People Smart": 0,
-    "Self Smart": 0,
-    "Nature Smart": 0,
+module.exports.dataSetFilterByContentType = (content_type, dataSet) => {
+  const filters = dataSet.filter((item) =>
+    content_type.includes(item.content_type)
+  );
+  return filters;
+};
+
+module.exports.checkStage = (tag, content_type, dataSet, stage) => {
+  const tag_content = tag.length && content_type.length;
+  const none = !content_type.length && !tag.length;
+
+  if (tag_content && !dataSet) stage = filter.TAG_AND_CONTENT;
+  else if (tag_content && dataSet) stage = filter.TAG_AND_CONTENT_WITH_DATASET;
+  else if (none && !dataSet) stage = filter.NONE;
+  else if (!tag.length && !dataSet) stage = filter.CONTENT;
+  else if (!tag.length && dataSet) stage = filter.CONTENT_WITH_DATASET;
+  else if (!content_type.length && !dataSet) stage = filter.TAG;
+  else if (!content_type.length && dataSet) stage = filter.TAG_WITH_DATASET;
+
+  return stage;
+};
+
+function formatDate(date) {
+  const monthNames = [
+    "ม.ค.",
+    "ก.พ.",
+    "มี.ค.",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
+  ];
+
+  const day = date.getDate();
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+  const format_date = day + " " + month + year;
+  return format_date;
+}
+
+//takes only 1 content object
+module.exports.formatContent = async (content, username) => {
+  const create_date = content.created_at;
+  const update_date = content.updated_at;
+
+  const new_content = {
+    _id: content._id,
+    author_id: content.author_id,
+    content_body: content.content_body,
+    title: content.title,
+    likes: content.likes,
+    uid_likes: content.uid_likes,
+    tag: content.tag,
+    content_type: content.content_type,
+    image: content.image,
+    author_username: username,
+    created_at: create_date,
+    updated_at: update_date,
+  };
+  return new_content;
+};
+
+//takes result = [score,score,score,score,score,score,score,score,date]
+module.exports.formatResult = async (result) => {
+  let summarise = await summariseModel.find();
+  const score = result;
+  const date = new Date(score[8]);
+  const obj_arr = [];
+  summarise.map((item, index) => {
+    const obj_inside = {
+      category_id: item.category_id,
+      description: item.description,
+      description_career: item.description_career,
+      image_charactor: item.image_charactor,
+      skill_summarize: item.skill_summarize,
+      charactor_summarize: item.charactor_summarize,
+      skill: item.skill,
+      score: score[index] * 10,
+      created_at: date,
+      img_result: item.img_result,
+    };
+    obj_arr.push(obj_inside);
+  });
+  return obj_arr;
+};
+
+module.exports.checkStageContent = (tag, content_type, stage) => {
+  if (tag && content_type) stage = filterTwo.TAG_AND_CONTENT;
+  else if (!tag && !content_type) stage = filterTwo.NONE;
+  else if (!tag && content_type) stage = filterTwo.CONTENT;
+  else if (!content_type && tag) stage = filterTwo.TAG;
+
+  return stage;
+};
+
+module.exports.doSearch = async (tag, content_type, new_input) => {
+  let query = {
+    $or: [
+      {
+        isDeleted: false,
+        title: { $regex: new_input },
+      },
+      {
+        isDeleted: false,
+        "author_data.username": { $regex: new_input },
+      },
+      {
+        isDeleted: false,
+        tag: { $regex: new_input },
+      },
+    ],
   };
 
-  for (let i = 0; i < questions; i++) {
-    category_id = results[i]["categoryId"];
-    question_index = results[i]["questionIndex"];
-    score = results[i]["score"];
-    if (category_id == 1) {
-      category["Word Smart"] += score;
-    } else if (category_id == 2) {
-      category["Logic Smart"] += score;
-    } else if (category_id == 3) {
-      category["Picture Smart"] += score;
-    } else if (category_id == 4) {
-      category["Body Smart"] += score;
-    } else if (category_id == 5) {
-      category["Music Smart"] += score;
-    } else if (category_id == 6) {
-      category["People Smart"] += score;
-    } else if (category_id == 7) {
-      category["Self Smart"] += score;
-    } else if (category_id == 8) {
-      category["Nature Smart"] += score;
-    } else {
-      throw { message: "invalid category" };
-    }
+  if (content_type.length > 0) {
+    query["$or"][0]["content_type"] = { $in: content_type };
+    query["$or"][1]["content_type"] = { $in: content_type };
   }
-  return await UserResult.create({
-    userid: userid,
-    category: category,
-  });
-};
 
-module.exports.getResultById = async (userid) => {
-  return await UserResult.find({ userid: userid });
-};
-
-module.exports.getResultUsers = async () => {
-  return await UserResult.find();
-};
-module.exports.createAdmin = async (input) => {
-  const { name, lastname, username, email, password, image, isDeleted } = input;
-  return await AdminModel.create({
-    name,
-    lastname,
-    username,
-    email,
-    password,
-    image,
-    isDeleted,
-  });
-};
-
-module.exports.getAdminById = async (input_id) => {
-  if (mongoose.Types.ObjectId.isValid(input_id)) {
-    return await AdminModel.findOne({
-      _id: input_id,
-      isDeleted: false,
-    });
-  } else {
-    throw {
-      message: "admin not found",
-      status: 404,
-    };
+  if (tag.length > 0) {
+    query["$or"][0]["tag"] = { $in: tag };
+    query["$or"][1]["tag"] = { $in: tag };
   }
-};
 
-module.exports.getAllAdmins = async () => {
-  return await AdminModel.find({
-    isDeleted: false,
-  });
-};
+  return await contentModel.aggregate([
+    {
+      $lookup: {
+        from: "userauths",
+        localField: "author_id",
+        foreignField: "_id",
+        as: "author_data",
+      },
+    },
 
-module.exports.getAllUsers = async () => {
-  return await UserModel.find({
-    isDeleted: false,
-  });
-};
-
-module.exports.createCommnet = async (input) => {
-  const { comment_body } = input;
-  return await CommentModel.create({ comment_body, uid: input.uid });
-};
-
-// มีตัวเดียวรับเป็น parameter ได้เลย
-module.exports.createGuest = async (input) => {
-  const { name } = input;
-  return await GuestModel.create({ name });
-};
-
-module.exports.createContent = async (input) => {
-  const {
-    content_body,
-    title,
-    likes,
-    uid_likes,
-    comment_id,
-    author_name,
-    author_id,
-    tag,
-    image,
-  } = input;
-  return await ContentModel.create({
-    content_body,
-    title,
-    likes,
-    uid_likes,
-    comment_id,
-    author_name,
-    author_id,
-    tag,
-    image,
-  });
-};
-
-module.exports.getAllContents = async () => {
-  return await ContentModel.find({
-    isDeleted: false,
-  });
-};
-
-module.exports.getSortByTag = async (tag) => {
-  return await ContentModel.find({
-    tag: { $in: tag },
-  });
+    { $match: query },
+    {
+      $unwind: {
+        path: "$author_data",
+      },
+    },
+    {
+      $addFields: {
+        author_username: "$author_data.username",
+      },
+    },
+    {
+      $project: {
+        content_body: 1,
+        title: 1,
+        uid_likes: 1,
+        tag: 1,
+        image: 1,
+        created_at: 1,
+        author_username: 1,
+        content_type: 1,
+      },
+    },
+  ]);
 };

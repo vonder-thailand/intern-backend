@@ -3,9 +3,9 @@ const bcrypt = require("bcrypt");
 
 const Schema = mongoose.Schema;
 
-const AuthSchema = new Schema(
+const userAuth = new Schema(
   {
-    username: {
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -14,10 +14,32 @@ const AuthSchema = new Schema(
       type: String,
       required: true,
     },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
+      required: true,
+    },
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+
+    deleteAt: {
+      type: Date,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -27,21 +49,4 @@ const AuthSchema = new Schema(
   }
 );
 
-//hash password
-AuthSchema.pre("save", async function (next) {
-  const auth = this;
-  const hash = await bcrypt.hash(auth.password, 10);
-  this.password = hash;
-  next();
-});
-
-//valid password
-AuthSchema.methods.isValidPassword = async function (password) {
-  const auth = this;
-  const compare = await bcrypt.compare(password, auth.password);
-  return compare;
-};
-
-const AuthModel = mongoose.model("auth", AuthSchema);
-
-module.exports = AuthModel;
+module.exports = mongoose.model("userAuth", userAuth);
